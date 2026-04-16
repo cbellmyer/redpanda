@@ -30,12 +30,6 @@ menu:
     - name: Sona
       url: /sona/
       weight: 5
-    - name: Poses
-      url: /poses/
-      weight: 7
-    - name: Conventions
-      url: /cons/
-      weight: 10
     - name: Shutterpaws
       url: https://shutterpaws.pics/
       weight: 15
@@ -75,7 +69,7 @@ params:
   profileMode:
     enabled: true
     title: Rory
-    subtitle: "{{< myAge >}} | Photographer | Nerd | Big Cat"
+    subtitle: "[ {{< myAge >}} | Furtographer | Nerd | Red Panda | Gamer ]"
     imageUrl: "images/profile/hyper.png"
     imageTitle: Hyper
     imageWidth: 400
@@ -88,35 +82,32 @@ params:
 
   socialIcons:
     - name: telegram
-      title: Contact on Telegram
-      url: "https://t.me/jordanfelle"
+      title: Talk to me on Telegram
+      url: "https://t.me/furcologist"
     - name: bluesky
       title: Follow on Bluesky
-      url: "https://bsky.app/profile/hypercat.me"
+      url: "https://bsky.app/profile/redpanda.pet"
     - name: kofi
       title: Support on Ko-Fi
-      url: "https://ko-fi.com/jordanfelle"
+      url: "https://ko-fi.com/furcologist"
     - name: twitter
       title: Follow on twitter
-      url: "https://twitter.com/jordanfelle"
-    - name: instagram
-      title: Follow on Instagram
-      url: "https://www.instagram.com/hyper123/"
+      url: "https://twitter.com/furcologist"
     - name: facebook
       title: Follow on Facebook
-      url: "https://www.facebook.com/hyper123"
+      url: "https://www.facebook.com/chris.bellmyer"
     - name: lastfm
-      title: Follow on Last.fm
-      url: "https://www.last.fm/user/hyper123123"
+      title: Check out what I'm listening to on Last.fm
+      url: "https://www.last.fm/user/furcologist"
     - name: steam
       title: Follow on Steam
-      url: "https://steamcommunity.com/id/hyper123"
+      url: "https://steamcommunity.com/id/furcologist"
     - name: github
       title: Follow on GitHub
-      url: "https://github.com/jordanfelle"
+      url: "https://github.com/cbellmyer"
     - name: discord
       title: Join on Discord
-      url: "https://discord.com/users/307919782961872897"
+      url: "https://discord.com/users/104330735866884096"
 
   # label:
   # iconSVG: '<svg xmlns="http://www.w3.org/2000/svg" height="25"
