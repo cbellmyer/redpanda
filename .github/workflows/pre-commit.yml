@@ -1,0 +1,264 @@
+name: Pre-commit checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  pre-commit:
+    # Only auto-fix on push events; PRs from forks can't push anyway
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Detect site changes
+        id: changes
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            site:
+              - 'content/**'
+              - 'scripts/**'
+              - 'wrangler.jsonc'
+              - 'build.sh'
+              - '.hugo-version'
+              - '.hugo-archive-checksum'
+            images:
+              - 'content/content/poses/**'
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pre-commit-
+
+      - name: Detect npm lockfiles
+        id: npm-lockfiles
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "has_root_lockfile=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_root_lockfile=false" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -f package-lock.json ] || [ -f content/package-lock.json ]; then
+            echo "has_lockfiles=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_lockfiles=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node.js (cached)
+        if: steps.npm-lockfiles.outputs.has_root_lockfile == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: |
+            package-lock.json
+
+      - name: Set up Node.js
+        if: steps.npm-lockfiles.outputs.has_root_lockfile != 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Set up Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: "0.160.1"
+          extended: true
+
+      - name: Cache Hugo resources
+        uses: actions/cache@v5
+        with:
+          path: content/resources/_gen
+          key: >-
+            ${{ runner.os }}-hugo-resources-${{
+            hashFiles('content/**', 'content/assets/**',
+            'content/hugo.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-hugo-resources-
+
+      - name: Install system dependencies
+        run: |
+          if ! command -v ffmpeg &> /dev/null; then
+            sudo apt-get update -y
+            sudo apt-get install -y ffmpeg
+          fi
+
+      - name: Install root npm dependencies
+        if: steps.npm-lockfiles.outputs.has_root_lockfile == 'true'
+        run: npm ci
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Fetch base ref for diff (PR only)
+        if: github.event_name == 'pull_request'
+        run: git fetch origin ${{ github.base_ref }}
+
+      - name: Run pre-commit checks
+        id: pre-commit
+        continue-on-error: true
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pre-commit run --from-ref origin/${{ github.base_ref }} --to-ref HEAD
+          else
+            pre-commit run --all-files
+          fi
+
+      - name: Show diff if pre-commit made changes
+        if: steps.pre-commit.outcome == 'failure'
+        run: |
+          if git diff --quiet && [ -z "$(git status --porcelain)" ]; then
+            echo "Pre-commit checks failed, but no file changes (including untracked files) were detected."
+          else
+            echo "Pre-commit hooks made the following changes (including any new/untracked files):"
+            git diff HEAD || true
+            echo
+            echo "Git status (including untracked files):"
+            git status --porcelain || true
+          fi
+
+      - name: Commit and push fixes (PR only)
+        id: commit-fixes
+        if: steps.pre-commit.outcome == 'failure' && github.event_name == 'pull_request'
+        run: |
+          if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
+            last_author=$(git log -1 --pretty=%an)
+            last_subject=$(git log -1 --pretty=%s)
+            if [ "$last_author" = "github-actions[bot]" ] && echo "$last_subject" | grep -qi "pre-commit fixes"; then
+              echo "Pre-commit fixes already applied by the bot; refusing to loop."
+              echo "fixes_committed=false" >> "$GITHUB_OUTPUT"
+              exit 1
+            fi
+            git add -A
+            git commit -m "chore: apply pre-commit fixes"
+            git push
+            commit_sha=$(git rev-parse HEAD)
+            files=$(git show --name-status --no-patch --pretty=format: -1)
+            {
+              echo "fixes_committed=true"
+              echo "commit_sha=$commit_sha"
+              echo "changed_files<<EOF"
+              echo "$files"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "❌ Pre-commit checks failed but no fixes were applied"
+            echo "fixes_committed=false" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+      - name: Comment on PR with auto-fix details
+        if: steps.commit-fixes.outputs.fixes_committed == 'true'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const sha = '${{ steps.commit-fixes.outputs.commit_sha }}';
+            const files = ${{ toJson(steps.commit-fixes.outputs.changed_files) }};
+            const body = [
+              "Pre-commit auto-fix applied and pushed by GitHub Actions.",
+              "",
+              `Commit: ${sha}`,
+              "",
+              "Files:",
+              "```",
+              files,
+              "```",
+              "If checks are still failing, pull the latest changes and rerun pre-commit."
+            ].join("\n");
+            await github.rest.issues.createComment({
+              ...context.issue,
+              body
+            });
+
+      - name: Commit and push fixes (main branch)
+        if: steps.pre-commit.outcome == 'failure' && github.event_name == 'push'
+        run: |
+          if ! git diff --quiet || [ -n "$(git status --porcelain)" ]; then
+            last_author=$(git log -1 --pretty=%an)
+            last_subject=$(git log -1 --pretty=%s)
+            if [ "$last_author" = "github-actions[bot]" ] && echo "$last_subject" | grep -qi "pre-commit fixes"; then
+              echo "Pre-commit fixes already applied by the bot; refusing to loop."
+              exit 0
+            fi
+            git add -A
+            git commit -m "chore: apply pre-commit fixes"
+            git push
+            echo "✅ Pre-commit fixes committed and pushed to main"
+          else
+            echo "❌ Pre-commit checks failed but no fixes were applied"
+            exit 1
+          fi
+
+      - name: Build Hugo site
+        if: >-
+          steps.changes.outputs.site == 'true' &&
+          (steps.pre-commit.outcome != 'failure' ||
+          (steps.pre-commit.outcome == 'failure' && github.event_name == 'push'))
+        run: |
+          echo "Building Hugo site..."
+          cd content
+          npm install
+          npm run build
+          if [ ! -d "public" ] || [ ! -f "public/index.html" ]; then
+            echo "Error: Hugo build failed - public/index.html not found"
+            exit 1
+          fi
+          cd ..
+          echo "Build successful"
+
+      - name: Validate photo links
+        if: >-
+          steps.changes.outputs.site == 'true' &&
+          (steps.pre-commit.outcome != 'failure' ||
+          (steps.pre-commit.outcome == 'failure' && github.event_name == 'push'))
+        run: bash scripts/validate-photo-links.sh
+
+      - name: Validate HTML structure
+        if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
+        run: |
+          if ! command -v tidy &> /dev/null; then
+            sudo apt-get install -y tidy || (sudo apt-get update && sudo apt-get install -y tidy)
+          fi
+          find content/public -name '*.html' -type f | head -20 | while read -r file; do
+            tidy -q -e "$file" 2>&1 | head -5
+          done
+          echo "HTML validation completed"
+
+      - name: Validate project configuration
+        if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
+        run: bash scripts/validate-config.sh
+
+      - name: Validate internal links
+        if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
+        run: bash scripts/validate-links.sh
+
+      - name: Run BATS tests
+        if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
+        run: |
+          npm install -g bats
+          bats tests/validate-photo-links.bats
