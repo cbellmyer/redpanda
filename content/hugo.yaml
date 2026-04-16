@@ -1,7 +1,7 @@
 # If your site is in 'https', then make sure your base url isn't written using 'http' otherwise your sitemap would
 # contain http (as opposeed to https) URLs. This would affect Google indexing of your URLs.
-baseURL: "https://hypercat.me/"
-title: Hyper
+baseURL: "https://redpanda.pet"
+title: Rory
 copyright: "CC BY-NC 4.0"
 theme: [hypercat-theme]
 
@@ -46,7 +46,7 @@ menu:
     #   url: tags/
     #   weight: 10
     # - name: Photography
-    #   url: https://photo.felle.me/
+    #   url: https://photo.redpanda.pet/
 
 outputs:
   home:
@@ -59,8 +59,8 @@ outputs:
 
 params:
   env: production
-  description: "Hyper"
-  author: Hyper
+  description: "Rory"
+  author: Rory
   # author: ["Me", "You"] # multiple authors
 
   # disableSpecial1stPost: true
@@ -74,7 +74,7 @@ params:
 
   profileMode:
     enabled: true
-    title: hyper
+    title: Rory
     subtitle: "{{< myAge >}} | Photographer | Nerd | Big Cat"
     imageUrl: "images/profile/hyper.png"
     imageTitle: Hyper
@@ -82,9 +82,9 @@ params:
     imageHeight: 509
     buttons:
       - name: Photography
-        url: https://photo.felle.me/
+        url: https://photo.redpanda.pet/
       - name: Furtrack
-        url: https://www.furtrack.com/user/Hyper
+        url: https://www.furtrack.com/user/furcologist/
 
   socialIcons:
     - name: telegram
