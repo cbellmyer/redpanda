@@ -1,0 +1,183 @@
+# Pre-commit hooks for Hugo site
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: no-commit-to-branch
+        name: Block push to main
+        stages: [pre-push]
+        args: ['--branch', 'main']
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+        exclude: ^(content/resources/|content/public/|content/themes/)
+      - id: end-of-file-fixer
+        name: Fix end of file
+        exclude: ^(content/resources/|content/public/|content/themes/)
+      - id: check-yaml
+        name: Check YAML
+      - id: check-json
+        name: Check JSON
+        exclude: ^(content/resources/|content/public/|content/themes/.*\.(json|html))
+      - id: check-toml
+        name: Check TOML
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+      - id: check-case-conflict
+        name: Check for case conflicts
+      - id: check-executables-have-shebangs
+        name: Check executables have shebangs
+      - id: mixed-line-ending
+        name: Fix mixed line endings
+        args: ['--fix=lf']
+        exclude: ^(resources/|public/)
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        name: Lint YAML
+        args:
+          - --config-data
+          - |
+            {
+              extends: default,
+              rules: {
+                line-length: {max: 120},
+                document-start: disable,
+                comments-indentation: disable,
+                truthy: disable
+              }
+            }
+        exclude: ^(content/resources/|content/public/)
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.47.0
+    hooks:
+      - id: markdownlint
+        name: Lint Markdown
+        args: ['--config', '.markdownlint.json']
+        exclude: ^(content/resources/|content/public/)
+
+  # Prettier for formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        name: Format with Prettier
+        types_or: [markdown, json]
+        exclude: ^(content/resources/|content/public/|content/themes/|\.github/|content/layouts/)
+
+  # Spell checking
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        name: Check spelling
+        exclude: ^(content/resources/|content/public/|content/themes/|\.git/)
+
+  # GitHub Actions workflow validation
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.10
+    hooks:
+      - id: actionlint
+        name: Validate GitHub Actions workflows
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        name: Lint shell scripts
+        types: [shell]
+        args: ['--severity=warning']
+
+  # CSS linting
+  - repo: https://github.com/thibaudcolas/pre-commit-stylelint
+    rev: v17.3.0
+    hooks:
+      - id: stylelint
+        name: Lint CSS
+        files: \.css$
+        exclude: ^(content/resources/|content/public/|content/themes/)
+        args: ['--fix']
+        additional_dependencies:
+          - stylelint@17.3.0
+          - stylelint-config-standard@40.0.0
+
+  # Hugo build check
+  - repo: local
+    hooks:
+      - id: update-hugo-checksum
+        name: Update Hugo archive checksum
+        entry: ./scripts/update-hugo-checksum.sh
+        language: script
+        pass_filenames: false
+        files: ^\.hugo-version$
+      - id: validate-cdn-usage
+        name: Validate CDN usage
+        entry: ./scripts/validate-cdn-usage.sh
+        language: script
+        pass_filenames: false
+        files: ^content/.*\.(html|htm)$
+      - id: sri-integrity-check
+        name: Validate and add SRI hashes for CDN assets
+        entry: ./scripts/validate-and-update-sri.sh
+        language: script
+        pass_filenames: true
+        files: ^content/.*\.html$
+        # NOTE: This hook automatically updates SRI hashes on commit. This is intentional.
+        # SRI hashes must be kept up-to-date for security. Do not remove this automation.
+      - id: validate-config
+        name: Validate project configuration
+        entry: bash scripts/validate-config.sh
+        language: system
+        pass_filenames: false
+        files: ^(content/hugo\.yaml|wrangler\.jsonc)$
+      - id: hugo-build
+        name: Hugo build check
+        entry: bash -c 'cd content && npm run build'
+        language: system
+        pass_filenames: false
+        files: ^(content/(content|layouts|assets|themes|hugo\.yaml))
+        stages: [pre-push]
+      - id: validate-photo-links
+        name: Validate photo.felle.me links
+        entry: ./scripts/validate-photo-links.sh
+        language: script
+        pass_filenames: false
+        files: ^(content/content/cons/|content/themes/.*/cons\.html|content/public/cons)
+        stages: [pre-push]
+        require_serial: true
+      - id: convert-images
+        name: Convert poses to WebP and AVIF
+        entry: ./scripts/convert-images.sh
+        language: script
+        pass_filenames: false
+        # Disabled - Hugo now handles webp conversion directly
+        files: ^$
+        stages: [pre-commit]
+      - id: validate-poses-images
+        name: Validate and resize poses images to ≤2000px
+        entry: ./scripts/validate-poses-images.sh --resize
+        language: script
+        pass_filenames: false
+        files: (?i)^content/content/poses/.*\.(png|jpe?g|gif|webp|avif)$
+        stages: [pre-commit]
+      - id: rename-poses-images
+        name: Rename pose images
+        entry: ./scripts/rename-poses-images.sh
+        language: script
+        pass_filenames: false
+        files: ^(content/content/poses/)
+        stages: [pre-commit]
+
+ci:
+  autoupdate_schedule: monthly

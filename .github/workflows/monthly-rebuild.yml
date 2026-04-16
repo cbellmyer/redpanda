@@ -1,0 +1,30 @@
+name: Monthly Site Rebuild
+
+on:
+  schedule:
+    # Run at 00:00 UTC on the 1st of every month
+    - cron: "0 0 1 * *"
+  workflow_dispatch: # Allow manual triggering for testing
+
+permissions:
+  contents: write
+
+jobs:
+  trigger-rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Trigger rebuild via commit
+        run: |
+          # Create an empty commit to trigger Cloudflare Pages rebuild
+          git commit --allow-empty -m "chore: trigger monthly site rebuild"
+          git push origin main
