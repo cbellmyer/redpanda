@@ -11,7 +11,7 @@ buildFuture: true
 buildExpired: false
 enableEmoji: true
 pygmentsUseClasses: true
-mainsections: ["posts", "papermod", "cons", "sona", "poses"]
+mainsections: ["posts", "papermod", "sona"]
 
 minify:
   disableXML: true
