@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "hypercat-me",
+  "name": "redpanda",
   "compatibility_date": "2026-02-21",
   "preview_urls": true,
   "placement": {
