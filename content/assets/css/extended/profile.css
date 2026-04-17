@@ -1,14 +1,14 @@
 :root {
-  --primary: rgb(205, 133, 63); /* peru, reddish-brown */
-  --secondary: rgb(255, 255, 255); /* white */
-  --theme: rgb(0, 0, 0); /* black */
-  --entry: rgb(139, 69, 19); /* saddle brown */
-  --tertiary: rgb(139, 69, 19);
-  --content: rgb(255, 255, 255);
-  --code-block-bg: rgb(0, 0, 0);
-  --code-bg: rgb(0, 0, 0);
-  --border: rgb(139, 69, 19);
-  --fur-gradient: linear-gradient(45deg, #CD853F, #FFFFFF, #000000);
+  --primary: rgb(205 133 63); /* peru, reddish-brown */
+  --secondary: rgb(255 255 255); /* white */
+  --theme: rgb(0 0 0); /* black */
+  --entry: rgb(139 69 19); /* saddle brown */
+  --tertiary: rgb(139 69 19);
+  --content: rgb(255 255 255);
+  --code-block-bg: rgb(0 0 0);
+  --code-bg: rgb(0 0 0);
+  --border: rgb(139 69 19);
+  --fur-gradient: linear-gradient(45deg, #CD853F, #FFF, #000);
   --skin-color: #F5DEB3; /* wheat, for skin */
 }
 
@@ -34,7 +34,7 @@ body {
   width: 150px;
   height: 80px;
   background: var(--primary);
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  border-radius: 50% / 60% 60% 40% 40%;
   animation: wag 3s ease-in-out infinite;
 }
 
