@@ -70,8 +70,8 @@ params:
     enabled: true
     title: Rory
     subtitle: "[ {{< myAge >}} | Furtographer | Nerd | Red Panda | Gamer ]"
-    imageUrl: "images/profile/hyper.png"
-    imageTitle: Hyper
+    imageUrl: "images/profile/rory.png"
+    imageTitle: Rory
     imageWidth: 400
     imageHeight: 509
     buttons:
