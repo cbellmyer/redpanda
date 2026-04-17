@@ -34,8 +34,9 @@ body {
   width: 150px;
   height: 80px;
   background: var(--primary);
-  border-radius: 50% / 60% 60% 40% 40%;
-  animation: wag 3s ease-in-out infinite;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  -webkit-animation: wag 1s ease-in-out infinite;
+  animation: wag 1s ease-in-out infinite;
 }
 
 .redpanda-tail::before {
@@ -64,9 +65,16 @@ body {
 .stripe3 { top: 50px; }
 .stripe4 { top: 70px; background: var(--theme); }
 
+@-webkit-keyframes wag {
+  0%, 100% { transform: rotate(0deg) scaleY(1); -webkit-transform: rotate(0deg) scaleY(1); }
+  25% { transform: rotate(-15deg) scaleY(1.2); -webkit-transform: rotate(-15deg) scaleY(1.2); }
+  50% { transform: rotate(15deg) scaleY(1.1); -webkit-transform: rotate(15deg) scaleY(1.1); }
+  75% { transform: rotate(-10deg) scaleY(1.2); -webkit-transform: rotate(-10deg) scaleY(1.2); }
+}
+
 @keyframes wag {
   0%, 100% { transform: rotate(0deg) scaleY(1); }
-  25% { transform: rotate(-5deg) scaleY(1.1); }
-  50% { transform: rotate(5deg) scaleY(1.05); }
-  75% { transform: rotate(-3deg) scaleY(1.1); }
+  25% { transform: rotate(-15deg) scaleY(1.2); }
+  50% { transform: rotate(15deg) scaleY(1.1); }
+  75% { transform: rotate(-10deg) scaleY(1.2); }
 }
