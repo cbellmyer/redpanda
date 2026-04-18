@@ -70,7 +70,7 @@ params:
     enabled: true
     title: Rory
     subtitle: "[ {{< myAge >}} | Furtographer | Nerd | Red Panda | Gamer ]"
-    imageUrl: "images/profile/rory.png"
+    imageUrl: "images/profile/rory-torn.png"
     imageTitle: Rory
     imageWidth: 400
     imageHeight: 509
@@ -81,33 +81,36 @@ params:
         url: https://www.furtrack.com/user/furcologist/
 
   socialIcons:
-    - name: telegram
-      title: Talk to me on Telegram
-      url: "https://t.me/furcologist"
     - name: bluesky
       title: Follow on Bluesky
       url: "https://bsky.app/profile/redpanda.pet"
-    - name: kofi
-      title: Support on Ko-Fi
-      url: "https://ko-fi.com/furcologist"
     - name: twitter
       title: Follow on twitter
       url: "https://twitter.com/furcologist"
+    - name: pixelfed
+      title: Follow on Pixelfed
+      url: "https://pixelfed.social/roryredpanda"
     - name: facebook
       title: Follow on Facebook
       url: "https://www.facebook.com/chris.bellmyer"
-    - name: lastfm
-      title: Check out what I'm listening to on Last.fm
-      url: "https://www.last.fm/user/furcologist"
-    - name: steam
-      title: Follow on Steam
-      url: "https://steamcommunity.com/id/furcologist"
-    - name: github
-      title: Follow on GitHub
-      url: "https://github.com/cbellmyer"
+    - name: telegram
+      title: Talk to me on Telegram
+      url: "https://t.me/furcologist"
     - name: discord
       title: Join on Discord
       url: "https://discord.com/users/104330735866884096"
+    - name: steam
+      title: Follow on Steam
+      url: "https://steamcommunity.com/id/furcologist"
+    - name: lastfm
+      title: Check out what I'm listening to on Last.fm
+      url: "https://www.last.fm/user/furcologist"
+    - name: github
+      title: Follow on GitHub
+      url: "https://github.com/cbellmyer"
+    - name: kofi
+      title: Support on Ko-Fi
+      url: "https://ko-fi.com/furcologist"
 
   # label:
   # iconSVG: '<svg xmlns="http://www.w3.org/2000/svg" height="25"
@@ -125,11 +128,11 @@ params:
 
   assets:
     disableHLJS: true
-    # favicon: "<link / abs url>"
-    # favicon16x16: "<link / abs url>"
-    # favicon32x32: "<link / abs url>"
-    # apple_touch_icon: "<link / abs url>"
-    # safari_pinned_tab: "<link / abs url>"
+    favicon: "/wm-color.png"
+    favicon16x16: "/wm-color.png"
+    favicon32x32: "/wm-color.png"
+    apple_touch_icon: "/wm-color.png"
+    safari_pinned_tab: "/wm-color.png"
 
   cover:
     hidden: false  # hide everywhere but not in structured data
