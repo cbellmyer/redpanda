@@ -1,6 +1,12 @@
 body {
   background: var(--nose-dark);
   background-attachment: fixed;
+  
+  /* Typography cleanup for crisper text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.01em;
 }
 
 .profile img {
@@ -9,10 +15,10 @@ body {
 
 /* Style main content areas for a sharp, modern look */
 main, .post-entry {
-  /* Use a semi-transparent version of the darker fur color for a "frosted glass" effect */ /* 40% opacity saddlebrown from --entry */
+  /* Frosted glass effect */
   background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
-  backdrop-filter: blur(10px); /* For Safari */
-  backdrop-filter: blur(10px); /* For Safari */
+  -webkit-backdrop-filter: blur(10px); /* For Safari */
+  backdrop-filter: blur(10px);
   border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
   border-radius: var(--radius);
   padding: var(--content-gap); /* Ensure consistent padding */
@@ -42,16 +48,52 @@ a:hover {
 }
 
 /* Leaflet Map Popup Theming */
-.leaflet-popup-content-wrapper,
-.leaflet-popup-tip {
-  background: var(--entry);
+.leaflet-popup {
+  animation: popup-rise 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popup-rise {
+  0% {
+    opacity: 0;
+    margin-bottom: -20px;
+  }
+  100% {
+    opacity: 1;
+    margin-bottom: 0;
+  }
+}
+
+.leaflet-popup-content-wrapper {
+  background: color-mix(in srgb, var(--fur-secondary) 85%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--throat-teal) 60%, transparent);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
   color: var(--primary);
+}
+.leaflet-popup-tip {
+  background: var(--fur-secondary);
 }
 .leaflet-popup-content b {
-  color: var(--throat-teal);
+  color: var(--tongue-blue);
+  font-size: 1.1em;
 }
 .leaflet-container a.leaflet-popup-close-button {
-  color: var(--primary);
+  color: var(--muzzle-grey);
+}
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--eye-highlight);
+}
+
+/* Map Marker Bounce Animation */
+.paw-marker:hover div {
+  animation: paw-bounce 0.5s ease-in-out infinite;
+}
+
+@keyframes paw-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.1); }
 }
 
 .redpanda-tail-container {

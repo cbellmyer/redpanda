@@ -3,9 +3,13 @@ title: "Panda Tracks 🐾"
 description: "A map of all the conventions and places I've left my paw prints!"
 type: "page"
 ShowToc: false
+ShowPostMeta: false
+ShowBreadCrumbs: false
 ---
 
-Welcome to my travel map! Here is where I keep track of all the conventions, furmeets, and fun places I've visited around the world.
+> **Welcome to my travel map!** 🗺️✨
+> 
+> This is where I keep track of all the conventions, furmeets, and fun places I've visited around the world. Click on any of the bouncing paw prints below to see the details!
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -34,13 +38,14 @@ Welcome to my travel map! Here is where I keep track of all the conventions, fur
     const conventions = [
       { name: 'Anthrocon', location: 'Pittsburgh, PA', coords: [40.4406, -79.9959], info: '2024 (Attendee)<br>2025 (Attendee)' },
       { name: 'Furcationland', location: 'Portland, ME', coords: [43.6591, -70.2568], info: '2025 (Attendee)<br>2026 (Volunteer)' },
-      { name: 'Fuhgeddaboudit', location: 'Parsippany, NJ', coords: [40.8653, -74.4173], info: '2025 (Attendee)<br>2026 (Attendee)' },
+      { name: 'Furgeddaboutdit', location: 'Parsippany, NJ', coords: [40.8653, -74.4173], info: '2025 (Attendee)<br>2026 (Attendee)' },
       { name: 'New Year\'s Fur Ball', location: 'Newark, DE', coords: [39.6837, -75.7497], info: '2025 (Attendee)' },
       { name: 'FursonaCon', location: 'Virginia Beach, VA', coords: [36.8529, -75.9780], info: '2024 (Attendee)<br>2025 (Attendee)' },
       { name: 'Fur the \'More', location: 'Arlington, VA', coords: [38.8483, -77.0514], info: '2025 (Attendee)<br>2026 (Volunteer)' },
       { name: 'Furnal Equinox', location: 'Toronto, ON', coords: [43.6532, -79.3832], info: '2025 (Attendee)<br>2026 (Volunteer)' },
       { name: 'CanFURence', location: 'Ottawa, ON', coords: [45.4215, -75.6972], info: '2025 (Attendee)' },
-      { name: 'Furpocalypse', location: 'Cromwell, CT', coords: [41.5959, -72.6437], info: '2025 (Attendee)' }
+      { name: 'Furpocalypse', location: 'Cromwell, CT', coords: [41.5959, -72.6437], info: '2025 (Attendee)' },
+      { name: 'Eufuria', location: 'Albany, NY', coords: [42.6526, -73.7562], info: '2025 (Attendee)' }
     ];
 
     const markerBounds = [];
