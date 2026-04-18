@@ -119,7 +119,6 @@ main, .post-entry {
   z-index: 100;
   background: color-mix(in srgb, var(--fur-secondary) 70%, transparent) !important;
   backdrop-filter: blur(15px);
-  backdrop-filter: blur(15px);
   border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
   box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
 }
@@ -329,7 +328,6 @@ a:hover {
   font-size: 2rem;
   font-weight: 700;
   background: linear-gradient(135deg, var(--primary), var(--throat-teal));
-  background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
