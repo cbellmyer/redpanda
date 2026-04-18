@@ -19,7 +19,7 @@ Welcome to my travel map! Here is where I keep track of all the conventions, fur
   document.addEventListener('DOMContentLoaded', function() {
     // Initialize map without a default view; we'll set it automatically.
     var map = L.map('map-container');
-    
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
