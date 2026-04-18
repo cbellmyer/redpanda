@@ -36,7 +36,7 @@ ShowBreadCrumbs: false
       { name: 'Furgeddaboutdit', location: 'Fairfield, NJ', coords: [40.8729, -74.2724], info: '2025 (Attendee)<br>2026 (Attendee)' },
       { name: 'New Year\'s Fur Ball', location: 'Newark, DE', coords: [39.6837, -75.7497], info: '2025 (Attendee)' },
       { name: 'FursonaCon', location: 'Virginia Beach, VA', coords: [36.8529, -75.9780], info: '2024 (Attendee)<br>2025 (Attendee)' },
-      { name: 'Fur the \'More', location: 'Baltimore, MD', coords: [39.2904, -76.6122], info: '2025 (Attendee)<br>2026 (Volunteer)' },
+      { name: 'Fur the \'More', location: 'Baltimore, MD', coords: [39.2904, -76.6122], info: '2025 (Attendee)<br>2026 (Volunteer)<br>2027 (Staff)' },
       { name: 'Furnal Equinox', location: 'Toronto, ON', coords: [43.6532, -79.3832], info: '2025 (Attendee)<br>2026 (Volunteer)<br>2027 (Unknown)' },
       { name: 'CanFURence', location: 'Ottawa, ON', coords: [45.4215, -75.6972], info: '2025 (Attendee)' },
       { name: 'Furpocalypse', location: 'Stamford, CT', coords: [41.0534, -73.5387], info: '2025 (Attendee)<br>2026 (Attendee)' },
