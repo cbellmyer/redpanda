@@ -1,10 +1,6 @@
 ---
 title: "Panda Tracks 🐾"
 description: "A map of all the conventions and places I've left my paw prints!"
-menu:
-  main:
-    name: "Tracks"
-    weight: 30
 ---
 
 Welcome to my travel map! Here is where I keep track of all the conventions, furmeets, and fun places I've visited around the world.
