@@ -32,12 +32,12 @@ ShowBreadCrumbs: false
 
     const conventions = [
       { name: 'Anthrocon', location: 'Pittsburgh, PA', coords: [40.4406, -79.9959], info: '2024 (Attendee)<br>2025 (Attendee)' },
-      { name: 'Furcationland', location: 'Portland, ME', coords: [43.6591, -70.2568], info: '2025 (Attendee)<br>2026 (Volunteer)' },
+      { name: 'Furcationland', location: 'Portland, ME', coords: [43.6591, -70.2568], info: '2025 (Attendee)<br>2026 (Volunteer)<br>2027 (Staff)' },
       { name: 'Furgeddaboutdit', location: 'Fairfield, NJ', coords: [40.8729, -74.2724], info: '2025 (Attendee)<br>2026 (Attendee)' },
       { name: 'New Year\'s Fur Ball', location: 'Newark, DE', coords: [39.6837, -75.7497], info: '2025 (Attendee)' },
       { name: 'FursonaCon', location: 'Virginia Beach, VA', coords: [36.8529, -75.9780], info: '2024 (Attendee)<br>2025 (Attendee)' },
       { name: 'Fur the \'More', location: 'Baltimore, MD', coords: [39.2904, -76.6122], info: '2025 (Attendee)<br>2026 (Volunteer)' },
-      { name: 'Furnal Equinox', location: 'Toronto, ON', coords: [43.6532, -79.3832], info: '2025 (Attendee)<br>2026 (Volunteer)' },
+      { name: 'Furnal Equinox', location: 'Toronto, ON', coords: [43.6532, -79.3832], info: '2025 (Attendee)<br>2026 (Volunteer)<br>2027 (Unknown)' },
       { name: 'CanFURence', location: 'Ottawa, ON', coords: [45.4215, -75.6972], info: '2025 (Attendee)' },
       { name: 'Furpocalypse', location: 'Stamford, CT', coords: [41.0534, -73.5387], info: '2025 (Attendee)<br>2026 (Attendee)' },
       { name: 'Eufuria', location: 'Albany, NY', coords: [42.6526, -73.7562], info: '2025 (Attendee)' },
@@ -50,31 +50,49 @@ ShowBreadCrumbs: false
     const upcomingGrid = document.getElementById('upcoming-cons-grid');
     const upcomingTitle = document.getElementById('upcoming-title');
     let cardsHtml = '';
+    const currentYear = new Date().getFullYear();
+    const upcomingCardsData = [];
 
     function formatInfo(info) {
       return info
         .replace(/\(Attendee\)/g, '<span class="role-attendee">(Attendee)</span>')
         .replace(/\(Volunteer\)/g, '<span class="role-volunteer">(Volunteer)</span>')
         .replace(/\(Staff\)/g, '<span class="role-staff">(Staff)</span>')
-        .replace(/\(Photographer\)/g, '<span class="role-photographer">(Photographer)</span>');
+        .replace(/\(Photographer\)/g, '<span class="role-photographer">(Photographer)</span>')
+        .replace(/\(Unknown\)/g, '<span class="role-unknown">(Unknown)</span>');
     }
 
     conventions.forEach((con, index) => {
       // Identify upcoming cons by checking for current/future years
-      const isUpcoming = con.info.includes('2025') || con.info.includes('2026');
+      const years = con.info.match(/\b20\d{2}\b/g) || [];
+      const isUpcoming = years.some(year => parseInt(year, 10) >= currentYear);
       let iconClass = 'paw-marker' + (isUpcoming ? ' upcoming' : '');
 
       const formattedInfo = formatInfo(con.info);
 
       // Generate card HTML for upcoming cons
       if (isUpcoming) {
-        cardsHtml += `
-          <div class="con-card" data-index="${index}">
-            <h3>${con.name}</h3>
-            <p class="location">📍 ${con.location}</p>
-            <div class="roles">${formattedInfo}</div>
-          </div>
-        `;
+        // Find the earliest upcoming year for sorting
+        const upcomingYears = years.map(y => parseInt(y, 10)).filter(y => y >= currentYear);
+        const earliestYear = Math.min(...upcomingYears);
+
+        // Filter the info to only show current or future years on the cards
+        const upcomingInfo = con.info.split('<br>').filter(line => {
+          const yearMatch = line.match(/\b20\d{2}\b/);
+          return yearMatch && parseInt(yearMatch[0], 10) >= currentYear;
+        }).join('<br>');
+        const formattedCardInfo = formatInfo(upcomingInfo);
+
+        upcomingCardsData.push({
+          year: earliestYear,
+          html: `
+            <div class="con-card" data-index="${index}">
+              <h3>${con.name}</h3>
+              <p class="location">📍 ${con.location}</p>
+              <div class="roles">${formattedCardInfo}</div>
+            </div>
+          `
+        });
       }
 
       var pawIcon = L.divIcon({
@@ -90,6 +108,12 @@ ShowBreadCrumbs: false
       markerBounds.push(con.coords);
       allMarkers[index] = marker;
     });
+
+    // Sort the cards chronologically by their earliest upcoming year
+    if (upcomingCardsData.length > 0) {
+      upcomingCardsData.sort((a, b) => a.year - b.year);
+      cardsHtml = upcomingCardsData.map(card => card.html).join('');
+    }
 
     // Insert cards into the page if we found any
     if (cardsHtml) {

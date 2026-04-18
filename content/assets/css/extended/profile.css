@@ -102,6 +102,12 @@ a:hover {
   font-weight: 500;
 }
 
+.leaflet-popup-content .role-unknown {
+  color: var(--muzzle-grey); /* A muted color for pending/unknown roles */
+  font-weight: 500;
+  font-style: italic;
+}
+
 .leaflet-container a.leaflet-popup-close-button {
   color: var(--muzzle-grey);
 }
