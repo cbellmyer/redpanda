@@ -269,7 +269,7 @@ a:hover {
 .con-card {
   background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
   border-radius: var(--radius);
   padding: 1.5rem;
@@ -285,13 +285,13 @@ a:hover {
 }
 
 .con-card h3 {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.5rem;
   color: var(--primary);
   font-size: 1.3rem;
 }
 
 .con-card p.location {
-  margin: 0 0 1rem 0;
+  margin: 0 0 1rem;
   color: var(--secondary);
   font-size: 0.95rem;
 }
