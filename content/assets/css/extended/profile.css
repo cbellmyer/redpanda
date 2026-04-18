@@ -20,7 +20,7 @@ body {
   width: 150px;
   height: 80px;
   background: var(--primary);
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  border-radius: 50% / 60% 60% 40% 40%;
   transform-origin: top center;
   animation: wag 1s ease-in-out infinite;
 }
