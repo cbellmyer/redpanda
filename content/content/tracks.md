@@ -36,22 +36,33 @@ ShowBreadCrumbs: false
     });
 
     const conventions = [
-      { name: 'Anthrocon', location: 'Pittsburgh, PA', coords: [40.4406, -79.9959], info: '2024 (Attendee)<br>2025 (Attendee)' },
-      { name: 'Furcationland', location: 'Portland, ME', coords: [43.6591, -70.2568], info: '2025 (Attendee)<br>2026 (Volunteer)' },
-      { name: 'Furgeddaboutdit', location: 'Parsippany, NJ', coords: [40.8653, -74.4173], info: '2025 (Attendee)<br>2026 (Attendee)' },
-      { name: 'New Year\'s Fur Ball', location: 'Newark, DE', coords: [39.6837, -75.7497], info: '2025 (Attendee)' },
-      { name: 'FursonaCon', location: 'Virginia Beach, VA', coords: [36.8529, -75.9780], info: '2024 (Attendee)<br>2025 (Attendee)' },
-      { name: 'Fur the \'More', location: 'Arlington, VA', coords: [38.8483, -77.0514], info: '2025 (Attendee)<br>2026 (Volunteer)' },
-      { name: 'Furnal Equinox', location: 'Toronto, ON', coords: [43.6532, -79.3832], info: '2025 (Attendee)<br>2026 (Volunteer)' },
-      { name: 'CanFURence', location: 'Ottawa, ON', coords: [45.4215, -75.6972], info: '2025 (Attendee)' },
-      { name: 'Furpocalypse', location: 'Cromwell, CT', coords: [41.5959, -72.6437], info: '2025 (Attendee)' },
-      { name: 'Eufuria', location: 'Albany, NY', coords: [42.6526, -73.7562], info: '2025 (Attendee)' }
+      { name: 'Anthrocon', location: 'Pittsburgh, PA', coords: [40.4406, -79.9959], info: '2024 (Attendee)<br>2025 (Attendee)', logo: '/images/logos/anthrocon.png' },
+      { name: 'Furcationland', location: 'Portland, ME', coords: [43.6591, -70.2568], info: '2025 (Attendee)<br>2026 (Volunteer)', logo: '/images/logos/furcationland.png' },
+      { name: 'Furgeddaboutdit', location: 'Parsippany, NJ', coords: [40.8653, -74.4173], info: '2025 (Attendee)<br>2026 (Attendee)', logo: '/images/logos/furgeddaboutdit.png' },
+      { name: 'New Year\'s Fur Ball', location: 'Newark, DE', coords: [39.6837, -75.7497], info: '2025 (Attendee)', logo: '/images/logos/nyfb.png' },
+      { name: 'FursonaCon', location: 'Virginia Beach, VA', coords: [36.8529, -75.9780], info: '2024 (Attendee)<br>2025 (Attendee)', logo: '/images/logos/fursonacon.png' },
+      { name: 'Fur the \'More', location: 'Arlington, VA', coords: [38.8483, -77.0514], info: '2025 (Attendee)<br>2026 (Volunteer)', logo: '/images/logos/ftm.png' },
+      { name: 'Furnal Equinox', location: 'Toronto, ON', coords: [43.6532, -79.3832], info: '2025 (Attendee)<br>2026 (Volunteer)', logo: '/images/logos/furnal-equinox.png' },
+      { name: 'CanFURence', location: 'Ottawa, ON', coords: [45.4215, -75.6972], info: '2025 (Attendee)', logo: '/images/logos/canfurence.png' },
+      { name: 'Furpocalypse', location: 'Cromwell, CT', coords: [41.5959, -72.6437], info: '2025 (Attendee)', logo: '/images/logos/furpocalypse.png' },
+      { name: 'Eufuria', location: 'Albany, NY', coords: [42.6526, -73.7562], info: '2025 (Attendee)', logo: '/images/logos/eufuria.png' },
+      { name: 'Furrydelphia', location: 'Philadelphia, PA', coords: [39.9526, -75.1652], info: '2024 (Attendee)<br>2025 (Attendee)', logo: '/images/logos/furrydelphia.png' }
     ];
 
     const markerBounds = [];
 
+    function formatInfo(info) {
+      return info
+        .replace(/\(Attendee\)/g, '<span class="role-attendee">(Attendee)</span>')
+        .replace(/\(Volunteer\)/g, '<span class="role-volunteer">(Volunteer)</span>')
+        .replace(/\(Staff\)/g, '<span class="role-staff">(Staff)</span>')
+        .replace(/\(Photographer\)/g, '<span class="role-photographer">(Photographer)</span>');
+    }
+
     conventions.forEach(con => {
-      const popupContent = `<b>${con.name}</b><br>${con.location}<br><br>${con.info}`;
+      const logoHtml = con.logo ? `<img src="${con.logo}" alt="${con.name} logo" class="con-logo">` : '';
+      const formattedInfo = formatInfo(con.info);
+      const popupContent = `${logoHtml}<b>${con.name}</b><br>${con.location}<br><br>${formattedInfo}`;
       const marker = L.marker(con.coords, {icon: pawIcon}).addTo(map).bindPopup(popupContent);
       markerBounds.push(con.coords);
     });

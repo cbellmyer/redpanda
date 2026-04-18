@@ -71,6 +71,17 @@ a:hover {
   border-radius: var(--radius);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
   color: var(--primary);
+  text-align: center;
+}
+
+.leaflet-popup-content .con-logo {
+  display: block;
+  max-width: 120px;
+  height: auto;
+  margin: 0 auto 10px;
+  border-radius: 6px;
+  /* Add a subtle background for transparent logos */
+  background: color-mix(in srgb, var(--fur-base) 50%, transparent);
 }
 .leaflet-popup-tip {
   background: var(--fur-secondary);
@@ -78,6 +89,26 @@ a:hover {
 .leaflet-popup-content b {
   color: var(--tongue-blue);
   font-size: 1.1em;
+}
+
+.leaflet-popup-content .role-attendee {
+  color: color-mix(in srgb, var(--primary) 80%, transparent); /* A subtle version of the primary text color */
+  font-weight: 500;
+}
+
+.leaflet-popup-content .role-volunteer {
+  color: var(--throat-teal); /* Using the site's primary accent color */
+  font-weight: 500;
+}
+
+.leaflet-popup-content .role-staff {
+  color: var(--eye-highlight); /* A secondary accent for importance */
+  font-weight: 500;
+}
+
+.leaflet-popup-content .role-photographer {
+  color: var(--tongue-blue); /* A special color for the photographer role */
+  font-weight: 500;
 }
 
 .leaflet-container a.leaflet-popup-close-button {
