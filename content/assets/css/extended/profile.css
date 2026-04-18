@@ -205,29 +205,31 @@ a:hover {
 .redpanda-tail-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   height: 200px;
   margin: 20px 0;
 }
 
 .redpanda-tail {
   position: relative;
-  width: 150px;
-  height: 80px;
+  width: 70px;
+  height: 180px;
   background: var(--fur-primary);
-  border-radius: 50% / 60% 60% 40% 40%;
+  border-radius: 35px;
   transform-origin: top center;
-  animation: wag 1s ease-in-out infinite;
+  animation: redpanda-wag 1.5s ease-in-out infinite;
+  overflow: hidden;
+  will-change: transform;
 }
 
 .redpanda-tail::before {
   content: '';
   position: absolute;
-  top: -10px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   background: var(--fur-base);
   border-radius: 50%;
   opacity: 0.7;
@@ -235,21 +237,21 @@ a:hover {
 
 .tail-stripe {
   position: absolute;
+  left: 0;
   width: 100%;
-  height: 15px;
+  height: 20px;
   background: var(--fur-base);
-  border-radius: 10px;
 }
 
-.stripe1 { top: 10px; }
-.stripe2 { top: 30px; background: var(--fur-secondary); }
-.stripe3 { top: 50px; }
-.stripe4 { top: 70px; background: var(--fur-secondary); }
+.stripe1 { top: 30px; }
+.stripe2 { top: 70px; background: var(--fur-secondary); }
+.stripe3 { top: 110px; }
+.stripe4 { top: 150px; background: var(--fur-secondary); }
 
-@keyframes wag {
-  0%, 100% { transform: rotate(-15deg) scaleY(1); }
-  25%, 75% { transform: rotate(0deg) scaleY(1.1); }
-  50% { transform: rotate(15deg) scaleY(1); }
+@keyframes redpanda-wag {
+  0%, 100% { transform: rotate(-25deg) scaleY(1); }
+  25%, 75% { transform: rotate(0deg) scaleY(1.05); }
+  50% { transform: rotate(25deg) scaleY(1); }
 }
 
 /* Upcoming Cards on Map Page */
