@@ -79,6 +79,7 @@ a:hover {
   color: var(--tongue-blue);
   font-size: 1.1em;
 }
+
 .leaflet-container a.leaflet-popup-close-button {
   color: var(--muzzle-grey);
 }

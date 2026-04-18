@@ -140,6 +140,7 @@
 /* Responsive Design */
 @media (width <= 768px) {
     .con-entry {
+        display: grid;
         grid-template-columns: 1fr auto;
         gap: 1rem;
     }
