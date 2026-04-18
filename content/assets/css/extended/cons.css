@@ -84,6 +84,25 @@
     color: inherit;
 }
 
+.photographer-badge {
+    font-weight: 500;
+    color: var(--tongue-blue);
+}
+
+.photographer-badge-link {
+    color: inherit;
+}
+
+.unknown-badge {
+    font-weight: 500;
+    color: var(--muzzle-grey);
+    font-style: italic;
+}
+
+.unknown-badge-link {
+    color: inherit;
+}
+
 .con-location {
     text-align: right;
     font-size: 0.9rem;
