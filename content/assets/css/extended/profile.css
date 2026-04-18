@@ -9,9 +9,10 @@ body {
 
 /* Style main content areas for a sharp, modern look */
 main, .post-entry {
-  /* Use a semi-transparent version of the darker fur color for a "frosted glass" effect */ /* 40% opacity saddlebrown from --entry */
-  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
-  backdrop-filter: blur(10px); /* For Safari */
+  /* Use a semi-transparent version of the darker fur color for a "frosted glass" effect */
+
+ /* 40% opacity saddlebrown from --entry */
+  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent); /* For Safari */
   backdrop-filter: blur(10px); /* For Safari */
   border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
   border-radius: var(--radius);
@@ -47,9 +48,11 @@ a:hover {
   background: var(--entry);
   color: var(--primary);
 }
+
 .leaflet-popup-content b {
   color: var(--throat-teal);
 }
+
 .leaflet-container a.leaflet-popup-close-button {
   color: var(--primary);
 }
