@@ -8,7 +8,7 @@ Welcome to my travel map! Here is where I keep track of all the conventions, fur
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-<div id="map-container" style="height: 500px; width: 100%; border-radius: var(--radius); overflow: hidden; margin-top: 2rem; border: 2px solid var(--border); z-index: 1;">
+<div id="map-container" style="height: 500px; width: 100%; border-radius: var(--radius); overflow: hidden; margin-top: 2rem; border: 2px solid var(--border);">
 </div>
 
 <script>
@@ -16,9 +16,9 @@ Welcome to my travel map! Here is where I keep track of all the conventions, fur
     // Initialize map without a default view; we'll set it automatically.
     var map = L.map('map-container');
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(map);
 
     var pawIcon = L.divIcon({
