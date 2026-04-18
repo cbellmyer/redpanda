@@ -42,6 +42,21 @@ a:hover {
   border-color: var(--throat-teal);
 }
 
+/* Leaflet Map Popup Theming */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--entry);
+  color: var(--primary);
+}
+
+.leaflet-popup-content b {
+  color: var(--throat-teal);
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--primary);
+}
+
 .redpanda-tail-container {
   display: flex;
   justify-content: center;
