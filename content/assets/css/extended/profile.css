@@ -1,5 +1,5 @@
 body {
-  background: var(--primary);
+  background: var(--nose-dark);
   background-attachment: fixed;
 }
 
@@ -9,12 +9,36 @@ body {
 
 /* Style main content areas for a sharp, modern look */
 main, .post-entry {
-  /* Use a semi-transparent version of the darker fur color for a "frosted glass" effect */
-  background: rgb(139 69 19 / 40%); /* 40% opacity saddlebrown from --entry */
+  /* Use a semi-transparent version of the darker fur color for a "frosted glass" effect */ /* 40% opacity saddlebrown from --entry */
+  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
   backdrop-filter: blur(10px); /* For Safari */
-  border: 1px solid rgb(255 255 255 / 10%);
+  backdrop-filter: blur(10px); /* For Safari */
+  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
   border-radius: var(--radius);
   padding: var(--content-gap); /* Ensure consistent padding */
+}
+
+/* Links and Hover States */
+a {
+  color: var(--throat-teal);
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--eye-highlight);
+}
+
+/* Buttons */
+.button, button {
+  background: var(--fur-primary);
+  color: var(--fur-base) !important;
+  border: 1px solid var(--fur-primary);
+  transition: all 0.3s ease;
+}
+
+.button:hover, button:hover {
+  background: var(--throat-teal);
+  border-color: var(--throat-teal);
 }
 
 .redpanda-tail-container {
@@ -29,7 +53,7 @@ main, .post-entry {
   position: relative;
   width: 150px;
   height: 80px;
-  background: var(--primary);
+  background: var(--fur-primary);
   border-radius: 50% / 60% 60% 40% 40%;
   transform-origin: top center;
   animation: wag 1s ease-in-out infinite;
@@ -43,7 +67,7 @@ main, .post-entry {
   transform: translateX(-50%);
   width: 100px;
   height: 100px;
-  background: var(--secondary);
+  background: var(--fur-base);
   border-radius: 50%;
   opacity: 0.7;
 }
@@ -52,14 +76,14 @@ main, .post-entry {
   position: absolute;
   width: 100%;
   height: 15px;
-  background: var(--secondary);
+  background: var(--fur-base);
   border-radius: 10px;
 }
 
 .stripe1 { top: 10px; }
-.stripe2 { top: 30px; background: var(--theme); }
+.stripe2 { top: 30px; background: var(--fur-secondary); }
 .stripe3 { top: 50px; }
-.stripe4 { top: 70px; background: var(--theme); }
+.stripe4 { top: 70px; background: var(--fur-secondary); }
 
 @keyframes wag {
   0%, 100% { transform: rotate(-15deg) scaleY(1); }
