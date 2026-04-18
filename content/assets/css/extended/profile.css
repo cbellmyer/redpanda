@@ -75,16 +75,6 @@ a:hover {
   text-align: center;
 }
 
-.leaflet-popup-content .con-logo {
-  display: block;
-  max-width: 120px;
-  height: auto;
-  margin: 0 auto 10px;
-  border-radius: 6px;
-  /* Add a subtle background for transparent logos */
-  background: color-mix(in srgb, var(--fur-base) 50%, transparent);
-}
-
 .leaflet-popup-tip {
   background: var(--fur-secondary);
 }
@@ -95,7 +85,7 @@ a:hover {
 }
 
 .leaflet-popup-content .role-attendee {
-  color: color-mix(in srgb, var(--primary) 80%, transparent); /* A subtle version of the primary text color */
+  color: var(--secondary); /* Changed for better contrast against white backgrounds */
   font-weight: 500;
 }
 
@@ -163,7 +153,8 @@ a:hover {
 }
 
 /* Map Marker Bounce Animation */
-.paw-marker:hover div {
+.paw-marker:hover div,
+.paw-marker.highlight div {
   animation: paw-bounce 0.5s ease-in-out infinite;
 }
 
@@ -195,6 +186,18 @@ a:hover {
 @keyframes marker-pulse {
   0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.1; }
   100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.6; }
+}
+
+/* Highlight upcoming markers with a gold pulse */
+.paw-marker.upcoming::after {
+  background: radial-gradient(circle, var(--eye-highlight) 0%, transparent 70%);
+}
+
+/* Stronger highlight when hovering corresponding card */
+.paw-marker.highlight::after {
+  animation: none;
+  transform: translate(-50%, -50%) scale(1.5);
+  opacity: 0.9;
 }
 
 .redpanda-tail-container {
@@ -245,4 +248,48 @@ a:hover {
   0%, 100% { transform: rotate(-15deg) scaleY(1); }
   25%, 75% { transform: rotate(0deg) scaleY(1.1); }
   50% { transform: rotate(15deg) scaleY(1); }
+}
+
+/* Upcoming Cards on Map Page */
+.upcoming-section-title {
+  text-align: center;
+  margin: 3rem 0 1.5rem;
+  color: var(--primary);
+}
+
+.upcoming-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.con-card {
+  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 20%);
+}
+
+.con-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--eye-highlight);
+  box-shadow: 0 8px 25px rgb(0 0 0 / 40%);
+}
+
+.con-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--primary);
+  font-size: 1.3rem;
+}
+
+.con-card p.location {
+  margin: 0 0 1rem 0;
+  color: var(--secondary);
+  font-size: 0.95rem;
 }
