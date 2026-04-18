@@ -18,7 +18,3 @@
     --fur-gradient: linear-gradient(45deg, #CD853F, #FFFFFF, #000000);
     --skin-color: #F5DEB3;
 }
-
-.list {
-    background: var(--theme);
-}

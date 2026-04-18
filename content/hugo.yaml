@@ -30,6 +30,9 @@ menu:
     - name: Shutterpaws
       url: https://shutterpaws.pics/
       weight: 15
+    - name: Tracks
+      url: /tracks/
+      weight: 30
     # - name: Search
     #   url: search/
     #   weight: 10
