@@ -1,6 +1,12 @@
 body {
   background: var(--nose-dark);
   background-attachment: fixed;
+
+  /* Typography cleanup for crisper text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizelegibility;
+  letter-spacing: 0.01em;
 }
 
 .profile img {
@@ -9,11 +15,9 @@ body {
 
 /* Style main content areas for a sharp, modern look */
 main, .post-entry {
-  /* Use a semi-transparent version of the darker fur color for a "frosted glass" effect */
-
- /* 40% opacity saddlebrown from --entry */
+  /* Frosted glass effect */
   background: color-mix(in srgb, var(--fur-secondary) 60%, transparent); /* For Safari */
-  backdrop-filter: blur(10px); /* For Safari */
+  backdrop-filter: blur(10px);
   border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
   border-radius: var(--radius);
   padding: var(--content-gap); /* Ensure consistent padding */
@@ -43,18 +47,153 @@ a:hover {
 }
 
 /* Leaflet Map Popup Theming */
-.leaflet-popup-content-wrapper,
-.leaflet-popup-tip {
-  background: var(--entry);
+.leaflet-popup {
+  animation: popup-rise 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popup-rise {
+  0% {
+    opacity: 0;
+    margin-bottom: -20px;
+  }
+
+  100% {
+    opacity: 1;
+    margin-bottom: 0;
+  }
+}
+
+.leaflet-popup-content-wrapper {
+  background: color-mix(in srgb, var(--fur-secondary) 85%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--throat-teal) 60%, transparent);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 15px rgb(0 0 0 / 60%);
   color: var(--primary);
+  text-align: center;
+}
+
+.leaflet-popup-tip {
+  background: var(--fur-secondary);
 }
 
 .leaflet-popup-content b {
-  color: var(--throat-teal);
+  color: var(--tongue-blue);
+  font-size: 1.1em;
+}
+
+.leaflet-popup-content .role-attendee {
+  color: var(--secondary); /* Changed for better contrast against white backgrounds */
+  font-weight: 500;
+}
+
+.leaflet-popup-content .role-volunteer {
+  color: var(--throat-teal); /* Using the site's primary accent color */
+  font-weight: 500;
+}
+
+.leaflet-popup-content .role-staff {
+  color: var(--eye-highlight); /* A secondary accent for importance */
+  font-weight: 500;
+}
+
+.leaflet-popup-content .role-photographer {
+  color: var(--tongue-blue); /* A special color for the photographer role */
+  font-weight: 500;
 }
 
 .leaflet-container a.leaflet-popup-close-button {
-  color: var(--primary);
+  color: var(--muzzle-grey);
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--eye-highlight);
+}
+
+/* Map Container Polish */
+#map-container {
+  box-shadow: 0 10px 30px rgb(0 0 0 / 40%) !important;
+  border-color: color-mix(in srgb, var(--throat-teal) 40%, transparent) !important;
+}
+
+/* Sleek Leaflet Controls */
+.leaflet-bar {
+  border: 1px solid color-mix(in srgb, var(--throat-teal) 60%, transparent) !important;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 40%) !important;
+  border-radius: var(--radius) !important;
+  overflow: hidden;
+}
+
+.leaflet-bar a, .leaflet-bar a:hover {
+  background-color: color-mix(in srgb, var(--fur-secondary) 85%, transparent) !important;
+  color: var(--throat-teal) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent) !important;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.leaflet-bar a:hover {
+  background-color: var(--throat-teal) !important;
+  color: var(--fur-base) !important;
+}
+
+/* Subtle Leaflet Attribution */
+.leaflet-container .leaflet-control-attribution {
+  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent) !important;
+  backdrop-filter: blur(4px);
+  color: var(--muzzle-grey) !important;
+}
+
+.leaflet-container .leaflet-control-attribution a {
+  color: var(--throat-teal) !important;
+}
+
+/* Map Marker Bounce Animation */
+.paw-marker:hover div,
+.paw-marker.highlight div {
+  animation: paw-bounce 0.5s ease-in-out infinite;
+}
+
+@keyframes paw-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.1); }
+}
+
+/* Glowing Pulse Behind Markers */
+.paw-marker {
+  position: relative;
+}
+
+.paw-marker::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 35px;
+  height: 35px;
+  background: radial-gradient(circle, var(--throat-teal) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  z-index: -1;
+  animation: marker-pulse 2s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes marker-pulse {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.1; }
+  100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.6; }
+}
+
+/* Highlight upcoming markers with a gold pulse */
+.paw-marker.upcoming::after {
+  background: radial-gradient(circle, var(--eye-highlight) 0%, transparent 70%);
+}
+
+/* Stronger highlight when hovering corresponding card */
+.paw-marker.highlight::after {
+  animation: none;
+  transform: translate(-50%, -50%) scale(1.5);
+  opacity: 0.9;
 }
 
 .redpanda-tail-container {
@@ -105,4 +244,48 @@ a:hover {
   0%, 100% { transform: rotate(-15deg) scaleY(1); }
   25%, 75% { transform: rotate(0deg) scaleY(1.1); }
   50% { transform: rotate(15deg) scaleY(1); }
+}
+
+/* Upcoming Cards on Map Page */
+.upcoming-section-title {
+  text-align: center;
+  margin: 3rem 0 1.5rem;
+  color: var(--primary);
+}
+
+.upcoming-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.con-card {
+  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
+  backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 20%);
+}
+
+.con-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--eye-highlight);
+  box-shadow: 0 8px 25px rgb(0 0 0 / 40%);
+}
+
+.con-card h3 {
+  margin: 0 0 0.5rem;
+  color: var(--primary);
+  font-size: 1.3rem;
+}
+
+.con-card p.location {
+  margin: 0 0 1rem;
+  color: var(--secondary);
+  font-size: 0.95rem;
 }

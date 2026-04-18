@@ -1,3 +1,8 @@
+/* Hide post meta on the conventions page */
+.post-meta {
+    display: none !important;
+}
+
 .cons-container {
     margin-top: 2rem;
 }
@@ -63,7 +68,7 @@
 
 .staff-badge {
     font-weight: 500;
-    color: #d4a574;
+    color: var(--eye-highlight);
 }
 
 .staff-badge-link {
@@ -72,7 +77,7 @@
 
 .volunteer-badge {
     font-weight: 500;
-    color: #4ade80;
+    color: var(--throat-teal);
 }
 
 .volunteer-badge-link {
@@ -140,6 +145,7 @@
 /* Responsive Design */
 @media (width <= 768px) {
     .con-entry {
+        display: grid;
         grid-template-columns: 1fr auto;
         gap: 1rem;
     }
