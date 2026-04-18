@@ -87,6 +87,45 @@ a:hover {
   color: var(--eye-highlight);
 }
 
+/* Map Container Polish */
+#map-container {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+  border-color: color-mix(in srgb, var(--throat-teal) 40%, transparent) !important;
+}
+
+/* Sleek Leaflet Controls */
+.leaflet-bar {
+  border: 1px solid color-mix(in srgb, var(--throat-teal) 60%, transparent) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+  border-radius: var(--radius) !important;
+  overflow: hidden;
+}
+
+.leaflet-bar a, .leaflet-bar a:hover {
+  background-color: color-mix(in srgb, var(--fur-secondary) 85%, transparent) !important;
+  color: var(--throat-teal) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.leaflet-bar a:hover {
+  background-color: var(--throat-teal) !important;
+  color: var(--fur-base) !important;
+}
+
+/* Subtle Leaflet Attribution */
+.leaflet-container .leaflet-control-attribution {
+  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: var(--muzzle-grey) !important;
+}
+.leaflet-container .leaflet-control-attribution a {
+  color: var(--throat-teal) !important;
+}
+
 /* Map Marker Bounce Animation */
 .paw-marker:hover div {
   animation: paw-bounce 0.5s ease-in-out infinite;
@@ -95,6 +134,29 @@ a:hover {
 @keyframes paw-bounce {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-8px) scale(1.1); }
+}
+
+/* Glowing Pulse Behind Markers */
+.paw-marker {
+  position: relative;
+}
+.paw-marker::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 35px;
+  height: 35px;
+  background: radial-gradient(circle, var(--throat-teal) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  z-index: -1;
+  animation: marker-pulse 2s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes marker-pulse {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.1; }
+  100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.6; }
 }
 
 .redpanda-tail-container {
