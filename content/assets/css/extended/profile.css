@@ -263,7 +263,6 @@ a:hover {
 .con-card {
   background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
   backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
   border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
   border-radius: var(--radius);
   padding: 1.5rem;
