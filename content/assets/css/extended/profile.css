@@ -11,7 +11,6 @@ body {
 main, .post-entry {
   /* Use a semi-transparent version of the darker fur color for a "frosted glass" effect */
   background: rgb(139 69 19 / 40%); /* 40% opacity saddlebrown from --entry */
-  backdrop-filter: blur(10px);
   backdrop-filter: blur(10px); /* For Safari */
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: var(--radius);
