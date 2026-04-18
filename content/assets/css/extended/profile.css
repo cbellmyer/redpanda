@@ -1,11 +1,11 @@
 body {
   background: var(--nose-dark);
   background-attachment: fixed;
-  
+
   /* Typography cleanup for crisper text rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  text-rendering: optimizelegibility;
   letter-spacing: 0.01em;
 }
 
@@ -17,7 +17,7 @@ body {
 main, .post-entry {
   /* Frosted glass effect */
   background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
-  -webkit-backdrop-filter: blur(10px); /* For Safari */
+  backdrop-filter: blur(10px); /* For Safari */
   backdrop-filter: blur(10px);
   border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
   border-radius: var(--radius);
@@ -57,6 +57,7 @@ a:hover {
     opacity: 0;
     margin-bottom: -20px;
   }
+
   100% {
     opacity: 1;
     margin-bottom: 0;
@@ -66,10 +67,10 @@ a:hover {
 .leaflet-popup-content-wrapper {
   background: color-mix(in srgb, var(--fur-secondary) 85%, transparent);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border: 1px solid color-mix(in srgb, var(--throat-teal) 60%, transparent);
   border-radius: var(--radius);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 15px rgb(0 0 0 / 60%);
   color: var(--primary);
   text-align: center;
 }
@@ -83,9 +84,11 @@ a:hover {
   /* Add a subtle background for transparent logos */
   background: color-mix(in srgb, var(--fur-base) 50%, transparent);
 }
+
 .leaflet-popup-tip {
   background: var(--fur-secondary);
 }
+
 .leaflet-popup-content b {
   color: var(--tongue-blue);
   font-size: 1.1em;
@@ -114,20 +117,21 @@ a:hover {
 .leaflet-container a.leaflet-popup-close-button {
   color: var(--muzzle-grey);
 }
+
 .leaflet-container a.leaflet-popup-close-button:hover {
   color: var(--eye-highlight);
 }
 
 /* Map Container Polish */
 #map-container {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 40%) !important;
   border-color: color-mix(in srgb, var(--throat-teal) 40%, transparent) !important;
 }
 
 /* Sleek Leaflet Controls */
 .leaflet-bar {
   border: 1px solid color-mix(in srgb, var(--throat-teal) 60%, transparent) !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 40%) !important;
   border-radius: var(--radius) !important;
   overflow: hidden;
 }
@@ -137,7 +141,7 @@ a:hover {
   color: var(--throat-teal) !important;
   border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent) !important;
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   transition: all 0.3s ease;
 }
 
@@ -150,9 +154,10 @@ a:hover {
 .leaflet-container .leaflet-control-attribution {
   background: color-mix(in srgb, var(--fur-secondary) 60%, transparent) !important;
   backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
   color: var(--muzzle-grey) !important;
 }
+
 .leaflet-container .leaflet-control-attribution a {
   color: var(--throat-teal) !important;
 }
@@ -171,6 +176,7 @@ a:hover {
 .paw-marker {
   position: relative;
 }
+
 .paw-marker::after {
   content: '';
   position: absolute;
@@ -185,6 +191,7 @@ a:hover {
   animation: marker-pulse 2s ease-in-out infinite alternate;
   pointer-events: none;
 }
+
 @keyframes marker-pulse {
   0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.1; }
   100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.6; }
