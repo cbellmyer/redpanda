@@ -51,7 +51,7 @@ ShowBreadCrumbs: false
     const conventions = [
       { name: 'Anthrocon', location: 'Pittsburgh, PA', coords: [40.4406, -79.9959], info: '2024 (Attendee)<br>2025 (Attendee)', dates: ['2024-07-04', '2025-07-03'] },
       { name: 'Furcationland', location: 'Portland, ME', coords: [43.6591, -70.2568], info: '2025 (Attendee)<br>2026 (Volunteer)<br>2027 (Staff)', dates: ['2025-04-11', '2026-04-10', '2027-04-09'] },
-      { name: 'Furgeddaboutdit', location: 'Fairfield, NJ', coords: [40.8729, -74.2724], info: '2025 (Attendee)<br>2026 (Attendee)', dates: ['2025-10-24', '2026-10-23'] },
+      { name: 'Furgeddaboutdit', location: 'Fairfield, NJ', coords: [40.8729, -74.2724], info: '2025 (Attendee)<br>2026 (Volunteer)<br>2027 (Unknown)', dates: ['2025-05-01', '2026-04-23', '2027-04-22'] },
       { name: 'New Year\'s Fur Ball', location: 'Newark, DE', coords: [39.6837, -75.7497], info: '2025 (Attendee)', dates: ['2025-12-31'] },
       { name: 'FursonaCon', location: 'Newport News, VA', coords: [37.0857, -76.4944], info: '2024 (Attendee)<br>2025 (Attendee)<br>2026 (Staff)', dates: ['2024-09-05', '2025-09-04', '2026-09-03'] },
       { name: 'Fur the \'More', location: 'Baltimore, MD', coords: [39.2904, -76.6122], info: '2025 (Attendee)<br>2026 (Volunteer)<br>2027 (Staff)', dates: ['2025-04-04', '2026-04-10', '2027-04-09'] },
