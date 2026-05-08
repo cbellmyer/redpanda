@@ -33,6 +33,9 @@ menu:
     - name: Tracks
       url: /tracks/
       weight: 15
+    - name: About
+      url: /about/
+      weight: 20
     # - name: Search
     #   url: search/
     #   weight: 10
@@ -81,6 +84,9 @@ params:
         url: https://www.furtrack.com/user/furcologist/
 
   socialIcons:
+    - name: mastodon
+      title: Follow on Mastodon
+      url: "https://furry.engineer/@rory"
     - name: bluesky
       title: Follow on Bluesky
       url: "https://bsky.app/profile/redpanda.pet"
