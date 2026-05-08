@@ -126,7 +126,7 @@ ShowBreadCrumbs: false
       markerBounds.push(con.coords);
       allMarkers[index] = marker;
     });
-    
+
     // --- Odometer Calculation ---
     const homeCoords = [39.1640, -76.6250]; // Glen Burnie, MD
 
