@@ -13,7 +13,7 @@ ShowBreadCrumbs: false
 
 <div class="bio-container">
   <h2>The Operator’s Journey: From the Bayou to the Bay</h2>
-  
+
   <p>I grew up where the land dissolves into the water—the Alabama shores, surrounded by cypress swamps, brackish bayous, and the high-energy spirit of the original Mardi Gras. That environment taught me two things early on: how to navigate complex, murky ecosystems and how to appreciate a vibrant, costumed spectacle.</p>
 
   <p>Today, I’ve traded the Gulf for the Chesapeake Bay watershed. As a Wastewater Operator III in Maryland, my life still revolves around the water. I see the Bay not just as a landmark, but as a massive biological process that requires precision, balance, and constant care to protect. My work in process control is about stabilizing the system to keep the environment thriving.</p>
@@ -68,7 +68,7 @@ ShowBreadCrumbs: false
 
         return entries.map(entry => {
           const contentHtml = entry.querySelector("content")?.textContent || '';
-          
+
           // Try to extract image from Atom enclosure first, fallback to regex in HTML
           const enclosure = entry.querySelector("link[rel='enclosure'][type^='image']");
           let image = enclosure ? enclosure.getAttribute("href") : null;
@@ -76,7 +76,7 @@ ShowBreadCrumbs: false
             const imgMatch = contentHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
             if (imgMatch) image = imgMatch[1];
           }
-          
+
           // Strip HTML tags for clean text preview
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = contentHtml;
@@ -106,7 +106,7 @@ ShowBreadCrumbs: false
         .filter(post => post.date && !isNaN(post.date.getTime())) // Prevent Invalid Dates from breaking the sort
         .sort((a, b) => b.date.getTime() - a.date.getTime()) // Strict chronological sort (newest first)
         .slice(0, 20);
-      
+
       if (combined.length === 0) {
         feedContainer.innerHTML = '<div class="loading-feed">Could not retrieve signals at this time.</div>';
         return;
