@@ -280,6 +280,16 @@ a:hover {
   50% { transform: translateY(-8px) scale(1.1); }
 }
 
+/* Paw Icon Styling */
+.paw-icon {
+  text-shadow: 2px 2px 2px rgb(0 0 0 / 50%);
+}
+
+.paw-marker.upcoming .paw-icon {
+  color: transparent;
+  text-shadow: 0 0 0 var(--eye-highlight), 2px 2px 2px rgb(0 0 0 / 50%);
+}
+
 /* Glowing Pulse Behind Markers */
 .paw-marker {
   position: relative;
@@ -303,6 +313,98 @@ a:hover {
 @keyframes marker-pulse {
   0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.1; }
   100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.6; }
+}
+
+/* Next Deployment Widget */
+.next-con-widget {
+  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--eye-highlight);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1rem auto 2rem;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 8px 25px rgb(0 0 0 / 30%), inset 0 1px 0 color-mix(in srgb, #ffffff 10%, transparent);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.next-con-widget:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 40%), inset 0 1px 0 color-mix(in srgb, #ffffff 10%, transparent);
+}
+
+.widget-header {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muzzle-grey);
+  margin-bottom: 0.5rem;
+}
+
+.widget-body .con-name {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.widget-body .countdown {
+  font-size: 1.2rem;
+  color: var(--throat-teal);
+  margin-bottom: 1rem;
+}
+
+.widget-body .countdown span {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: var(--eye-highlight);
+}
+
+.widget-body .weather {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--secondary);
+}
+
+/* Odometer Widget */
+.odometer-widget {
+  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--throat-teal);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 2.5rem auto 2rem;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 8px 25px rgb(0 0 0 / 30%), inset 0 1px 0 color-mix(in srgb, #ffffff 10%, transparent);
+}
+
+.odometer-header {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muzzle-grey);
+  margin-bottom: 0.5rem;
+}
+
+.odometer-value {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--primary);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.odometer-value span {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--eye-highlight);
 }
 
 /* Highlight upcoming markers with a gold pulse */
