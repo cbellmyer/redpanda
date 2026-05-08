@@ -23,13 +23,16 @@ body {
 ::-webkit-scrollbar {
   width: 10px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--nose-dark);
 }
+
 ::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--muzzle-grey) 50%, transparent);
   border-radius: 5px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--throat-teal);
 }
@@ -53,7 +56,7 @@ body {
 }
 
 .profile:hover img {
-  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 10px 25px rgb(0 0 0 / 40%));
 }
 
 .profile:active img {
@@ -62,6 +65,7 @@ body {
 
 .profile::after {
   --heart-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23F472B6' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
+
   content: '';
   position: absolute;
   inset: 0;
@@ -101,6 +105,7 @@ main, .post-entry {
 .post-entry {
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
+
 .post-entry:hover {
   transform: translateY(-4px);
   border-color: color-mix(in srgb, var(--throat-teal) 70%, transparent);
@@ -114,7 +119,7 @@ main, .post-entry {
   z-index: 100;
   background: color-mix(in srgb, var(--fur-secondary) 70%, transparent) !important;
   backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
   border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
   box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
 }
@@ -325,13 +330,13 @@ a:hover {
   margin: 1rem auto 2rem;
   text-align: center;
   max-width: 400px;
-  box-shadow: 0 8px 25px rgb(0 0 0 / 30%), inset 0 1px 0 color-mix(in srgb, #ffffff 10%, transparent);
+  box-shadow: 0 8px 25px rgb(0 0 0 / 30%), inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .next-con-widget:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgb(0 0 0 / 40%), inset 0 1px 0 color-mix(in srgb, #ffffff 10%, transparent);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 40%), inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent);
 }
 
 .widget-header {
@@ -380,7 +385,7 @@ a:hover {
   margin: 2.5rem auto 2rem;
   text-align: center;
   max-width: 400px;
-  box-shadow: 0 8px 25px rgb(0 0 0 / 30%), inset 0 1px 0 color-mix(in srgb, #ffffff 10%, transparent);
+  box-shadow: 0 8px 25px rgb(0 0 0 / 30%), inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent);
 }
 
 .odometer-header {
@@ -426,7 +431,7 @@ a:hover {
   font-size: 2rem;
   font-weight: 700;
   background: linear-gradient(135deg, var(--primary), var(--throat-teal));
-  -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
@@ -448,8 +453,9 @@ a:hover {
   padding: 1.5rem;
   text-align: center;
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
   /* Added an inner-highlight to enhance the glassmorphism depth */
-  box-shadow: 0 4px 15px rgb(0 0 0 / 20%), inset 0 1px 0 color-mix(in srgb, #ffffff 10%, transparent);
+  box-shadow: 0 4px 15px rgb(0 0 0 / 20%), inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent);
 }
 
 .con-card:hover {
