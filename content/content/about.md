@@ -22,8 +22,8 @@ ShowBreadCrumbs: false
 </div>
 
 <div class="feed-container">
-  <h3>Latest Transmissions</h3>
-  <p style="font-size: 0.9rem; color: var(--muzzle-grey); margin-top: -10px; margin-bottom: 1rem;">Recent updates from Bluesky and Pixelfed.</p>
+  <h3 class="feed-title">Latest Transmissions</h3>
+  <p class="feed-subtitle">Recent updates from Bluesky and Pixelfed.</p>
   <div id="social-feed-scroll" class="feed-scroll">
     <div class="loading-feed">Establishing connection...</div>
   </div>
@@ -33,10 +33,10 @@ ShowBreadCrumbs: false
   document.addEventListener('DOMContentLoaded', () => {
     const feedContainer = document.getElementById('social-feed-scroll');
 
-    // Fetch latest 5 from Bluesky
+    // Fetch latest 10 from Bluesky
     async function fetchBluesky() {
       try {
-        const res = await fetch('https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=redpanda.pet&limit=5');
+        const res = await fetch('https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=redpanda.pet&limit=10');
         const data = await res.json();
         return data.feed.map(item => {
           const post = item.post;
@@ -56,7 +56,7 @@ ShowBreadCrumbs: false
       }
     }
 
-    // Fetch latest 5 from Pixelfed (Using Atom feed via CORS proxy)
+    // Fetch latest 10 from Pixelfed (Using Atom feed via CORS proxy)
     async function fetchPixelfed() {
       try {
         const rssUrl = encodeURIComponent('https://pixelfed.social/users/roryredpanda.atom');
@@ -64,26 +64,34 @@ ShowBreadCrumbs: false
         const data = await res.json();
         const parser = new DOMParser();
         const xml = parser.parseFromString(data.contents, "text/xml");
-        const entries = Array.from(xml.querySelectorAll("entry")).slice(0, 5);
+        const entries = Array.from(xml.querySelectorAll("entry")).slice(0, 10);
 
         return entries.map(entry => {
           const contentHtml = entry.querySelector("content")?.textContent || '';
           
-          // Extract first image src from the post's HTML payload
-          const imgMatch = contentHtml.match(/<img[^>]+src="([^">]+)"/);
-          const image = imgMatch ? imgMatch[1] : null;
+          // Try to extract image from Atom enclosure first, fallback to regex in HTML
+          const enclosure = entry.querySelector("link[rel='enclosure'][type^='image']");
+          let image = enclosure ? enclosure.getAttribute("href") : null;
+          if (!image) {
+            const imgMatch = contentHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
+            if (imgMatch) image = imgMatch[1];
+          }
           
           // Strip HTML tags for clean text preview
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = contentHtml;
           const text = tempDiv.textContent || tempDiv.innerText || "";
 
+          // Parse date carefully (fallback to updated if published is missing)
+          const dateStr = entry.querySelector("published")?.textContent || entry.querySelector("updated")?.textContent;
+          const date = dateStr ? new Date(dateStr) : new Date();
+
           return {
             source: 'Pixelfed',
-            date: new Date(entry.querySelector("published")?.textContent),
-            text: text,
+            date: date,
+            text: text.trim(),
             image: image,
-            url: entry.querySelector("link")?.getAttribute("href") || 'https://pixelfed.social/roryredpanda'
+            url: entry.querySelector("link:not([rel='enclosure'])")?.getAttribute("href") || 'https://pixelfed.social/roryredpanda'
           };
         });
       } catch (e) {
@@ -94,7 +102,10 @@ ShowBreadCrumbs: false
 
     // Load, combine, and render the feeds
     Promise.all([fetchBluesky(), fetchPixelfed()]).then(([bsky, pxfed]) => {
-      let combined = [...bsky, ...pxfed].sort((a, b) => b.date - a.date).slice(0, 10);
+      let combined = [...bsky, ...pxfed]
+        .filter(post => post.date && !isNaN(post.date.getTime())) // Prevent Invalid Dates from breaking the sort
+        .sort((a, b) => b.date.getTime() - a.date.getTime()) // Strict chronological sort (newest first)
+        .slice(0, 20);
       
       if (combined.length === 0) {
         feedContainer.innerHTML = '<div class="loading-feed">Could not retrieve signals at this time.</div>';

@@ -512,11 +512,24 @@ a:hover {
   border-bottom: 2px solid color-mix(in srgb, var(--throat-teal) 50%, transparent);
   padding-bottom: 0.8rem;
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .bio-container p {
   line-height: 1.7;
   margin-bottom: 1.2rem;
+}
+
+.feed-title {
+  text-align: center;
+}
+
+.feed-subtitle {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--muzzle-grey);
+  margin-top: -10px;
+  margin-bottom: 1rem;
 }
 
 /* Horizontal Social Feed */
