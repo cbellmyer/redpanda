@@ -48,7 +48,7 @@ title: "Home"
     link.append(labelSpan, dividerSpan, textSpan);
     li.appendChild(link);
     menu.appendChild(li); // Mount directly to the site header menu!
-    
+
     console.log("[Omni-Pulse] UI injected into menu. Starting fetch...");
 
     // TODO: Update this with your actual Worker deployed URL
@@ -76,8 +76,8 @@ title: "Home"
           console.warn("[Omni-Pulse] Incomplete data:", data);
           textSpan.textContent = "Signal corrupted";
         }
-      } catch (err) { 
-        console.error("[Omni-Pulse] Network fetch failed:", err); 
+      } catch (err) {
+        console.error("[Omni-Pulse] Network fetch failed:", err);
         textSpan.textContent = "Connection failed";
       }
     }
