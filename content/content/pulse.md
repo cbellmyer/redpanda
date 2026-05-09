@@ -2,6 +2,10 @@
 title: "Omni-Pulse"
 description: "Live signals and recent dashboard activity."
 type: "page"
+menu:
+  main:
+    name: "Pulse"
+    weight: 30
 ---
 
 <div id="pulse-container" class="pulse-grid">
@@ -11,8 +15,8 @@ type: "page"
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const pulseContainer = document.getElementById("pulse-container");
-    // TODO: Ensure this points to your deployed Cloudflare Worker URL
-    const WORKER_URL = "redpanda.self-host.workers.dev"; 
+    // Point this to your deployed Cloudflare Worker URL (Make sure https:// is included!)
+    const WORKER_URL = "https://redpanda.self-host.workers.dev"; 
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";

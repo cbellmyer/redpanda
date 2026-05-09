@@ -614,6 +614,8 @@ a:hover {
   box-shadow: 0 0 15px rgb(255 103 0 / 30%);
   text-decoration: none;
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+  text-align: center;
+  align-items: center;
 }
 
 .pulse-card.active {
@@ -634,7 +636,8 @@ a:hover {
 
 .pulse-card-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 0.6rem;
   align-items: center;
 }
 

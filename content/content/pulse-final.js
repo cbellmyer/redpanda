@@ -48,7 +48,7 @@ export default {
       // 2. STEAM
       if (steamApiKey && steamId) {
         try {
-          const res = await fetch(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${steamApiKey}&steamids=${steamId}&format=json`);
+          const res = await fetch(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${steamApiKey}&steamids=${steamId}&format=json`);
           if (res.ok) {
             const data = await res.json();
             const player = data.response?.players?.[0];
