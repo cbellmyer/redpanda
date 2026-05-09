@@ -37,7 +37,7 @@ menu:
     async function fetchSignals() {
       try {
         const res = await fetch(WORKER_URL);
-        
+
         // Fetch as text first so we can see exactly what the worker is sending back
         const rawText = await res.text();
         let signals;
