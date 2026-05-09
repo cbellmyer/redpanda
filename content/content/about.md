@@ -61,18 +61,34 @@ ShowBreadCrumbs: false
       try {
         // Add a timestamp cache-buster to the target URL to ensure fresh results
         const targetUrl = 'https://pixelfed.social/users/roryredpanda.atom?t=' + Date.now();
-        const rssUrl = encodeURIComponent(targetUrl);
-        // Use disableCache=true for the proxy to prevent stale data
-        const res = await fetch(`https://api.allorigins.win/get?disableCache=true&url=${rssUrl}`);
-        const data = await res.json();
+        const encodedUrl = encodeURIComponent(targetUrl);
         
-        if (!data || !data.contents) {
-          console.error("No data received from Pixelfed proxy.");
+        const proxies = [
+          `https://corsproxy.io/?${encodedUrl}`,
+          `https://api.allorigins.win/raw?url=${encodedUrl}`,
+          `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`
+        ];
+
+        let xmlText = null;
+        for (const proxy of proxies) {
+          try {
+            const res = await fetch(proxy);
+            if (res.ok) {
+              xmlText = await res.text();
+              break; // Success, exit the loop
+            }
+          } catch (e) {
+            console.warn(`Proxy fetch failed for ${proxy}`);
+          }
+        }
+
+        if (!xmlText) {
+          console.error("All proxies failed to fetch Pixelfed data.");
           return [];
         }
 
         const parser = new DOMParser();
-        const xml = parser.parseFromString(data.contents, "text/xml");
+        const xml = parser.parseFromString(xmlText, "text/xml");
         
         // getElementsByTagName is more reliable for XML namespaces across browsers
         const entries = Array.from(xml.getElementsByTagName("entry")).slice(0, 10);
