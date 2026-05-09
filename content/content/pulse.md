@@ -12,7 +12,7 @@ type: "page"
   document.addEventListener("DOMContentLoaded", () => {
     const pulseContainer = document.getElementById("pulse-container");
     // TODO: Ensure this points to your deployed Cloudflare Worker URL
-    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev"; 
+    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev";
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
@@ -39,7 +39,7 @@ type: "page"
           pulseContainer.innerHTML = signals.map(sig => {
             let opacity = 1;
             let timeStr = "";
-            
+
             if (sig.isActive) {
               opacity = 1;
               timeStr = "Live Now";

@@ -32,7 +32,7 @@ export default {
             const { data } = await res.json();
             const isOnline = data.discord_status !== "offline";
             const activity = data.activities?.find(a => a.type === 0) || data.activities?.[0];
-            
+
             signals.push({
               source: 'Discord',
               label: isOnline ? 'LIVE' : 'OFFLINE',
@@ -52,7 +52,7 @@ export default {
           if (res.ok) {
             const data = await res.json();
             const player = data.response?.players?.[0];
-  
+
             if (player) {
               const isPlaying = !!player.gameextrainfo;
               signals.push({
@@ -77,13 +77,13 @@ export default {
           if (posts && posts.length > 0) {
             let content = posts[0].content.replace(/<[^>]*>?/gm, '').trim();
             content = content.length > 80 ? content.substring(0, 77) + '...' : content;
-            return { 
-              source: sourceName, 
-              label: label, 
-              text: content || 'New post!', 
+            return {
+              source: sourceName,
+              label: label,
+              text: content || 'New post!',
               url: posts[0].url,
               isActive: false, // Social feeds aren't strictly 'live'
-              timestamp: new Date(posts[0].created_at).getTime() 
+              timestamp: new Date(posts[0].created_at).getTime()
             };
           }
         } catch (e) { console.error(`${sourceName} error`, e); }

@@ -603,11 +603,6 @@ a:hover {
 }
 
 .pulse-card {
-  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
-  border-radius: var(--radius);
-  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
@@ -623,11 +618,11 @@ a:hover {
 
 .pulse-card.active {
   border-color: #00E5FF;
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+  box-shadow: 0 0 20px rgb(0 229 255 / 30%);
 }
 
 .pulse-card.active:hover {
-  box-shadow: 0 0 30px rgba(0, 229, 255, 0.5);
+  box-shadow: 0 0 30px rgb(0 229 255 / 50%);
   transform: translateY(-5px);
 }
 
