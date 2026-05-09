@@ -26,6 +26,9 @@ title: "Home"
     const pulseText = document.getElementById("omni-pulse-text");
     const pulseWrapper = document.getElementById("omni-pulse-wrapper");
 
+    // Move the wrapper directly to the body to escape the <main> element's stacking context!
+    document.body.appendChild(pulseWrapper);
+
     // TODO: Update this with your actual Worker deployed URL
     const WORKER_URL = "https://pulse.redpanda.workers.dev";
 
