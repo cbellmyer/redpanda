@@ -22,27 +22,27 @@ title: "Home"
     // Dynamically create the ticker to prevent Hugo Markdown parsing issues
     const li = document.createElement("li");
     li.id = "omni-pulse-wrapper";
-    
+
     const link = document.createElement("a");
     link.id = "omni-pulse-link";
     link.href = "#";
     link.target = "_blank";
     link.rel = "noopener";
     link.className = "omni-pulse-ticker";
-    
+
     const labelSpan = document.createElement("span");
     labelSpan.className = "pulse-label";
     labelSpan.id = "omni-pulse-label";
-    
+
     const dividerSpan = document.createElement("span");
     dividerSpan.className = "pulse-divider";
     dividerSpan.textContent = "//";
-    
+
     const textSpan = document.createElement("span");
     textSpan.className = "pulse-text";
     textSpan.id = "omni-pulse-text";
     textSpan.textContent = "Loading signals...";
-    
+
     link.append(labelSpan, dividerSpan, textSpan);
     li.appendChild(link);
     menu.appendChild(li); // Mount directly to the site header menu!
