@@ -12,7 +12,7 @@ type: "page"
   document.addEventListener("DOMContentLoaded", () => {
     const pulseContainer = document.getElementById("pulse-container");
     // TODO: Ensure this points to your deployed Cloudflare Worker URL
-    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev"; 
+    const WORKER_URL = "redpanda.self-host.workers.dev"; 
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
@@ -33,9 +33,21 @@ type: "page"
     async function fetchSignals() {
       try {
         const res = await fetch(WORKER_URL);
-        const signals = await res.json();
+        
+        // Fetch as text first so we can see exactly what the worker is sending back
+        const rawText = await res.text();
+        let signals;
+        try {
+          signals = JSON.parse(rawText);
+        } catch (e) {
+          console.error("Omni-Pulse received a non-JSON response. Raw text:", rawText);
+          throw new Error("Worker returned HTML or invalid data instead of JSON.");
+        }
 
-        if (signals && signals.length > 0) {
+        if (signals && signals.error) {
+          console.error("Worker explicitly returned an error:", signals.error);
+          pulseContainer.innerHTML = `<div class="loading-feed" style="color: var(--eye-highlight);">Worker Error: ${signals.error}</div>`;
+        } else if (Array.isArray(signals) && signals.length > 0) {
           pulseContainer.innerHTML = signals.map(sig => {
             let opacity = 1;
             let timeStr = "";
