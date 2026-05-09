@@ -641,11 +641,12 @@ a:hover {
 }
 
 /* Mobile adjustments for header ticker */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   #omni-pulse-wrapper {
     margin: 10px auto 0;
     text-align: center;
   }
+
   .omni-pulse-ticker {
     max-width: 100%;
     justify-content: center;
