@@ -612,7 +612,6 @@ a:hover {
   border-radius: 30px;
   background: rgb(0 0 0 / 40%);
   backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
   border: 0.5px solid #FF6700;
   box-shadow: 0 0 15px rgb(255 103 0 / 30%);
   text-decoration: none;
