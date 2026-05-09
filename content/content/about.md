@@ -65,7 +65,7 @@ ShowBreadCrumbs: false
         // Use disableCache=true for the proxy to prevent stale data
         const res = await fetch(`https://api.allorigins.win/get?disableCache=true&url=${rssUrl}`);
         const data = await res.json();
-        
+
         if (!data || !data.contents) {
           console.error("No data received from Pixelfed proxy.");
           return [];
@@ -73,24 +73,24 @@ ShowBreadCrumbs: false
 
         const parser = new DOMParser();
         const xml = parser.parseFromString(data.contents, "text/xml");
-        
+
         // getElementsByTagName is more reliable for XML namespaces across browsers
         const entries = Array.from(xml.getElementsByTagName("entry")).slice(0, 10);
 
         return entries.map(entry => {
           const contentNodes = entry.getElementsByTagName("content");
           const contentHtml = contentNodes.length > 0 ? contentNodes[0].textContent : '';
-          
+
           let image = null;
           let postUrl = 'https://pixelfed.social/roryredpanda';
-          
+
           // Manually iterate links to avoid querySelector namespace issues in XML
           const links = entry.getElementsByTagName("link");
           for (let i = 0; i < links.length; i++) {
             const rel = links[i].getAttribute("rel");
             const type = links[i].getAttribute("type") || '';
             const href = links[i].getAttribute("href");
-            
+
             if (rel === "enclosure" && type.startsWith("image")) {
               if (!image) image = href; // Take the first image enclosure
             } else if (!rel || rel === "alternate") {
@@ -111,7 +111,7 @@ ShowBreadCrumbs: false
           // Parse date carefully (fallback to updated if published is missing)
           const pubNodes = entry.getElementsByTagName("published");
           const updNodes = entry.getElementsByTagName("updated");
-          const dateStr = (pubNodes.length > 0 ? pubNodes[0].textContent : null) || 
+          const dateStr = (pubNodes.length > 0 ? pubNodes[0].textContent : null) ||
                           (updNodes.length > 0 ? updNodes[0].textContent : null);
           const date = dateStr ? new Date(dateStr) : new Date();
 
