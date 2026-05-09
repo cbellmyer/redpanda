@@ -119,6 +119,7 @@ main, .post-entry {
   z-index: 100;
   background: color-mix(in srgb, var(--fur-secondary) 70%, transparent) !important;
   backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
   border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
   box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
 }
@@ -430,6 +431,7 @@ a:hover {
   font-size: 2rem;
   font-weight: 700;
   background: linear-gradient(135deg, var(--primary), var(--throat-teal));
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
@@ -501,7 +503,7 @@ a:hover {
   border-radius: var(--radius);
   padding: 2rem;
   margin-bottom: 3rem;
-  box-shadow: 0 4px 15px rgb(0 0 0 / 20%), inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent);
+  box-shadow: 0 4px 15px rgb(0 0 0 / 20%), inset 0 1px 0 color-mix(in srgb, #ffffff 10%, transparent);
 }
 
 .bio-container h2 {
@@ -535,7 +537,7 @@ a:hover {
   display: flex;
   overflow-x: auto;
   gap: 1.5rem;
-  padding: 0.5rem 0.5rem 1.5rem;
+  padding: 0.5rem 0.5rem 1.5rem 0.5rem;
   margin-left: -0.5rem; /* Offsets the inner padding for visual alignment */
   scrollbar-width: thin;
   scrollbar-color: var(--throat-teal) transparent;
@@ -579,17 +581,64 @@ a:hover {
 }
 
 /* Pixelfed Tag */
-.feed-source.pixelfed {
-  color: #fff;
-  background: #6366f1;
+.feed-source.pixelfed { 
+  color: #ffffff; 
+  background: #6366f1; 
 }
 
 /* Bluesky Tag */
-.feed-source.bluesky {
-  color: #fff;
-  background: #0085ff;
+.feed-source.bluesky { 
+  color: #ffffff; 
+  background: #0085ff; 
 }
 
 .feed-card .content { font-size: 0.95rem; color: var(--primary); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; }
 .feed-card img { width: 100%; height: 180px; object-fit: cover; border-radius: calc(var(--radius) - 4px); background: var(--nose-dark); }
 .loading-feed { width: 100%; text-align: center; color: var(--muzzle-grey); padding: 2rem; font-style: italic; }
+
+/* Omni-Pulse Ticker Styles */
+#omni-pulse-wrapper {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: none; /* Hidden until loaded */
+}
+
+.omni-pulse-ticker {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 0.5px solid #FF6700;
+  box-shadow: 0 0 15px rgba(255, 103, 0, 0.3);
+  text-decoration: none;
+  font-family: monospace;
+  font-size: 0.9rem;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+}
+
+.omni-pulse-ticker:hover {
+  box-shadow: 0 0 25px rgba(255, 103, 0, 0.7);
+  transform: translateY(-3px);
+}
+
+.pulse-label { color: #00E5FF; font-weight: bold; letter-spacing: 0.05em; }
+.pulse-divider { color: #FF6700; opacity: 0.7; }
+
+.pulse-text {
+  color: #fff;
+  white-space: nowrap;
+  animation: pulseSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes pulseSlideUp {
+  0% { transform: translateY(15px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}

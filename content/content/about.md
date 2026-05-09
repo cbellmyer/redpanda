@@ -36,9 +36,12 @@ ShowBreadCrumbs: false
     // Fetch latest 10 from Bluesky
     async function fetchBluesky() {
       try {
-        const res = await fetch('https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=redpanda.pet&limit=10');
+        // Use the API filter to exclude replies, and fetch extra in case we filter out reposts client-side
+        const res = await fetch('https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=redpanda.pet&filter=posts_no_replies&limit=20');
         const data = await res.json();
-        return data.feed.map(item => {
+        
+        // Filter out lingering thread replies (item.reply), but keep reposts, then take up to 10
+        return data.feed.filter(item => !item.reply).slice(0, 10).map(item => {
           const post = item.post;
           const text = post.record.text || '';
           const image = post.embed?.images?.[0]?.thumb || null;
@@ -47,7 +50,8 @@ ShowBreadCrumbs: false
             date: new Date(post.indexedAt),
             text: text,
             image: image,
-            url: `https://bsky.app/profile/${post.author.handle}/post/${post.uri.split('/').pop()}`
+            url: `https://bsky.app/profile/${post.author.handle}/post/${post.uri.split('/').pop()}`,
+            isRepost: !!item.reason
           };
         });
       } catch (e) {
@@ -136,7 +140,8 @@ ShowBreadCrumbs: false
             date: date,
             text: text.trim(),
             image: image,
-            url: postUrl
+            url: postUrl,
+            isRepost: false
           };
         });
       } catch (e) {
@@ -160,7 +165,10 @@ ShowBreadCrumbs: false
       feedContainer.innerHTML = combined.map(post => `
         <a href="${post.url}" target="_blank" rel="noopener" class="feed-card">
           <div class="meta">
-            <span class="feed-source ${post.source.toLowerCase()}">${post.source}</span>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="feed-source ${post.source.toLowerCase()}">${post.source}</span>
+              ${post.isRepost ? '<span style="font-size: 0.8rem; opacity: 0.8;" title="Repost">🔁 Repost</span>' : ''}
+            </div>
             <span class="feed-date">${post.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
           </div>
           ${post.image ? `<img src="${post.image}" alt="Post image" loading="lazy">` : ''}
