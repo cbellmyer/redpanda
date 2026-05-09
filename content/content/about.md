@@ -66,7 +66,7 @@ ShowBreadCrumbs: false
         // Add a timestamp cache-buster to the target URL to ensure fresh results
         const targetUrl = 'https://pixelfed.social/users/roryredpanda.atom?t=' + Date.now();
         const encodedUrl = encodeURIComponent(targetUrl);
-        
+
         const proxies = [
           `https://corsproxy.io/?${encodedUrl}`,
           `https://api.allorigins.win/raw?url=${encodedUrl}`,
@@ -93,7 +93,7 @@ ShowBreadCrumbs: false
 
         const parser = new DOMParser();
         const xml = parser.parseFromString(xmlText, "text/xml");
-        
+
         // getElementsByTagName is more reliable for XML namespaces across browsers
         const entries = Array.from(xml.getElementsByTagName("entry")).slice(0, 10);
 
