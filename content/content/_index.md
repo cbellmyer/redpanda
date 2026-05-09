@@ -48,7 +48,7 @@ title: "Home"
     menu.appendChild(li); // Mount directly to the site header menu!
 
     // TODO: Update this with your actual Worker deployed URL
-    const WORKER_URL = "https://pulse.redpanda.workers.dev";
+    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev";
 
     async function updatePulse() {
       try {
