@@ -59,19 +59,45 @@ ShowBreadCrumbs: false
     // Fetch latest 10 from Pixelfed (Using Atom feed via CORS proxy)
     async function fetchPixelfed() {
       try {
-        const rssUrl = encodeURIComponent('https://pixelfed.social/users/roryredpanda.atom');
-        const res = await fetch(`https://api.allorigins.win/get?url=${rssUrl}`);
+        // Add a timestamp cache-buster to the target URL to ensure fresh results
+        const targetUrl = 'https://pixelfed.social/users/roryredpanda.atom?t=' + Date.now();
+        const rssUrl = encodeURIComponent(targetUrl);
+        // Use disableCache=true for the proxy to prevent stale data
+        const res = await fetch(`https://api.allorigins.win/get?disableCache=true&url=${rssUrl}`);
         const data = await res.json();
+        
+        if (!data || !data.contents) {
+          console.error("No data received from Pixelfed proxy.");
+          return [];
+        }
+
         const parser = new DOMParser();
         const xml = parser.parseFromString(data.contents, "text/xml");
-        const entries = Array.from(xml.querySelectorAll("entry")).slice(0, 10);
+        
+        // getElementsByTagName is more reliable for XML namespaces across browsers
+        const entries = Array.from(xml.getElementsByTagName("entry")).slice(0, 10);
 
         return entries.map(entry => {
-          const contentHtml = entry.querySelector("content")?.textContent || '';
+          const contentNodes = entry.getElementsByTagName("content");
+          const contentHtml = contentNodes.length > 0 ? contentNodes[0].textContent : '';
           
-          // Try to extract image from Atom enclosure first, fallback to regex in HTML
-          const enclosure = entry.querySelector("link[rel='enclosure'][type^='image']");
-          let image = enclosure ? enclosure.getAttribute("href") : null;
+          let image = null;
+          let postUrl = 'https://pixelfed.social/roryredpanda';
+          
+          // Manually iterate links to avoid querySelector namespace issues in XML
+          const links = entry.getElementsByTagName("link");
+          for (let i = 0; i < links.length; i++) {
+            const rel = links[i].getAttribute("rel");
+            const type = links[i].getAttribute("type") || '';
+            const href = links[i].getAttribute("href");
+            
+            if (rel === "enclosure" && type.startsWith("image")) {
+              if (!image) image = href; // Take the first image enclosure
+            } else if (!rel || rel === "alternate") {
+              postUrl = href;
+            }
+          }
+
           if (!image) {
             const imgMatch = contentHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
             if (imgMatch) image = imgMatch[1];
@@ -83,7 +109,10 @@ ShowBreadCrumbs: false
           const text = tempDiv.textContent || tempDiv.innerText || "";
 
           // Parse date carefully (fallback to updated if published is missing)
-          const dateStr = entry.querySelector("published")?.textContent || entry.querySelector("updated")?.textContent;
+          const pubNodes = entry.getElementsByTagName("published");
+          const updNodes = entry.getElementsByTagName("updated");
+          const dateStr = (pubNodes.length > 0 ? pubNodes[0].textContent : null) || 
+                          (updNodes.length > 0 ? updNodes[0].textContent : null);
           const date = dateStr ? new Date(dateStr) : new Date();
 
           return {
@@ -91,7 +120,7 @@ ShowBreadCrumbs: false
             date: date,
             text: text.trim(),
             image: image,
-            url: entry.querySelector("link:not([rel='enclosure'])")?.getAttribute("href") || 'https://pixelfed.social/roryredpanda'
+            url: postUrl
           };
         });
       } catch (e) {
