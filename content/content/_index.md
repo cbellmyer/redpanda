@@ -11,23 +11,41 @@ title: "Home"
   </div>
 </div>
 
-<div id="omni-pulse-wrapper">
-  <a href="#" id="omni-pulse-link" target="_blank" rel="noopener" class="omni-pulse-ticker">
-    <span class="pulse-label" id="omni-pulse-label"></span>
-    <span class="pulse-divider">//</span>
-    <span class="pulse-text" id="omni-pulse-text">Loading signals...</span>
-  </a>
-</div>
-
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const pulseLink = document.getElementById("omni-pulse-link");
-    const pulseLabel = document.getElementById("omni-pulse-label");
-    const pulseText = document.getElementById("omni-pulse-text");
-    const pulseWrapper = document.getElementById("omni-pulse-wrapper");
+    const menu = document.getElementById("menu");
+    if (!menu) {
+      console.error("Omni-Pulse Error: Could not find the site menu to attach the ticker.");
+      return;
+    }
 
-    // Move the wrapper directly to the body to escape the <main> element's stacking context!
-    document.body.appendChild(pulseWrapper);
+    // Dynamically create the ticker to prevent Hugo Markdown parsing issues
+    const li = document.createElement("li");
+    li.id = "omni-pulse-wrapper";
+    
+    const link = document.createElement("a");
+    link.id = "omni-pulse-link";
+    link.href = "#";
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.className = "omni-pulse-ticker";
+    
+    const labelSpan = document.createElement("span");
+    labelSpan.className = "pulse-label";
+    labelSpan.id = "omni-pulse-label";
+    
+    const dividerSpan = document.createElement("span");
+    dividerSpan.className = "pulse-divider";
+    dividerSpan.textContent = "//";
+    
+    const textSpan = document.createElement("span");
+    textSpan.className = "pulse-text";
+    textSpan.id = "omni-pulse-text";
+    textSpan.textContent = "Loading signals...";
+    
+    link.append(labelSpan, dividerSpan, textSpan);
+    li.appendChild(link);
+    menu.appendChild(li); // Mount directly to the site header menu!
 
     // TODO: Update this with your actual Worker deployed URL
     const WORKER_URL = "https://pulse.redpanda.workers.dev";
@@ -38,15 +56,15 @@ title: "Home"
         const data = await res.json();
 
         if (data && data.label && data.text) {
-          pulseWrapper.style.display = "block";
+          li.style.display = "inline-block"; // Show the wrapper inside the menu
 
-          if (pulseText.textContent !== data.text) {
-            pulseText.style.animation = "none";
-            void pulseText.offsetWidth; // Trigger DOM reflow to restart animation seamlessly
-            pulseLabel.textContent = data.label;
-            pulseText.textContent = data.text;
-            pulseLink.href = data.url || "#";
-            pulseText.style.animation = "pulseSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)";
+          if (textSpan.textContent !== data.text) {
+            textSpan.style.animation = "none";
+            void textSpan.offsetWidth; // Trigger DOM reflow
+            labelSpan.textContent = data.label;
+            textSpan.textContent = data.text;
+            link.href = data.url || "#";
+            textSpan.style.animation = "pulseFadeIn 0.5s ease forwards";
           }
         } else if (data && data.error) {
           console.error("Omni-Pulse Worker Error:", data.error);
