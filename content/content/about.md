@@ -13,7 +13,7 @@ ShowBreadCrumbs: false
 
 <div class="bio-container">
   <h2>The Operator’s Journey: From the Bayou to the Bay</h2>
-  
+
   <p>I grew up where the land dissolves into the water—the Alabama shores, surrounded by cypress swamps, brackish bayous, and the high-energy spirit of the original Mardi Gras. That environment taught me two things early on: how to navigate complex, murky ecosystems and how to appreciate a vibrant, costumed spectacle.</p>
 
   <p>Today, I’ve traded the Gulf for the Chesapeake Bay watershed. As a Wastewater Operator III in Maryland, my life still revolves around the water. I see the Bay not just as a landmark, but as a massive biological process that requires precision, balance, and constant care to protect. My work in process control is about stabilizing the system to keep the environment thriving.</p>
@@ -96,17 +96,17 @@ ShowBreadCrumbs: false
         return entries.map(entry => {
           const contentNodes = entry.getElementsByTagName("content");
           const contentHtml = contentNodes.length > 0 ? contentNodes[0].textContent : '';
-          
+
           let image = null;
           let postUrl = 'https://pixelfed.social/roryredpanda';
-          
+
           // Manually iterate links to avoid querySelector namespace issues in XML
           const links = entry.getElementsByTagName("link");
           for (let i = 0; i < links.length; i++) {
             const rel = links[i].getAttribute("rel");
             const type = links[i].getAttribute("type") || '';
             const href = links[i].getAttribute("href");
-            
+
             if (rel === "enclosure" && type.startsWith("image")) {
               if (!image) image = href; // Take the first image enclosure
             } else if (!rel || rel === "alternate") {
@@ -118,7 +118,7 @@ ShowBreadCrumbs: false
             const imgMatch = contentHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
             if (imgMatch) image = imgMatch[1];
           }
-          
+
           // Strip HTML tags for clean text preview
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = contentHtml;
@@ -127,7 +127,7 @@ ShowBreadCrumbs: false
           // Parse date carefully (fallback to updated if published is missing)
           const pubNodes = entry.getElementsByTagName("published");
           const updNodes = entry.getElementsByTagName("updated");
-          const dateStr = (pubNodes.length > 0 ? pubNodes[0].textContent : null) || 
+          const dateStr = (pubNodes.length > 0 ? pubNodes[0].textContent : null) ||
                           (updNodes.length > 0 ? updNodes[0].textContent : null);
           const date = dateStr ? new Date(dateStr) : new Date();
 
@@ -151,7 +151,7 @@ ShowBreadCrumbs: false
         .filter(post => post.date && !isNaN(post.date.getTime())) // Prevent Invalid Dates from breaking the sort
         .sort((a, b) => b.date.getTime() - a.date.getTime()) // Strict chronological sort (newest first)
         .slice(0, 20);
-      
+
       if (combined.length === 0) {
         feedContainer.innerHTML = '<div class="loading-feed">Could not retrieve signals at this time.</div>';
         return;

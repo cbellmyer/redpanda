@@ -119,7 +119,6 @@ main, .post-entry {
   z-index: 100;
   background: color-mix(in srgb, var(--fur-secondary) 70%, transparent) !important;
   backdrop-filter: blur(15px);
-  backdrop-filter: blur(15px);
   border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
   box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
 }
@@ -431,7 +430,6 @@ a:hover {
   font-size: 2rem;
   font-weight: 700;
   background: linear-gradient(135deg, var(--primary), var(--throat-teal));
-  background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
@@ -503,7 +501,7 @@ a:hover {
   border-radius: var(--radius);
   padding: 2rem;
   margin-bottom: 3rem;
-  box-shadow: 0 4px 15px rgb(0 0 0 / 20%), inset 0 1px 0 color-mix(in srgb, #ffffff 10%, transparent);
+  box-shadow: 0 4px 15px rgb(0 0 0 / 20%), inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent);
 }
 
 .bio-container h2 {
@@ -537,7 +535,7 @@ a:hover {
   display: flex;
   overflow-x: auto;
   gap: 1.5rem;
-  padding: 0.5rem 0.5rem 1.5rem 0.5rem;
+  padding: 0.5rem 0.5rem 1.5rem;
   margin-left: -0.5rem; /* Offsets the inner padding for visual alignment */
   scrollbar-width: thin;
   scrollbar-color: var(--throat-teal) transparent;
@@ -581,15 +579,15 @@ a:hover {
 }
 
 /* Pixelfed Tag */
-.feed-source.pixelfed { 
-  color: #ffffff; 
-  background: #6366f1; 
+.feed-source.pixelfed {
+  color: #fff;
+  background: #6366f1;
 }
 
 /* Bluesky Tag */
-.feed-source.bluesky { 
-  color: #ffffff; 
-  background: #0085ff; 
+.feed-source.bluesky {
+  color: #fff;
+  background: #0085ff;
 }
 
 .feed-card .content { font-size: 0.95rem; color: var(--primary); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; }
