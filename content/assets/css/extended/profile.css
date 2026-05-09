@@ -596,7 +596,6 @@ a:hover {
 
 /* Omni-Pulse Ticker Styles */
 #omni-pulse-wrapper {
-  display: none; /* Hidden until loaded */
   margin-left: auto; /* Aligns to the right of the menu */
 }
 

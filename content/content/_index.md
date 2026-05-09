@@ -13,9 +13,10 @@ title: "Home"
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
+    console.log("[Omni-Pulse] Script initializing...");
     const menu = document.getElementById("menu");
     if (!menu) {
-      console.error("Omni-Pulse Error: Could not find the site menu to attach the ticker.");
+      console.error("[Omni-Pulse] Error: Could not find the site menu (#menu).");
       return;
     }
 
@@ -33,6 +34,7 @@ title: "Home"
     const labelSpan = document.createElement("span");
     labelSpan.className = "pulse-label";
     labelSpan.id = "omni-pulse-label";
+    labelSpan.textContent = "SYSTEM";
 
     const dividerSpan = document.createElement("span");
     dividerSpan.className = "pulse-divider";
@@ -46,6 +48,8 @@ title: "Home"
     link.append(labelSpan, dividerSpan, textSpan);
     li.appendChild(link);
     menu.appendChild(li); // Mount directly to the site header menu!
+    
+    console.log("[Omni-Pulse] UI injected into menu. Starting fetch...");
 
     // TODO: Update this with your actual Worker deployed URL
     const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev";
@@ -54,10 +58,9 @@ title: "Home"
       try {
         const res = await fetch(WORKER_URL);
         const data = await res.json();
+        console.log("[Omni-Pulse] Data successfully received:", data);
 
         if (data && data.label && data.text) {
-          li.style.display = "inline-block"; // Show the wrapper inside the menu
-
           if (textSpan.textContent !== data.text) {
             textSpan.style.animation = "none";
             void textSpan.offsetWidth; // Trigger DOM reflow
@@ -67,11 +70,16 @@ title: "Home"
             textSpan.style.animation = "pulseFadeIn 0.5s ease forwards";
           }
         } else if (data && data.error) {
-          console.error("Omni-Pulse Worker Error:", data.error);
+          console.error("[Omni-Pulse] Worker Error:", data.error);
+          textSpan.textContent = "Signal error";
         } else {
-          console.warn("Omni-Pulse Worker returned incomplete data:", data);
+          console.warn("[Omni-Pulse] Incomplete data:", data);
+          textSpan.textContent = "Signal corrupted";
         }
-      } catch (err) { console.warn("Omni-Pulse fetch failed:", err); }
+      } catch (err) { 
+        console.error("[Omni-Pulse] Network fetch failed:", err); 
+        textSpan.textContent = "Connection failed";
+      }
     }
 
     updatePulse();
