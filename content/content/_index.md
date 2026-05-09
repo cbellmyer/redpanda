@@ -80,8 +80,8 @@ title: "Home"
             console.warn("[Omni-Pulse] Incomplete data:", data);
             textSpan.textContent = "Signal corrupted";
           }
-        } catch (err) { 
-          console.error("[Omni-Pulse] Network fetch failed:", err); 
+        } catch (err) {
+          console.error("[Omni-Pulse] Network fetch failed:", err);
           textSpan.textContent = "Connection failed";
         }
       }
