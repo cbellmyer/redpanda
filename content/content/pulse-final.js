@@ -21,102 +21,111 @@ export default {
     const smugmugUrl = env.SMUGMUG_URL || 'https://photo.redpanda.pet/';
     const xUrl = env.X_URL || 'https://twitter.com/furcologist';
 
+    const signals = [];
+
     try {
       // 1. DISCORD (Lanyard API)
       if (discordId) {
-        const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId}`);
-        if (res.ok) {
-          const { data } = await res.json();
-          if (data.discord_status !== "offline") {
-            // Try to find a custom activity or game, otherwise default to "Online"
+        try {
+          const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId}`);
+          if (res.ok) {
+            const { data } = await res.json();
+            const isOnline = data.discord_status !== "offline";
             const activity = data.activities?.find(a => a.type === 0) || data.activities?.[0];
-            return new Response(JSON.stringify({
-              label: 'LIVE',
-              text: activity ? activity.name : 'Online',
-              url: `https://discord.com/users/${discordId}`
-            }), { headers: corsHeaders });
+            
+            signals.push({
+              source: 'Discord',
+              label: isOnline ? 'LIVE' : 'OFFLINE',
+              text: activity ? activity.name : (isOnline ? 'Online' : 'Offline'),
+              url: `https://discord.com/users/${discordId}`,
+              isActive: isOnline,
+              timestamp: Date.now() // For Discord, 'active' essentially means right now
+            });
           }
-        }
+        } catch (e) { console.error("Discord error", e); }
       }
 
       // 2. STEAM
       if (steamApiKey && steamId) {
-        const res = await fetch(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${steamApiKey}&steamids=${steamId}&format=json`);
-        if (res.ok) {
-          const data = await res.json();
-          const player = data.response?.players?.[0];
-
-          // gameextrainfo is only present if the user is currently in-game right now
-          if (player && player.gameextrainfo) {
-            return new Response(JSON.stringify({
-              label: 'GAMING',
-              text: `Playing ${player.gameextrainfo}`,
-              url: `https://steamcommunity.com/profiles/${steamId}`
-            }), { headers: corsHeaders });
+        try {
+          const res = await fetch(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${steamApiKey}&steamids=${steamId}&format=json`);
+          if (res.ok) {
+            const data = await res.json();
+            const player = data.response?.players?.[0];
+  
+            if (player) {
+              const isPlaying = !!player.gameextrainfo;
+              signals.push({
+                source: 'Steam',
+                label: isPlaying ? 'GAMING' : 'OFFLINE',
+                text: isPlaying ? `Playing ${player.gameextrainfo}` : 'Offline',
+                url: `https://steamcommunity.com/profiles/${steamId}`,
+                isActive: isPlaying,
+                timestamp: isPlaying ? Date.now() : (player.lastlogoff * 1000)
+              });
+            }
           }
-        }
+        } catch (e) { console.error("Steam error", e); }
       }
 
       // 3. PIXELFED & MASTODON
-      const fetchFedi = async (url, type) => {
-        const res = await fetch(url, { headers: reqHeaders });
-        if (!res.ok) return null;
-        const posts = await res.json();
-        if (posts && posts.length > 0) {
-          return { type, post: posts[0], timestamp: new Date(posts[0].created_at).getTime() };
-        }
+      const fetchFedi = async (url, label, sourceName) => {
+        try {
+          const res = await fetch(url, { headers: reqHeaders });
+          if (!res.ok) return null;
+          const posts = await res.json();
+          if (posts && posts.length > 0) {
+            let content = posts[0].content.replace(/<[^>]*>?/gm, '').trim();
+            content = content.length > 80 ? content.substring(0, 77) + '...' : content;
+            return { 
+              source: sourceName, 
+              label: label, 
+              text: content || 'New post!', 
+              url: posts[0].url,
+              isActive: false, // Social feeds aren't strictly 'live'
+              timestamp: new Date(posts[0].created_at).getTime() 
+            };
+          }
+        } catch (e) { console.error(`${sourceName} error`, e); }
         return null;
       };
 
-      // Note: Use standard Mastodon API endpoints: /api/v1/accounts/[ID]/statuses?limit=1
       const [px, mstdn] = await Promise.allSettled([
-        pixelfedApi ? fetchFedi(pixelfedApi, 'PHOTO') : Promise.resolve(null),
-        mastodonApi ? fetchFedi(mastodonApi, 'SOCIAL') : Promise.resolve(null)
+        pixelfedApi ? fetchFedi(pixelfedApi, 'PHOTO', 'Pixelfed') : Promise.resolve(null),
+        mastodonApi ? fetchFedi(mastodonApi, 'SOCIAL', 'Mastodon') : Promise.resolve(null)
       ]);
 
-      const pxData = px.status === 'fulfilled' ? px.value : null;
-      const mstdnData = mstdn.status === 'fulfilled' ? mstdn.value : null;
-
-      let fediWinner = null;
-      if (pxData && mstdnData) {
-        fediWinner = pxData.timestamp > mstdnData.timestamp ? pxData : mstdnData;
-      } else {
-        fediWinner = pxData || mstdnData;
-      }
-
-      if (fediWinner) {
-        // Strip HTML tags safely for the ticker
-        let content = fediWinner.post.content.replace(/<[^>]*>?/gm, '').trim();
-        content = content.length > 50 ? content.substring(0, 47) + '...' : content;
-
-        return new Response(JSON.stringify({
-          label: fediWinner.type,
-          text: content || 'New post!',
-          url: fediWinner.post.url
-        }), { headers: corsHeaders });
-      }
+      if (px.status === 'fulfilled' && px.value) signals.push(px.value);
+      if (mstdn.status === 'fulfilled' && mstdn.value) signals.push(mstdn.value);
 
       // 4. SMUGMUG
       if (smugmugUrl) {
-        // Note: Full SmugMug RSS parsing omitted for brevity. Assuming active trigger here.
-         return new Response(JSON.stringify({
-            label: 'PORTFOLIO',
-            text: 'New photos added to SmugMug!',
-            url: smugmugUrl
-          }), { headers: corsHeaders });
+        signals.push({
+          source: 'Portfolio',
+          label: 'GALLERY',
+          text: 'Recent photo updates',
+          url: smugmugUrl,
+          isActive: false,
+          timestamp: 0 // Will sit at the bottom, dimmed out
+        });
       }
 
       // 5. X (TWITTER) FALLBACK
       if (xUrl) {
-        return new Response(JSON.stringify({
+        signals.push({
+          source: 'X',
           label: 'X',
-          text: 'Latest Post',
-          url: xUrl
-        }), { headers: corsHeaders });
+          text: 'Archive',
+          url: xUrl,
+          isActive: false,
+          timestamp: 0
+        });
       }
 
-      // 6. DEFAULT FALLBACK
-      return new Response(JSON.stringify({ label: 'SYSTEM', text: 'Standby', url: '#' }), { headers: corsHeaders });
+      // Sort descending by timestamp so newest active feeds drop to the top
+      signals.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+      return new Response(JSON.stringify(signals), { headers: corsHeaders });
 
     } catch (error) {
       return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });

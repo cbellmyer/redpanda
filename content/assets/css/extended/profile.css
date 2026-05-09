@@ -594,60 +594,92 @@ a:hover {
 .feed-card img { width: 100%; height: 180px; object-fit: cover; border-radius: calc(var(--radius) - 4px); background: var(--nose-dark); }
 .loading-feed { width: 100%; text-align: center; color: var(--muzzle-grey); padding: 2rem; font-style: italic; }
 
-/* Omni-Pulse Ticker Styles */
-#omni-pulse-wrapper {
-  margin-left: auto; /* Aligns to the right of the menu */
+/* Pulse Page Styles */
+.pulse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
-.omni-pulse-ticker {
+.pulse-card {
+  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+  border-radius: var(--radius);
+  padding: 1.5rem;
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  background: rgb(0 0 0 / 40%);
-  backdrop-filter: blur(12px);
-  border: 0.5px solid #FF6700;
-  box-shadow: 0 0 15px rgb(255 103 0 / 30%);
+  flex-direction: column;
+  gap: 0.8rem;
   text-decoration: none;
-  font-family: monospace;
-  font-size: 0.85rem;
-  transition: box-shadow 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
+.pulse-card.active {
+  border-color: #00E5FF;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+}
+
+.pulse-card.active:hover {
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.5);
+  transform: translateY(-5px);
+}
+
+.pulse-card:not(.active):hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--throat-teal) 70%, transparent);
+  opacity: 1 !important; /* Forces the card to "wake up" to full opacity when hovered! */
+}
+
+.pulse-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pulse-source {
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--throat-teal);
+}
+
+.pulse-card.active .pulse-source {
+  color: #00E5FF;
+}
+
+.pulse-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--muzzle-grey);
+}
+
+.pulse-card.active .pulse-indicator {
+  background: #FF6700;
+  box-shadow: 0 0 10px #FF6700;
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.pulse-content {
+  color: var(--primary);
+  font-size: 1.05rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  max-width: 250px;
 }
 
-.omni-pulse-ticker:hover {
-  box-shadow: 0 0 15px rgb(255 103 0 / 60%);
-  transform: translateY(-2px);
-  background: rgb(0 0 0 / 60%);
-}
-
-.pulse-label { color: #00E5FF; font-weight: bold; letter-spacing: 0.05em; }
-.pulse-divider { color: #FF6700; opacity: 0.7; }
-
-.pulse-text {
-  color: #fff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  animation: pulseFadeIn 0.5s ease forwards;
-}
-
-@keyframes pulseFadeIn {
-  0% { opacity: 0; transform: translateX(10px); }
-  100% { opacity: 1; transform: translateX(0); }
-}
-
-/* Mobile adjustments for header ticker */
-@media (width <= 768px) {
-  #omni-pulse-wrapper {
-    margin: 10px auto 0;
-    text-align: center;
-  }
-
-  .omni-pulse-ticker {
-    max-width: 100%;
-    justify-content: center;
-  }
+.pulse-time {
+  font-size: 0.8rem;
+  color: var(--muzzle-grey);
+  margin-top: auto;
 }
