@@ -25,18 +25,18 @@ title: "Home"
     const pulseLabel = document.getElementById("omni-pulse-label");
     const pulseText = document.getElementById("omni-pulse-text");
     const pulseWrapper = document.getElementById("omni-pulse-wrapper");
-    
+
     // TODO: Update this with your actual Worker deployed URL
-    const WORKER_URL = "https://pulse.redpanda.workers.dev"; 
-    
+    const WORKER_URL = "https://pulse.redpanda.workers.dev";
+
     async function updatePulse() {
       try {
         const res = await fetch(WORKER_URL);
         const data = await res.json();
-        
+
         if (data && data.label && data.text) {
           pulseWrapper.style.display = "block";
-          
+
           if (pulseText.textContent !== data.text) {
             pulseText.style.animation = "none";
             void pulseText.offsetWidth; // Trigger DOM reflow to restart animation seamlessly

@@ -39,7 +39,7 @@ ShowBreadCrumbs: false
         // Use the API filter to exclude replies, and fetch extra in case we filter out reposts client-side
         const res = await fetch('https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=redpanda.pet&filter=posts_no_replies&limit=20');
         const data = await res.json();
-        
+
         // Filter out lingering thread replies (item.reply), but keep reposts, then take up to 10
         return data.feed.filter(item => !item.reply).slice(0, 10).map(item => {
           const post = item.post;
