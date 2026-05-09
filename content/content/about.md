@@ -36,9 +36,12 @@ ShowBreadCrumbs: false
     // Fetch latest 10 from Bluesky
     async function fetchBluesky() {
       try {
-        const res = await fetch('https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=redpanda.pet&limit=10');
+        // Use the API filter to exclude replies, and fetch extra in case we filter out reposts client-side
+        const res = await fetch('https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=redpanda.pet&filter=posts_no_replies&limit=20');
         const data = await res.json();
-        return data.feed.map(item => {
+
+        // Filter out lingering thread replies (item.reply), but keep reposts, then take up to 10
+        return data.feed.filter(item => !item.reply).slice(0, 10).map(item => {
           const post = item.post;
           const text = post.record.text || '';
           const image = post.embed?.images?.[0]?.thumb || null;
@@ -47,7 +50,8 @@ ShowBreadCrumbs: false
             date: new Date(post.indexedAt),
             text: text,
             image: image,
-            url: `https://bsky.app/profile/${post.author.handle}/post/${post.uri.split('/').pop()}`
+            url: `https://bsky.app/profile/${post.author.handle}/post/${post.uri.split('/').pop()}`,
+            isRepost: !!item.reason
           };
         });
       } catch (e) {
@@ -59,19 +63,61 @@ ShowBreadCrumbs: false
     // Fetch latest 10 from Pixelfed (Using Atom feed via CORS proxy)
     async function fetchPixelfed() {
       try {
-        const rssUrl = encodeURIComponent('https://pixelfed.social/users/roryredpanda.atom');
-        const res = await fetch(`https://api.allorigins.win/get?url=${rssUrl}`);
-        const data = await res.json();
+        // Add a timestamp cache-buster to the target URL to ensure fresh results
+        const targetUrl = 'https://pixelfed.social/users/roryredpanda.atom?t=' + Date.now();
+        const encodedUrl = encodeURIComponent(targetUrl);
+
+        const proxies = [
+          `https://corsproxy.io/?${encodedUrl}`,
+          `https://api.allorigins.win/raw?url=${encodedUrl}`,
+          `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`
+        ];
+
+        let xmlText = null;
+        for (const proxy of proxies) {
+          try {
+            const res = await fetch(proxy);
+            if (res.ok) {
+              xmlText = await res.text();
+              break; // Success, exit the loop
+            }
+          } catch (e) {
+            console.warn(`Proxy fetch failed for ${proxy}`);
+          }
+        }
+
+        if (!xmlText) {
+          console.error("All proxies failed to fetch Pixelfed data.");
+          return [];
+        }
+
         const parser = new DOMParser();
-        const xml = parser.parseFromString(data.contents, "text/xml");
-        const entries = Array.from(xml.querySelectorAll("entry")).slice(0, 10);
+        const xml = parser.parseFromString(xmlText, "text/xml");
+
+        // getElementsByTagName is more reliable for XML namespaces across browsers
+        const entries = Array.from(xml.getElementsByTagName("entry")).slice(0, 10);
 
         return entries.map(entry => {
-          const contentHtml = entry.querySelector("content")?.textContent || '';
+          const contentNodes = entry.getElementsByTagName("content");
+          const contentHtml = contentNodes.length > 0 ? contentNodes[0].textContent : '';
 
-          // Try to extract image from Atom enclosure first, fallback to regex in HTML
-          const enclosure = entry.querySelector("link[rel='enclosure'][type^='image']");
-          let image = enclosure ? enclosure.getAttribute("href") : null;
+          let image = null;
+          let postUrl = 'https://pixelfed.social/roryredpanda';
+
+          // Manually iterate links to avoid querySelector namespace issues in XML
+          const links = entry.getElementsByTagName("link");
+          for (let i = 0; i < links.length; i++) {
+            const rel = links[i].getAttribute("rel");
+            const type = links[i].getAttribute("type") || '';
+            const href = links[i].getAttribute("href");
+
+            if (rel === "enclosure" && type.startsWith("image")) {
+              if (!image) image = href; // Take the first image enclosure
+            } else if (!rel || rel === "alternate") {
+              postUrl = href;
+            }
+          }
+
           if (!image) {
             const imgMatch = contentHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
             if (imgMatch) image = imgMatch[1];
@@ -83,7 +129,10 @@ ShowBreadCrumbs: false
           const text = tempDiv.textContent || tempDiv.innerText || "";
 
           // Parse date carefully (fallback to updated if published is missing)
-          const dateStr = entry.querySelector("published")?.textContent || entry.querySelector("updated")?.textContent;
+          const pubNodes = entry.getElementsByTagName("published");
+          const updNodes = entry.getElementsByTagName("updated");
+          const dateStr = (pubNodes.length > 0 ? pubNodes[0].textContent : null) ||
+                          (updNodes.length > 0 ? updNodes[0].textContent : null);
           const date = dateStr ? new Date(dateStr) : new Date();
 
           return {
@@ -91,7 +140,8 @@ ShowBreadCrumbs: false
             date: date,
             text: text.trim(),
             image: image,
-            url: entry.querySelector("link:not([rel='enclosure'])")?.getAttribute("href") || 'https://pixelfed.social/roryredpanda'
+            url: postUrl,
+            isRepost: false
           };
         });
       } catch (e) {
@@ -115,7 +165,10 @@ ShowBreadCrumbs: false
       feedContainer.innerHTML = combined.map(post => `
         <a href="${post.url}" target="_blank" rel="noopener" class="feed-card">
           <div class="meta">
-            <span class="feed-source ${post.source.toLowerCase()}">${post.source}</span>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="feed-source ${post.source.toLowerCase()}">${post.source}</span>
+              ${post.isRepost ? '<span style="font-size: 0.8rem; opacity: 0.8;" title="Repost">🔁 Repost</span>' : ''}
+            </div>
             <span class="feed-date">${post.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
           </div>
           ${post.image ? `<img src="${post.image}" alt="Post image" loading="lazy">` : ''}
