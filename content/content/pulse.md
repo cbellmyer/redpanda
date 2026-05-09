@@ -51,7 +51,7 @@ type: "page"
           pulseContainer.innerHTML = signals.map(sig => {
             let opacity = 1;
             let timeStr = "";
-            
+
             if (sig.isActive) {
               opacity = 1;
               timeStr = "Live Now";
