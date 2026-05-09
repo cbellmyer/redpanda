@@ -12,7 +12,7 @@ type: "page"
   document.addEventListener("DOMContentLoaded", () => {
     const pulseContainer = document.getElementById("pulse-container");
     // TODO: Ensure this points to your deployed Cloudflare Worker URL
-    const WORKER_URL = "redpanda.self-host.workers.dev"; 
+    const WORKER_URL = "redpanda.self-host.workers.dev";
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
@@ -33,7 +33,7 @@ type: "page"
     async function fetchSignals() {
       try {
         const res = await fetch(WORKER_URL);
-        
+
         // Fetch as text first so we can see exactly what the worker is sending back
         const rawText = await res.text();
         let signals;
