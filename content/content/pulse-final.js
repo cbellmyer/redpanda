@@ -6,7 +6,7 @@ export default {
     };
 
     // Strict User-Agent for Fediverse instance compliance
-    const reqHeaders = { 
+    const reqHeaders = {
       'User-Agent': 'RedPanda-OmniPulse/1.0 (+https://redpanda.pet)',
       'Accept': 'application/json'
     };
@@ -45,7 +45,7 @@ export default {
         if (res.ok) {
           const data = await res.json();
           const player = data.response?.players?.[0];
-          
+
           // gameextrainfo is only present if the user is currently in-game right now
           if (player && player.gameextrainfo) {
             return new Response(JSON.stringify({
@@ -87,7 +87,7 @@ export default {
         // Strip HTML tags safely for the ticker
         let content = fediWinner.post.content.replace(/<[^>]*>?/gm, '').trim();
         content = content.length > 50 ? content.substring(0, 47) + '...' : content;
-        
+
         return new Response(JSON.stringify({
           label: fediWinner.type,
           text: content || 'New post!',
