@@ -50,6 +50,7 @@ export default {
           if (player && player.gameextrainfo) {
             return new Response(JSON.stringify({
               label: 'GAMING',
+              text: `Playing ${player.gameextrainfo}`,
               url: `https://steamcommunity.com/profiles/${steamId}`
             }), { headers: corsHeaders });
           }

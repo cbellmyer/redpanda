@@ -45,6 +45,10 @@ title: "Home"
             pulseLink.href = data.url || "#";
             pulseText.style.animation = "pulseSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)";
           }
+        } else if (data && data.error) {
+          console.error("Omni-Pulse Worker Error:", data.error);
+        } else {
+          console.warn("Omni-Pulse Worker returned incomplete data:", data);
         }
       } catch (err) { console.warn("Omni-Pulse fetch failed:", err); }
     }
