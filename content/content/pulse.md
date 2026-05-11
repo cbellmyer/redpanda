@@ -19,8 +19,8 @@ menu:
     // Auto-detect environment: Use the official Worker on the live site, and the dev Worker everywhere else!
     const isLiveSite = window.location.hostname.includes("redpanda.pet");
     const WORKER_URL = isLiveSite
-      ? "https://redpanda.self-host.workers.dev" 
-      : "https://pulse-redpanda.self-host.workers.dev"; 
+      ? "https://redpanda.self-host.workers.dev"
+      : "https://pulse-redpanda.self-host.workers.dev";
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
