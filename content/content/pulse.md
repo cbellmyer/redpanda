@@ -15,8 +15,8 @@ menu:
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const pulseContainer = document.getElementById("pulse-container");
-    // Point this to your deployed Cloudflare Worker URL (Make sure https:// is included!)
-    const WORKER_URL = "https://redpanda.self-host.workers.dev";
+    // ⚠️ IMPORTANT: This must be the URL of your API Worker, NOT your website URL!
+    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev"; 
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
@@ -84,7 +84,11 @@ menu:
         }
       } catch (err) {
         console.error("Pulse fetch failed:", err);
-        pulseContainer.innerHTML = '<div class="loading-feed">Failed to connect to the signal relay.</div>';
+        pulseContainer.innerHTML = `
+          <div class="loading-feed" style="color: var(--eye-highlight); line-height: 1.6;">
+            Failed to connect to the signal relay.<br>
+            <span style="font-size: 0.85rem; opacity: 0.8;">(Check the console. If you see a CORS error with Status 200, your WORKER_URL is pointing to your website instead of the API Worker!)</span>
+          </div>`;
       }
     }
 
