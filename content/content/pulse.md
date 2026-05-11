@@ -51,8 +51,8 @@ menu:
           const titleMatch = rawText.match(/<title>(.*?)<\/title>/i);
           const errorReason = titleMatch ? titleMatch[1] : "Unknown HTML Response";
           
-          if (errorReason.includes("404") || errorReason.includes("Rory")) {
-            throw new Error(`API endpoint not found. (If you are running this locally, this is expected!)`);
+          if (errorReason.includes("Rory") || errorReason.includes("Home") || errorReason.includes("Redpanda")) {
+            throw new Error(`The WORKER_URL is pointing to your Hugo website instead of the API script!`);
           }
           throw new Error(`Cloudflare intercepted the request: ${errorReason}`);
         }
