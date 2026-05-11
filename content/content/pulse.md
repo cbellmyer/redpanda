@@ -17,9 +17,9 @@ menu:
     const pulseContainer = document.getElementById("pulse-container");
 
     // Use a relative path! Cloudflare Pages will automatically route this to the 'functions' folder.
-    // Note: When testing locally with 'hugo server', this will show a 404 error because Hugo isn't a Cloudflare server. 
+    // Note: When testing locally with 'hugo server', this will show a 404 error because Hugo isn't a Cloudflare server.
     // It will work flawlessly the second it is pushed to GitHub and built by Cloudflare!
-    const WORKER_URL = "/api/pulse"; 
+    const WORKER_URL = "/api/pulse";
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
@@ -50,7 +50,7 @@ menu:
           console.error("Omni-Pulse received a non-JSON response. Raw text:", rawText);
           const titleMatch = rawText.match(/<title>(.*?)<\/title>/i);
           const errorReason = titleMatch ? titleMatch[1] : "Unknown HTML Response";
-          
+
           if (errorReason.includes("Rory") || errorReason.includes("Home") || errorReason.includes("Redpanda")) {
             throw new Error(`The WORKER_URL is pointing to your Hugo website instead of the API script!`);
           }
