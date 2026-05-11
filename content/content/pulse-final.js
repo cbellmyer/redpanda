@@ -3,7 +3,14 @@ export default {
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Content-Type': 'application/json',
+      'Access-Control-Allow-Methods': 'GET, HEAD, POST, OPTIONS',
+      'Access-Control-Allow-Headers': '*',
     };
+
+    // Handle CORS preflight requests immediately
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders });
+    }
 
     // Strict User-Agent for Fediverse instance compliance
     const reqHeaders = {
