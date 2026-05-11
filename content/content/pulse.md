@@ -15,8 +15,12 @@ menu:
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const pulseContainer = document.getElementById("pulse-container");
-    // ⚠️ IMPORTANT: This must be the URL of your API Worker, NOT your website URL!
-    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev"; 
+    
+    // Auto-detect environment: Use the official Worker on the live site, and the dev Worker everywhere else!
+    const isLiveSite = window.location.hostname.includes("redpanda.pet");
+    const WORKER_URL = isLiveSite 
+      ? "https://YOUR-OFFICIAL-PROD-WORKER.workers.dev" // ⚠️ TODO: Put your production Worker URL here!
+      : "https://pulse-redpanda.self-host.workers.dev"; // ⚠️ Verify this is your exact Dev Worker URL!
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
@@ -45,7 +49,9 @@ menu:
           signals = JSON.parse(rawText);
         } catch (e) {
           console.error("Omni-Pulse received a non-JSON response. Raw text:", rawText);
-          throw new Error("Worker returned HTML or invalid data instead of JSON.");
+          const titleMatch = rawText.match(/<title>(.*?)<\/title>/i);
+          const errorReason = titleMatch ? titleMatch[1] : "Unknown HTML Response";
+          throw new Error(`Cloudflare intercepted the request: ${errorReason}`);
         }
 
         if (signals && signals.error) {
@@ -87,7 +93,7 @@ menu:
         pulseContainer.innerHTML = `
           <div class="loading-feed" style="color: var(--eye-highlight); line-height: 1.6;">
             Failed to connect to the signal relay.<br>
-            <span style="font-size: 0.85rem; opacity: 0.8;">(Check the console. If you see a CORS error with Status 200, your WORKER_URL is pointing to your website instead of the API Worker!)</span>
+            <span style="font-size: 0.85rem; opacity: 0.8;">(${err.message})</span>
           </div>`;
       }
     }
