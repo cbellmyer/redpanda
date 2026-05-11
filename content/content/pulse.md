@@ -19,8 +19,8 @@ menu:
     // Auto-detect environment: Use the official Worker on the live site, and the dev Worker everywhere else!
     const isLiveSite = window.location.hostname.includes("redpanda.pet");
     const WORKER_URL = isLiveSite
-      ? "https://YOUR-OFFICIAL-PROD-WORKER.workers.dev" // ⚠️ TODO: Put your production Worker URL here!
-      : "https://pulse-redpanda.self-host.workers.dev"; // ⚠️ Verify this is your exact Dev Worker URL!
+      ? "redpanda.self-host.workers.dev" // ⚠️ TODO: Put your production API Worker URL here!
+      : "https://pulse-redpanda.self-host.workers.dev"; // ⚠️ TODO: Put your dev API Worker URL here!
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
