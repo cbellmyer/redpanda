@@ -16,11 +16,8 @@ menu:
   document.addEventListener("DOMContentLoaded", () => {
     const pulseContainer = document.getElementById("pulse-container");
 
-    // Auto-detect environment: Use the official Worker on the live site, and the dev Worker everywhere else!
-    const isLiveSite = window.location.hostname.includes("redpanda.pet");
-    const WORKER_URL = isLiveSite
-      ? "https://redpanda.self-host.workers.dev" 
-      : "https://pulse-redpanda.self-host.workers.dev"; 
+    // Point directly to the single worker running your pulse-final.js script
+    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev"; 
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
@@ -51,6 +48,10 @@ menu:
           console.error("Omni-Pulse received a non-JSON response. Raw text:", rawText);
           const titleMatch = rawText.match(/<title>(.*?)<\/title>/i);
           const errorReason = titleMatch ? titleMatch[1] : "Unknown HTML Response";
+          
+          if (errorReason.includes("Rory") || errorReason.includes("Home") || errorReason.includes("Redpanda")) {
+            throw new Error(`The WORKER_URL is pointing to your Hugo website instead of the API script!`);
+          }
           throw new Error(`Cloudflare intercepted the request: ${errorReason}`);
         }
 
