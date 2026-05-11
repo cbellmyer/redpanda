@@ -17,7 +17,7 @@ menu:
     const pulseContainer = document.getElementById("pulse-container");
 
     // Point directly to the single worker running your pulse-final.js script
-    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev"; 
+    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev";
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
@@ -48,7 +48,7 @@ menu:
           console.error("Omni-Pulse received a non-JSON response. Raw text:", rawText);
           const titleMatch = rawText.match(/<title>(.*?)<\/title>/i);
           const errorReason = titleMatch ? titleMatch[1] : "Unknown HTML Response";
-          
+
           if (errorReason.includes("Rory") || errorReason.includes("Home") || errorReason.includes("Redpanda")) {
             throw new Error(`The WORKER_URL is pointing to your Hugo website instead of the API script!`);
           }
