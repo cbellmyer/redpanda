@@ -16,7 +16,7 @@ menu:
   document.addEventListener("DOMContentLoaded", () => {
     const pulseContainer = document.getElementById("pulse-container");
     // Point this to your deployed Cloudflare Worker URL (Make sure https:// is included!)
-    const WORKER_URL = "https://redpanda.self-host.workers.dev"; 
+    const WORKER_URL = "https://redpanda.self-host.workers.dev";
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
