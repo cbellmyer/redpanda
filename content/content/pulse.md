@@ -16,8 +16,10 @@ menu:
   document.addEventListener("DOMContentLoaded", () => {
     const pulseContainer = document.getElementById("pulse-container");
 
-    // Point directly to the single worker running your pulse-final.js script
-    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev"; 
+    // Use a relative path! Cloudflare Pages will automatically route this to the 'functions' folder.
+    // Note: When testing locally with 'hugo server', this will show a 404 error because Hugo isn't a Cloudflare server. 
+    // It will work flawlessly the second it is pushed to GitHub and built by Cloudflare!
+    const WORKER_URL = "/api/pulse"; 
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
@@ -49,8 +51,8 @@ menu:
           const titleMatch = rawText.match(/<title>(.*?)<\/title>/i);
           const errorReason = titleMatch ? titleMatch[1] : "Unknown HTML Response";
           
-          if (errorReason.includes("Rory") || errorReason.includes("Home") || errorReason.includes("Redpanda")) {
-            throw new Error(`The WORKER_URL is pointing to your Hugo website instead of the API script!`);
+          if (errorReason.includes("404") || errorReason.includes("Rory")) {
+            throw new Error(`API endpoint not found. (If you are running this locally, this is expected!)`);
           }
           throw new Error(`Cloudflare intercepted the request: ${errorReason}`);
         }
