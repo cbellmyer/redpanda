@@ -48,14 +48,14 @@ menu:
           signals = JSON.parse(rawText);
         } catch (e) {
           console.error("Omni-Pulse received a non-JSON response. Raw text:", rawText);
-          
+
           if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
             throw new Error(`Local server detected! The Pulse API relies on Cloudflare Pages, which doesn't run on the basic 'hugo server'. Push to GitHub to see it working live!`);
           }
 
           const titleMatch = rawText.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
           const errorReason = titleMatch ? titleMatch[1].trim() : "Unknown HTML Response";
-          
+
           throw new Error(`Cloudflare intercepted the request: ${errorReason}`);
         }
 
