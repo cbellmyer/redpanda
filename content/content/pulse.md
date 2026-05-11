@@ -16,7 +16,7 @@ menu:
   document.addEventListener("DOMContentLoaded", () => {
     const pulseContainer = document.getElementById("pulse-container");
     // ⚠️ IMPORTANT: This must be the URL of your API Worker, NOT your website URL!
-    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev"; 
+    const WORKER_URL = "https://pulse-redpanda.self-host.workers.dev";
 
     function timeAgo(timestamp) {
       if (!timestamp) return "";
