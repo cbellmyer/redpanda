@@ -15,10 +15,10 @@ menu:
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const pulseContainer = document.getElementById("pulse-container");
-    
+
     // Auto-detect environment: Use the official Worker on the live site, and the dev Worker everywhere else!
     const isLiveSite = window.location.hostname.includes("redpanda.pet");
-    const WORKER_URL = isLiveSite 
+    const WORKER_URL = isLiveSite
       ? "https://YOUR-OFFICIAL-PROD-WORKER.workers.dev" // ⚠️ TODO: Put your production Worker URL here!
       : "https://pulse-redpanda.self-host.workers.dev"; // ⚠️ Verify this is your exact Dev Worker URL!
 
