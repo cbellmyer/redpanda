@@ -254,21 +254,25 @@ menu:
         const encodedUrl = encodeURIComponent(targetUrl);
 
         const proxies = [
-          `https://corsproxy.io/?${encodedUrl}`,
-          `https://api.allorigins.win/raw?url=${encodedUrl}`,
-          `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`
+          { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true },
+          { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false }
         ];
 
         let xmlText = null;
         for (const proxy of proxies) {
           try {
-            const res = await fetch(proxy);
+            const res = await fetch(proxy.url);
             if (res.ok) {
-              xmlText = await res.text();
-              break;
+              if (proxy.isJson) {
+                const data = await res.json();
+                xmlText = data.contents;
+              } else {
+                xmlText = await res.text();
+              }
+              if (xmlText) break;
             }
           } catch (e) {
-            console.warn(`Proxy fetch failed for ${proxy}`);
+            console.warn(`Proxy fetch failed for ${proxy.url}`);
           }
         }
 
@@ -402,48 +406,35 @@ menu:
         const targetUrl = `https://${SMUGMUG_NICKNAME}.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=${SMUGMUG_NICKNAME}&format=rss200`;
         let xmlText = null;
 
-        try {
-          console.log(`[SmugMug] Attempting direct fetch to ${targetUrl}`);
-          const res = await fetch(targetUrl);
-          if (res.ok) {
-            xmlText = await res.text();
-            console.log("[SmugMug] Direct fetch successful!");
-          } else {
-            console.warn(`[SmugMug] Direct fetch returned status: ${res.status}`);
-          }
-        } catch (e) {
-          console.warn(`[SmugMug] Direct fetch failed (likely CORS). ${e.message}`);
+        // SmugMug does not support CORS. Skip direct fetch to avoid browser console errors.
+        // SmugMug's legacy API rejects unknown parameters like the cache buster, causing 403s!
+        // We must pass the exact URL. We'll also use AllOrigins JSON endpoint which avoids raw blocks.
+        const encodedUrl = encodeURIComponent(targetUrl);
+        const proxies = [
+          { url: `https://api.allorigins.win/get?url=${encodedUrl}&disableCache=true`, isJson: true },
+          { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false }
+        ];
 
-          // Proxy fallbacks
-          // SmugMug's legacy API rejects unknown parameters like the cache buster, causing 403s!
-          // We must pass the exact URL. We'll also use AllOrigins JSON endpoint which avoids raw blocks.
-          const encodedUrl = encodeURIComponent(targetUrl);
-          const proxies = [
-            { url: `https://api.allorigins.win/get?url=${encodedUrl}&disableCache=true`, isJson: true },
-            { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false }
-          ];
-
-          for (const proxy of proxies) {
-            try {
-              console.log(`[SmugMug] Trying proxy: ${proxy.url}`);
-              const res = await fetch(proxy.url);
-              if (res.ok) {
-                if (proxy.isJson) {
-                  const data = await res.json();
-                  xmlText = data.contents;
-                } else {
-                  xmlText = await res.text();
-                }
-                if (xmlText) {
-                  console.log(`[SmugMug] Proxy successful!`);
-                  break;
-                }
+        for (const proxy of proxies) {
+          try {
+            console.log(`[SmugMug] Trying proxy: ${proxy.url}`);
+            const res = await fetch(proxy.url);
+            if (res.ok) {
+              if (proxy.isJson) {
+                const data = await res.json();
+                xmlText = data.contents;
               } else {
-                console.warn(`[SmugMug] Proxy returned status: ${res.status}`);
+                xmlText = await res.text();
               }
-            } catch (err) {
-              console.warn(`[SmugMug] Proxy network error: ${err.message}`);
+              if (xmlText) {
+                console.log(`[SmugMug] Proxy successful!`);
+                break;
+              }
+            } else {
+              console.warn(`[SmugMug] Proxy returned status: ${res.status}`);
             }
+          } catch (err) {
+            console.warn(`[SmugMug] Proxy network error: ${err.message}`);
           }
         }
 
