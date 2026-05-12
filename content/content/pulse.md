@@ -127,34 +127,88 @@ menu:
         const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
         if (res.ok) {
           const { data } = await res.json();
-          const isOnline = data.discord_status !== "offline";
+          const status = data.discord_status;
+          const isOnline = status !== "offline";
           const isVoice = data.active_on_discord_voice;
+          
+          const customStatus = data.activities?.find(a => a.type === 4);
           const playingActivity = data.activities?.find(a => a.type === 0);
+          const spotify = data.spotify;
+          
+          const user = data.discord_user;
+          const avatarUrl = user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp?size=128` : 'https://cdn.discordapp.com/embed/avatars/0.png';
+          const username = user.global_name || user.username;
+
+          let statusColor = 'var(--muzzle-grey)';
+          if (status === 'online') statusColor = '#43b581';
+          else if (status === 'idle') statusColor = '#faa61a';
+          else if (status === 'dnd') statusColor = '#f04747';
+
+          let detailsHtml = '';
+
+          if (customStatus) {
+            let emoji = '';
+            if (customStatus.emoji) {
+              if (customStatus.emoji.id) {
+                const ext = customStatus.emoji.animated ? 'gif' : 'webp';
+                emoji = `<img src="https://cdn.discordapp.com/emojis/${customStatus.emoji.id}.${ext}" style="width: 18px; height: 18px; vertical-align: text-bottom; margin-right: 4px;">`;
+              } else if (customStatus.emoji.name) {
+                emoji = `<span style="margin-right: 4px;">${customStatus.emoji.name}</span>`;
+              }
+            }
+            const text = customStatus.state || '';
+            if (emoji || text) {
+              detailsHtml += `<div style="display: flex; align-items: center; margin-bottom: 4px;">${emoji} <span>${text}</span></div>`;
+            }
+          }
+
+          if (spotify) {
+            detailsHtml += `<div class="activity-indicator" style="color: #1DB954;">🎵 <span>Listening to <strong>${spotify.song}</strong></span></div>`;
+          } else if (playingActivity) {
+            detailsHtml += `<div class="activity-indicator">🎮 <span>Playing <strong>${playingActivity.name}</strong></span></div>`;
+          }
+
+          if (isVoice) {
+            detailsHtml += `
+              <div class="voice-indicator" style="margin-top: 4px;">
+                <div class="eq-bars">
+                  <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                </div>
+                In Voice Chat
+              </div>`;
+          }
+
+          if (!isOnline && !detailsHtml) {
+            detailsHtml = '<div>Currently Offline</div>';
+          } else if (isOnline && !detailsHtml) {
+            detailsHtml = '<div>Online</div>';
+          }
 
           if (isOnline) {
-            let text = "Online";
-            if (playingActivity && isVoice) {
-              text = `Playing <strong>${playingActivity.name}</strong> & in <strong>Voice</strong>`;
-            } else if (playingActivity) {
-              text = `Playing <strong>${playingActivity.name}</strong>`;
-            } else if (isVoice) {
-              text = `In <strong>Voice Chat</strong>`;
+            let activeClients = [];
+            if (data.active_on_discord_desktop) activeClients.push('💻 Desktop');
+            if (data.active_on_discord_mobile) activeClients.push('📱 Mobile');
+            if (data.active_on_discord_web) activeClients.push('🌐 Web');
+            
+            if (activeClients.length > 0) {
+              detailsHtml += `<div style="font-size: 0.8rem; color: var(--muzzle-grey); margin-top: 6px; display: flex; gap: 0.5rem; align-items: center; font-weight: 500;">${activeClients.join('<span style="opacity: 0.4; font-size: 0.5rem;">⚫</span>')}</div>`;
             }
-
-            discordContainer.innerHTML = `
-              <div style="display: inline-flex; align-items: center; gap: 0.8rem; background: color-mix(in srgb, var(--fur-secondary) 80%, transparent); padding: 0.8rem 1.5rem; border-radius: 30px; border: 1px solid #00E5FF; box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);">
-                <div style="width: 12px; height: 12px; border-radius: 50%; background: #00E5FF; box-shadow: 0 0 10px #00E5FF; animation: pulse-dot 1.5s infinite;"></div>
-                <span>LIVE // ${text}</span>
-              </div>
-            `;
-          } else {
-            discordContainer.innerHTML = `
-              <div style="display: inline-flex; align-items: center; gap: 0.8rem; background: color-mix(in srgb, var(--fur-secondary) 80%, transparent); padding: 0.8rem 1.5rem; border-radius: 30px; border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">
-                <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--muzzle-grey);"></div>
-                <span style="color: var(--muzzle-grey);">OFFLINE</span>
-              </div>
-            `;
           }
+
+          discordContainer.innerHTML = `
+            <div class="discord-card ${isOnline ? 'active' : ''}">
+              <div class="discord-avatar-wrapper">
+                <img src="${avatarUrl}" alt="${username}" class="discord-avatar">
+                <div class="discord-status-dot" style="background-color: ${statusColor};"></div>
+              </div>
+              <div class="discord-info">
+                <div class="discord-username">${username}</div>
+                <div class="discord-details">
+                  ${detailsHtml}
+                </div>
+              </div>
+            </div>
+          `;
         }
       } catch (e) {
         console.error("Discord fetch failed:", e);
@@ -342,45 +396,73 @@ menu:
 
     async function fetchPhotos() {
       try {
-        const targetUrl = 'https://photo.redpanda.pet/feed/rss?t=' + Date.now();
+        console.log("[SmugMug] Starting field data retrieval...");
+        
+        const SMUGMUG_NICKNAME = 'furcologist';
+        const targetUrl = `https://${SMUGMUG_NICKNAME}.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=${SMUGMUG_NICKNAME}&format=rss200`;
         let xmlText = null;
 
         try {
-          // Try direct fetch first
+          console.log(`[SmugMug] Attempting direct fetch to ${targetUrl}`);
           const res = await fetch(targetUrl);
-          if (res.ok) xmlText = await res.text();
+          if (res.ok) {
+            xmlText = await res.text();
+            console.log("[SmugMug] Direct fetch successful!");
+          } else {
+            console.warn(`[SmugMug] Direct fetch returned status: ${res.status}`);
+          }
         } catch (e) {
-          // Direct fetch failed (likely CORS), use proxy fallbacks
-          const encodedUrl = encodeURIComponent(targetUrl);
+          console.warn(`[SmugMug] Direct fetch failed (likely CORS). ${e.message}`);
+          
+          // Proxy fallbacks
+          const cacheBuster = (targetUrl.includes('?') ? '&t=' : '?t=') + Date.now();
+          const encodedUrl = encodeURIComponent(targetUrl + cacheBuster);
           const proxies = [
             `https://corsproxy.io/?${encodedUrl}`,
-            `https://api.allorigins.win/raw?url=${encodedUrl}`
+            `https://api.allorigins.win/raw?url=${encodedUrl}`,
+            `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`
           ];
 
           for (const proxy of proxies) {
             try {
+              console.log(`[SmugMug] Trying proxy: ${proxy}`);
               const res = await fetch(proxy);
               if (res.ok) {
                 xmlText = await res.text();
+                console.log(`[SmugMug] Proxy successful via ${proxy}`);
                 break;
+              } else {
+                console.warn(`[SmugMug] Proxy returned status: ${res.status}`);
               }
-            } catch (err) {}
+            } catch (err) {
+              console.warn(`[SmugMug] Proxy network error: ${err.message}`);
+            }
           }
         }
 
-        if (!xmlText) throw new Error("All proxy fetches failed.");
+        if (!xmlText) throw new Error("All fetching methods failed.");
+
+        console.log("[SmugMug] Raw XML snippet:", xmlText.substring(0, 200) + "...");
 
         const parser = new DOMParser();
         const xml = parser.parseFromString(xmlText, "text/xml");
+
+        const parseError = xml.querySelector("parsererror");
+        if (parseError) {
+          console.error("[SmugMug] XML Parse Error:", parseError.textContent);
+          throw new Error("Failed to parse XML response.");
+        }
 
         // Support both RSS <item> and Atom <entry> format feeds
         let items = Array.from(xml.getElementsByTagName("item"));
         if (items.length === 0) items = Array.from(xml.getElementsByTagName("entry"));
 
+        console.log(`[SmugMug] Found ${items.length} items in feed.`);
+
         const latest = items.slice(0, 6); // Fetch latest 6 shots for a balanced grid
 
         if (latest.length === 0) {
-          photoFeedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">No field data found at this time.</div>';
+          photoFeedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">No field data found at this time. (Feed empty)</div>';
           return;
         }
 
@@ -403,7 +485,7 @@ menu:
           }
           
           const enclosures = item.getElementsByTagName("enclosure");
-          if (enclosures.length > 0) image = enclosures[0].getAttribute("url");
+          if (enclosures.length > 0 && !image) image = enclosures[0].getAttribute("url");
 
           if (!image) {
             const desc = item.getElementsByTagName("description")[0]?.textContent || "";

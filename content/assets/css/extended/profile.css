@@ -112,16 +112,10 @@ main, .post-entry {
   box-shadow: 0 8px 25px rgb(0 0 0 / 30%);
 }
 
-/* Center Page Headers Globally */
+/* Hide Page Headers Globally */
 .page-header,
-.post-header,
-.entry-header {
-  text-align: center;
-}
-
-.post-title,
-.page-title {
-  text-align: center !important;
+.post-header {
+  display: none !important;
 }
 
 /* Site Header & Navigation Polish */
