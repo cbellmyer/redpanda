@@ -150,9 +150,44 @@ ShowBreadCrumbs: false
       }
     }
 
+    // Fetch latest 10 from Mastodon
+    async function fetchMastodon() {
+      try {
+        const res = await fetch('https://furry.engineer/api/v1/accounts/110373887192663991/statuses?limit=10&exclude_replies=true');
+        const data = await res.json();
+
+        return data.map(status => {
+          const isRepost = !!status.reblog;
+          const actualStatus = isRepost ? status.reblog : status;
+          
+          let image = null;
+          if (actualStatus.media_attachments && actualStatus.media_attachments.length > 0) {
+            image = actualStatus.media_attachments[0].preview_url || actualStatus.media_attachments[0].url;
+          }
+
+          // Strip HTML tags for clean text preview
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = actualStatus.content || "";
+          const text = tempDiv.textContent || tempDiv.innerText || "";
+
+          return {
+            source: 'Mastodon',
+            date: new Date(actualStatus.created_at),
+            text: text.trim(),
+            image: image,
+            url: actualStatus.url,
+            isRepost: isRepost
+          };
+        });
+      } catch (e) {
+        console.error("Mastodon fetch error:", e);
+        return [];
+      }
+    }
+
     // Load, combine, and render the feeds
-    Promise.all([fetchBluesky(), fetchPixelfed()]).then(([bsky, pxfed]) => {
-      let combined = [...bsky, ...pxfed]
+    Promise.all([fetchBluesky(), fetchPixelfed(), fetchMastodon()]).then(([bsky, pxfed, mstdn]) => {
+      let combined = [...bsky, ...pxfed, ...mstdn]
         .filter(post => post.date && !isNaN(post.date.getTime())) // Prevent Invalid Dates from breaking the sort
         .sort((a, b) => b.date.getTime() - a.date.getTime()) // Strict chronological sort (newest first)
         .slice(0, 20);

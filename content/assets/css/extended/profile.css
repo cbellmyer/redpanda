@@ -590,6 +590,12 @@ a:hover {
   background: #0085ff;
 }
 
+/* Mastodon Tag (furry.engineer) */
+.feed-source.mastodon {
+  color: #fff;
+  background: #e67e22; /* Industrial engineer orange */
+}
+
 .feed-card .content { font-size: 0.95rem; color: var(--primary); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; }
 .feed-card img { width: 100%; height: 180px; object-fit: cover; border-radius: calc(var(--radius) - 4px); background: var(--nose-dark); }
 .loading-feed { width: 100%; text-align: center; color: var(--muzzle-grey); padding: 2rem; font-style: italic; }

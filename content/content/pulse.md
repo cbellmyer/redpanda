@@ -2,6 +2,7 @@
 title: "Omni-Pulse"
 description: "Live signals and recent dashboard activity."
 type: "page"
+ShowToc: false
 menu:
   main:
     name: "Pulse"
@@ -40,10 +41,19 @@ menu:
         if (res.ok) {
           const { data } = await res.json();
           const isOnline = data.discord_status !== "offline";
-          const activity = data.activities?.find(a => a.type === 0) || data.activities?.[0];
+          const isVoice = data.active_on_discord_voice;
+          const playingActivity = data.activities?.find(a => a.type === 0);
 
           if (isOnline) {
-            const text = activity ? `Playing <strong>${activity.name}</strong>` : "Online";
+            let text = "Online";
+            if (playingActivity && isVoice) {
+              text = `Playing <strong>${playingActivity.name}</strong> & in <strong>Voice</strong>`;
+            } else if (playingActivity) {
+              text = `Playing <strong>${playingActivity.name}</strong>`;
+            } else if (isVoice) {
+              text = `In <strong>Voice Chat</strong>`;
+            }
+
             discordContainer.innerHTML = `
               <div style="display: inline-flex; align-items: center; gap: 0.8rem; background: color-mix(in srgb, var(--fur-secondary) 80%, transparent); padding: 0.8rem 1.5rem; border-radius: 30px; border: 1px solid #00E5FF; box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);">
                 <div style="width: 12px; height: 12px; border-radius: 50%; background: #00E5FF; box-shadow: 0 0 10px #00E5FF; animation: pulse-dot 1.5s infinite;"></div>
@@ -177,9 +187,45 @@ menu:
       }
     }
 
+    // Fetch latest 10 from Mastodon
+    async function fetchMastodon() {
+      try {
+        // exclude_replies=true filters out thread spam, just like we do for Bluesky
+        const res = await fetch('https://furry.engineer/api/v1/accounts/110373887192663991/statuses?limit=10&exclude_replies=true');
+        const data = await res.json();
+
+        return data.map(status => {
+          const isRepost = !!status.reblog;
+          const actualStatus = isRepost ? status.reblog : status;
+          
+          let image = null;
+          if (actualStatus.media_attachments && actualStatus.media_attachments.length > 0) {
+            image = actualStatus.media_attachments[0].preview_url || actualStatus.media_attachments[0].url;
+          }
+
+          // Strip HTML tags for clean text preview
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = actualStatus.content || "";
+          const text = tempDiv.textContent || tempDiv.innerText || "";
+
+          return {
+            source: 'Mastodon',
+            date: new Date(actualStatus.created_at),
+            text: text.trim(),
+            image: image,
+            url: actualStatus.url,
+            isRepost: isRepost
+          };
+        });
+      } catch (e) {
+        console.error("Mastodon fetch error:", e);
+        return [];
+      }
+    }
+
     // Load, combine, and render the feeds into the grid
-    Promise.all([fetchBluesky(), fetchPixelfed()]).then(([bsky, pxfed]) => {
-      let combined = [...bsky, ...pxfed]
+    Promise.all([fetchBluesky(), fetchPixelfed(), fetchMastodon()]).then(([bsky, pxfed, mstdn]) => {
+      let combined = [...bsky, ...pxfed, ...mstdn]
         .filter(post => post.date && !isNaN(post.date.getTime()))
         .sort((a, b) => b.date.getTime() - a.date.getTime())
         .slice(0, 20); // Show latest 20 items combined
