@@ -159,7 +159,7 @@ ShowBreadCrumbs: false
         return data.map(status => {
           const isRepost = !!status.reblog;
           const actualStatus = isRepost ? status.reblog : status;
-          
+
           let image = null;
           if (actualStatus.media_attachments && actualStatus.media_attachments.length > 0) {
             image = actualStatus.media_attachments[0].preview_url || actualStatus.media_attachments[0].url;
