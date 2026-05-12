@@ -361,35 +361,58 @@ menu:
       try {
         console.log("[SmugMug] Starting field data retrieval...");
 
-        const SMUGMUG_NICKNAME = 'furcologist';
-        const targetUrl = `https://${SMUGMUG_NICKNAME}.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=${SMUGMUG_NICKNAME}&format=rss200`;
-        const encodedUrl = encodeURIComponent(targetUrl);
+        let items = [];
 
-        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
-        if (!res.ok) throw new Error("rss2json API failed");
-        
-        const data = await res.json();
-        if (data.status !== 'ok' || !data.items || data.items.length === 0) {
+        // Attempt 1: First-party Cloudflare Pages API (Fastest, avoids CORS and rate limits)
+        try {
+          const res = await fetch('/api/smugmug');
+          if (res.ok) {
+            items = await res.json();
+            console.log("[SmugMug] Local API successful");
+          } else {
+            throw new Error(`Local API returned ${res.status}`);
+          }
+        } catch (err) {
+          console.warn("[SmugMug] Local API failed (normal during local dev), falling back to rss2json...", err.message);
+          
+          // Attempt 2: rss2json fallback
+          const SMUGMUG_NICKNAME = 'furcologist';
+          const targetUrl = `https://${SMUGMUG_NICKNAME}.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=${SMUGMUG_NICKNAME}&format=rss200`;
+          const encodedUrl = encodeURIComponent(targetUrl);
+          
+          const res2 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
+          if (!res2.ok) throw new Error("rss2json API failed");
+          
+          const data = await res2.json();
+          if (data.status !== 'ok' || !data.items) throw new Error("Invalid data from rss2json");
+          
+          items = data.items.map(item => {
+            let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
+            if (!image) {
+              const content = item.content || item.description || "";
+              const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+              if (imgMatch) image = imgMatch[1];
+            }
+            return {
+              title: item.title || "Field Update",
+              link: item.link || "#",
+              image: image
+            };
+          });
+        }
+
+        if (!items || items.length === 0) {
           photoFeedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">No field data found at this time.</div>';
           return;
         }
 
-        const latest = data.items.slice(0, 6);
+        const latest = items.slice(0, 6);
         photoFeedContainer.innerHTML = latest.map(item => {
-          const title = item.title || "Field Update";
-          const link = item.link || "#";
-          let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
-          
-          if (!image) {
-            const content = item.content || item.description || "";
-            const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-            if (imgMatch) image = imgMatch[1];
-          }
           return `
-            <a href="${link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
-              ${image ? `<img src="${image}" alt="${title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
+            <a href="${item.link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
+              ${item.image ? `<img src="${item.image}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
               <div style="padding: 1.2rem;">
-                <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary); text-align: left;">${title}</h3>
+                <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary); text-align: left;">${item.title}</h3>
               </div>
             </a>
           `;
