@@ -11,9 +11,6 @@ menu:
 ---
 
 <style>
-  .post-header {
-    text-align: center;
-  }
   .discord-card {
     display: inline-flex;
     align-items: center;
@@ -85,6 +82,14 @@ menu:
   @keyframes eq-bounce { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); } }
   .activity-indicator { display: inline-flex; align-items: center; gap: 0.4rem; }
   .activity-indicator strong { color: var(--eye-highlight); }
+
+  /* Photo card hover animation */
+  #photo-feed-grid .con-card img {
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  #photo-feed-grid .con-card:hover img {
+    transform: scale(1.08);
+  }
 </style>
 
 <div class="bio-container" style="text-align: center; margin-bottom: 3rem;">
@@ -102,7 +107,13 @@ menu:
 
 <h2 class="upcoming-section-title" style="margin-top: 4rem;">Shots from the Field</h2>
 <div id="photo-feed-grid" class="upcoming-grid">
-  <div class="loading-feed" style="grid-column: 1 / -1;">Retrieving latest field data...</div>
+  <div class="loading-feed" style="grid-column: 1 / -1;">Developing latest field shots...</div>
+</div>
+
+<div style="text-align: center; margin-top: 2rem; margin-bottom: 4rem;">
+  <a href="https://photo.redpanda.pet" target="_blank" rel="noopener" class="button" style="padding: 0.8rem 2rem; border-radius: 30px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+    View Full Gallery 📸
+  </a>
 </div>
 
 <script>
@@ -331,7 +342,7 @@ menu:
     
     async function fetchPhotos() {
       try {
-        const targetUrl = 'https://photo.redpanda.pet/index.xml?t=' + Date.now();
+        const targetUrl = 'https://photo.redpanda.pet/feed/rss?t=' + Date.now();
         let xmlText = null;
         
         try {
@@ -381,6 +392,16 @@ menu:
           if (linkNodes.length > 0) link = linkNodes[0].textContent.trim() || linkNodes[0].getAttribute("href") || "#";
 
           let image = null;
+          
+          // SmugMug specific image tags
+          const mediaContents = item.getElementsByTagName("media:content");
+          if (mediaContents.length > 0) image = mediaContents[0].getAttribute("url");
+          
+          if (!image) {
+            const mediaThumbs = item.getElementsByTagName("media:thumbnail");
+            if (mediaThumbs.length > 0) image = mediaThumbs[0].getAttribute("url");
+          }
+          
           const enclosures = item.getElementsByTagName("enclosure");
           if (enclosures.length > 0) image = enclosures[0].getAttribute("url");
           

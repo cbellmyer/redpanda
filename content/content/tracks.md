@@ -7,12 +7,6 @@ ShowPostMeta: false
 ShowBreadCrumbs: false
 ---
 
-<style>
-  .post-header {
-    text-align: center;
-  }
-</style>
-
 > **Welcome to my travel map!** 🗺️✨
 >
 > This is where I keep track of all the conventions, furmeets, and fun places I've visited around the world. Click on any of the bouncing paw prints below to see the details!

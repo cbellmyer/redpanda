@@ -7,12 +7,6 @@ ShowPostMeta: false
 ShowBreadCrumbs: false
 ---
 
-<style>
-  .post-header {
-    text-align: center;
-  }
-</style>
-
 <div class="art-placeholder">
   <span>[ Future Art / Character Reference Placement ]</span>
 </div>
