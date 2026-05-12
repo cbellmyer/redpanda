@@ -191,6 +191,7 @@ menu:
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -473,7 +474,7 @@ menu:
       .then(data => {
         const current = data.current;
         const daily = data.daily;
-        
+
         const weatherCodes = {
           0: { icon: '☀️', desc: 'Clear sky' },
           1: { icon: '🌤️', desc: 'Mainly clear' },
