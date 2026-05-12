@@ -37,13 +37,13 @@ title: "Home"
           const SMUGMUG_NICKNAME = 'furcologist';
           const targetUrl = `https://${SMUGMUG_NICKNAME}.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=${SMUGMUG_NICKNAME}&format=rss200`;
           const encodedUrl = encodeURIComponent(targetUrl);
-          
+
           const res2 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
           if (!res2.ok) throw new Error("rss2json API failed");
-          
+
           const data = await res2.json();
           if (data.status !== 'ok' || !data.items) throw new Error("Invalid data from rss2json");
-          
+
           items = data.items.map(item => {
             let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
             if (!image) {

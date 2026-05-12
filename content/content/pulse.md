@@ -272,12 +272,12 @@ menu:
       try {
         // exclude_replies=true filters out thread spam, just like we do for Bluesky
         const res = await fetch('https://furry.engineer/api/v1/accounts/110373887192663991/statuses?limit=10&exclude_replies=true');
-        
+
         if (!res.ok) {
           console.warn(`Mastodon API returned HTTP ${res.status}`);
           return [];
         }
-        
+
         const text = await res.text();
         let data;
         try {
