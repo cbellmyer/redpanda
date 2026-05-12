@@ -165,10 +165,8 @@ menu:
   <div id="discord-widget" style="font-size: 1.1rem; margin-bottom: 1.5rem;">
     <span style="opacity: 0.7;">Checking connection...</span>
   </div>
-
   <div id="system-status-weather" style="margin: 0 auto; text-align: center;">
     <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem;">Gathering atmospheric data...</div>
-    
     <div id="weather-data" style="display: none;">
       <div class="weather-card">
         <div class="weather-avatar">
@@ -191,7 +189,6 @@ menu:
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
