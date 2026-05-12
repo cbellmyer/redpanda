@@ -392,16 +392,16 @@ menu:
           if (linkNodes.length > 0) link = linkNodes[0].textContent.trim() || linkNodes[0].getAttribute("href") || "#";
 
           let image = null;
-          
+
           // SmugMug specific image tags
           const mediaContents = item.getElementsByTagName("media:content");
           if (mediaContents.length > 0) image = mediaContents[0].getAttribute("url");
-          
+
           if (!image) {
             const mediaThumbs = item.getElementsByTagName("media:thumbnail");
             if (mediaThumbs.length > 0) image = mediaThumbs[0].getAttribute("url");
           }
-          
+
           const enclosures = item.getElementsByTagName("enclosure");
           if (enclosures.length > 0) image = enclosures[0].getAttribute("url");
 

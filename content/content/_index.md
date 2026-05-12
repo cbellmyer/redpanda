@@ -19,12 +19,12 @@ title: "Home"
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const feedContainer = document.getElementById('photo-feed-grid');
-    
+
     async function fetchPhotos() {
       try {
         const targetUrl = 'https://photo.redpanda.pet/index.xml?t=' + Date.now();
         let xmlText = null;
-        
+
         try {
           // Try direct fetch first
           const res = await fetch(targetUrl);
@@ -36,7 +36,7 @@ title: "Home"
             `https://corsproxy.io/?${encodedUrl}`,
             `https://api.allorigins.win/raw?url=${encodedUrl}`
           ];
-          
+
           for (const proxy of proxies) {
             try {
               const res = await fetch(proxy);
@@ -52,13 +52,13 @@ title: "Home"
 
         const parser = new DOMParser();
         const xml = parser.parseFromString(xmlText, "text/xml");
-        
+
         // Support both RSS <item> and Atom <entry> format feeds
         let items = Array.from(xml.getElementsByTagName("item"));
         if (items.length === 0) items = Array.from(xml.getElementsByTagName("entry"));
-        
+
         const latest = items.slice(0, 6); // Fetch latest 6 shots for a balanced grid
-        
+
         if (latest.length === 0) {
           feedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">No field data found at this time.</div>';
           return;
@@ -66,7 +66,7 @@ title: "Home"
 
         feedContainer.innerHTML = latest.map(item => {
           const title = item.getElementsByTagName("title")[0]?.textContent || "Field Update";
-          
+
           let link = "#";
           const linkNodes = item.getElementsByTagName("link");
           if (linkNodes.length > 0) link = linkNodes[0].textContent.trim() || linkNodes[0].getAttribute("href") || "#";
@@ -74,14 +74,14 @@ title: "Home"
           let image = null;
           const enclosures = item.getElementsByTagName("enclosure");
           if (enclosures.length > 0) image = enclosures[0].getAttribute("url");
-          
+
           if (!image) {
             const desc = item.getElementsByTagName("description")[0]?.textContent || "";
             const content = item.getElementsByTagNameNS("*", "encoded")[0]?.textContent || item.getElementsByTagName("content")[0]?.textContent || "";
             const imgMatch = (content || desc).match(/<img[^>]+src=["']([^"']+)["']/i);
             if (imgMatch) image = imgMatch[1];
           }
-          
+
           return `
             <a href="${link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
               ${image ? `<img src="${image}" alt="${title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
