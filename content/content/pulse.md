@@ -82,14 +82,6 @@ menu:
   @keyframes eq-bounce { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); } }
   .activity-indicator { display: inline-flex; align-items: center; gap: 0.4rem; }
   .activity-indicator strong { color: var(--eye-highlight); }
-
-  /* Photo card hover animation */
-  #photo-feed-grid .con-card img {
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-  #photo-feed-grid .con-card:hover img {
-    transform: scale(1.08);
-  }
 </style>
 
 <div class="bio-container" style="text-align: center; margin-bottom: 3rem;">
@@ -103,17 +95,6 @@ menu:
 
 <div id="social-feed-grid" class="feed-scroll">
   <div class="loading-feed">Establishing connection to signals...</div>
-</div>
-
-<h2 class="upcoming-section-title" style="margin-top: 4rem;">Shots from the Field</h2>
-<div id="photo-feed-grid" class="upcoming-grid">
-  <div class="loading-feed" style="grid-column: 1 / -1;">Developing latest field shots...</div>
-</div>
-
-<div style="text-align: center; margin-top: 2rem; margin-bottom: 4rem;">
-  <a href="https://photo.redpanda.pet" target="_blank" rel="noopener" class="button" style="padding: 0.8rem 2rem; border-radius: 30px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
-    View Full Gallery 📸
-  </a>
 </div>
 
 <script>
@@ -291,7 +272,20 @@ menu:
       try {
         // exclude_replies=true filters out thread spam, just like we do for Bluesky
         const res = await fetch('https://furry.engineer/api/v1/accounts/110373887192663991/statuses?limit=10&exclude_replies=true');
-        const data = await res.json();
+        
+        if (!res.ok) {
+          console.warn(`Mastodon API returned HTTP ${res.status}`);
+          return [];
+        }
+        
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (err) {
+          console.warn("Mastodon fetch error: API returned non-JSON payload");
+          return [];
+        }
 
         if (!Array.isArray(data)) {
           console.warn("Mastodon fetch error: API returned non-array", data);
@@ -353,75 +347,5 @@ menu:
         </a>
       `).join('');
     });
-
-    // 3. Shots from the Field (photo.redpanda.pet RSS)
-    const photoFeedContainer = document.getElementById('photo-feed-grid');
-
-    async function fetchPhotos() {
-      try {
-        console.log("[SmugMug] Starting field data retrieval...");
-
-        let items = [];
-
-        // Attempt 1: First-party Cloudflare Pages API (Fastest, avoids CORS and rate limits)
-        try {
-          const res = await fetch('/api/smugmug');
-          if (res.ok) {
-            items = await res.json();
-            console.log("[SmugMug] Local API successful");
-          } else {
-            throw new Error(`Local API returned ${res.status}`);
-          }
-        } catch (err) {
-          console.warn("[SmugMug] Local API failed (normal during local dev), falling back to rss2json...", err.message);
-          
-          // Attempt 2: rss2json fallback
-          const SMUGMUG_NICKNAME = 'furcologist';
-          const targetUrl = `https://${SMUGMUG_NICKNAME}.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=${SMUGMUG_NICKNAME}&format=rss200`;
-          const encodedUrl = encodeURIComponent(targetUrl);
-          
-          const res2 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
-          if (!res2.ok) throw new Error("rss2json API failed");
-          
-          const data = await res2.json();
-          if (data.status !== 'ok' || !data.items) throw new Error("Invalid data from rss2json");
-          
-          items = data.items.map(item => {
-            let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
-            if (!image) {
-              const content = item.content || item.description || "";
-              const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-              if (imgMatch) image = imgMatch[1];
-            }
-            return {
-              title: item.title || "Field Update",
-              link: item.link || "#",
-              image: image
-            };
-          });
-        }
-
-        if (!items || items.length === 0) {
-          photoFeedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">No field data found at this time.</div>';
-          return;
-        }
-
-        const latest = items.slice(0, 6);
-        photoFeedContainer.innerHTML = latest.map(item => {
-          return `
-            <a href="${item.link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
-              ${item.image ? `<img src="${item.image}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
-              <div style="padding: 1.2rem;">
-                <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary); text-align: left;">${item.title}</h3>
-              </div>
-            </a>
-          `;
-        }).join('');
-      } catch (e) {
-        console.error("Photo fetch error:", e);
-        photoFeedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">Could not load transmissions from the field at this time.</div>';
-      }
-    }
-    fetchPhotos();
   });
 </script>
