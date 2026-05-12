@@ -1,5 +1,5 @@
 ---
-title: "Omni-Pulse"
+title: "Pulse"
 description: "Live signals and recent dashboard activity."
 type: "page"
 ShowToc: false
@@ -82,16 +82,141 @@ menu:
   @keyframes eq-bounce { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); } }
   .activity-indicator { display: inline-flex; align-items: center; gap: 0.4rem; }
   .activity-indicator strong { color: var(--eye-highlight); }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  .weather-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: color-mix(in srgb, var(--fur-secondary) 80%, transparent);
+    padding: 1.2rem 2rem 1.2rem 1.5rem;
+    border-radius: 30px;
+    border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+    box-shadow: 0 4px 15px rgb(0 0 0 / 20%);
+    transition: all 0.3s ease;
+    text-align: left;
+  }
+  .weather-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgb(0 0 0 / 25%);
+    border-color: color-mix(in srgb, var(--throat-teal) 60%, transparent);
+  }
+  .weather-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+    border-right: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+    padding-right: 1.5rem;
+  }
+  .weather-info-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .weather-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 2rem;
+    row-gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--secondary);
+  }
+  .weather-grid > span {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .weather-grid strong {
+    color: var(--primary);
+    font-weight: 600;
+  }
+  @media (max-width: 600px) {
+    .weather-card {
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1.5rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .weather-avatar {
+      border-right: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+      padding-right: 0;
+      padding-bottom: 1rem;
+      min-width: auto;
+      width: 100%;
+    }
+    .weather-grid {
+      grid-template-columns: 1fr;
+      width: 100%;
+    }
+  }
 </style>
 
 <div class="bio-container" style="text-align: center; margin-bottom: 3rem;">
-  <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--primary);">System Status</h2>
-  <div id="discord-widget" style="font-size: 1.1rem;">
+  <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--primary);">Field Conditions</h2>
+  <div id="discord-widget" style="font-size: 1.1rem; margin-bottom: 1.5rem;">
     <span style="opacity: 0.7;">Checking connection...</span>
+  </div>
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin: 0 auto;">
+    <div id="system-status-weather" style="margin: 0; text-align: center;">
+      <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem;">Gathering atmospheric data...</div>
+      <div id="weather-data" style="display: none;">
+        <div class="weather-card">
+          <div class="weather-avatar">
+            <div style="font-size: 3.5rem; line-height: 1.1;" id="ww-icon">☁️</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 0.2rem; letter-spacing: -0.02em;"><span id="ww-temp">--</span><span style="font-size: 1.1rem; color: var(--secondary); font-weight: 600;">°F</span></div>
+            <div id="ww-desc" style="font-size: 0.9rem; color: var(--throat-teal); font-weight: 600; text-align: center; margin-top: 0.2rem; line-height: 1.2;">--</div>
+          </div>
+          <div class="weather-info-col">
+            <div class="discord-username" style="margin-bottom: 0.5rem; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent); padding-bottom: 0.4rem;">Atmospheric Conditions</div>
+            <div class="weather-grid">
+              <span><strong>Heat Index:</strong> <span id="ww-feels">--</span></span>
+              <span><strong>Humidity:</strong> <span id="ww-humidity">--</span></span>
+              <span><strong>Precipitation:</strong> <span id="ww-precip">--</span></span>
+              <span><strong>Wind:</strong> <span><span id="ww-wind">--</span> <span id="ww-wind-dir" style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">--</span></span></span>
+              <span><strong>Pressure:</strong> <span id="ww-pressure">--</span></span>
+              <span><strong>Cloud Cover:</strong> <span id="ww-cloud">--</span></span>
+              <span><strong>Sunrise:</strong> <span id="ww-sunrise">--</span></span>
+              <span><strong>Sunset:</strong> <span id="ww-sunset">--</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="system-status-aqi" style="margin: 0; text-align: center;">
+      <div id="aqi-loading" style="opacity: 0.7; font-size: 1.1rem;">Gathering air quality data...</div>
+      <div id="aqi-data" style="display: none;">
+        <div class="weather-card">
+          <div class="weather-avatar">
+            <div style="font-size: 3.5rem; line-height: 1.1;" id="aqi-icon">🌿</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 0.2rem; letter-spacing: -0.02em;"><span id="aqi-value">--</span></div>
+            <div id="aqi-desc" style="font-size: 0.9rem; font-weight: 600; text-align: center; margin-top: 0.2rem; line-height: 1.2;">--</div>
+          </div>
+          <div class="weather-info-col">
+            <div class="discord-username" style="margin-bottom: 0.5rem; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent); padding-bottom: 0.4rem;">Air Quality Index</div>
+            <div class="weather-grid" style="grid-template-columns: 1fr; row-gap: 0.6rem; min-width: 180px;">
+              <span><strong>PM2.5:</strong> <span><span id="aqi-pm25">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
+              <span><strong>PM10:</strong> <span><span id="aqi-pm10">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
+              <span><strong>Ozone:</strong> <span><span id="aqi-o3">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
+              <span><strong>Carbon Mono:</strong> <span><span id="aqi-co">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   </div>
 </div>
 
-<h2 class="upcoming-section-title" style="margin-top: 1rem;">Recent Transmissions</h2>
+<h2 class="upcoming-section-title" style="margin-top: 1rem;">Field Notes</h2>
 
 <div id="social-feed-grid" class="feed-scroll">
   <div class="loading-feed">Establishing connection to signals...</div>
@@ -99,6 +224,27 @@ menu:
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
+    const animateValue = (id, start, end, duration, decimals = 0, suffix = '') => {
+      const obj = document.getElementById(id);
+      if (!obj) return;
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const current = start + (end - start) * easeOut;
+
+        obj.textContent = (decimals > 0 ? current.toFixed(decimals) : Math.round(current)) + suffix;
+
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        } else {
+          obj.textContent = (decimals > 0 ? end.toFixed(decimals) : Math.round(end)) + suffix;
+        }
+      };
+      window.requestAnimationFrame(step);
+    };
+
     // 1. Discord Lanyard Widget (Client-Side)
     const discordContainer = document.getElementById('discord-widget');
     const DISCORD_ID = '104330735866884096';
@@ -346,6 +492,80 @@ menu:
           <div class="content">${post.text}</div>
         </a>
       `).join('');
+
+    feedContainer.classList.add('fade-in');
     });
+
+    // 3. Weather Widget (Open-Meteo)
+    const lat = 39.2904; // Baltimore, MD
+    const lon = -76.6122;
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,surface_pressure,wind_direction_10m,cloud_cover&daily=sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York`;
+
+    function getWindDirection(degrees) {
+      const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+      const index = Math.round(degrees / 22.5) % 16;
+      return directions[index];
+    }
+
+    fetch(weatherUrl)
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(data.reason || `HTTP ${response.status}`);
+        return data;
+      })
+      .then(data => {
+        const current = data.current;
+        const daily = data.daily;
+
+        const weatherCodes = {
+          0: { icon: '☀️', desc: 'Clear sky' },
+          1: { icon: '🌤️', desc: 'Mainly clear' },
+          2: { icon: '⛅', desc: 'Partly cloudy' },
+          3: { icon: '☁️', desc: 'Overcast' },
+          45: { icon: '🌫️', desc: 'Fog' },
+          48: { icon: '🌫️', desc: 'Depositing rime fog' },
+          51: { icon: '🌧️', desc: 'Light drizzle' },
+          53: { icon: '🌧️', desc: 'Moderate drizzle' },
+          55: { icon: '🌧️', desc: 'Dense drizzle' },
+          61: { icon: '🌧️', desc: 'Light rain' },
+          63: { icon: '🌧️', desc: 'Moderate rain' },
+          65: { icon: '🌧️', desc: 'Heavy rain' },
+          71: { icon: '❄️', desc: 'Light snow' },
+          73: { icon: '❄️', desc: 'Moderate snow' },
+          75: { icon: '❄️', desc: 'Heavy snow' },
+          77: { icon: '❄️', desc: 'Snow grains' },
+          80: { icon: '🌧️', desc: 'Light showers' },
+          81: { icon: '🌧️', desc: 'Moderate showers' },
+          82: { icon: '⛈️', desc: 'Violent showers' },
+          95: { icon: '⛈️', desc: 'Thunderstorm' },
+          96: { icon: '⛈️', desc: 'Thunderstorm w/ hail' },
+          99: { icon: '⛈️', desc: 'Heavy thunderstorm w/ hail' }
+        };
+
+        const codeInfo = weatherCodes[current.weather_code] || { icon: '☁️', desc: 'Unknown' };
+        const formatTime = (isoString) => new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        document.getElementById('ww-icon').textContent = codeInfo.icon;
+        document.getElementById('ww-desc').textContent = codeInfo.desc;
+        document.getElementById('ww-temp').textContent = Math.round(current.temperature_2m);
+        document.getElementById('ww-feels').textContent = Math.round(current.apparent_temperature) + '°F';
+        document.getElementById('ww-humidity').textContent = current.relative_humidity_2m + '%';
+        document.getElementById('ww-precip').textContent = current.precipitation.toFixed(2) + '"';
+        document.getElementById('ww-wind').textContent = current.wind_speed_10m.toFixed(1) + ' mph';
+        document.getElementById('ww-wind-dir').textContent = getWindDirection(current.wind_direction_10m);
+        document.getElementById('ww-pressure').textContent = (current.surface_pressure * 0.02953).toFixed(2) + ' inHg';
+        document.getElementById('ww-cloud').textContent = current.cloud_cover + '%';
+        document.getElementById('ww-sunrise').textContent = formatTime(daily.sunrise[0]);
+        document.getElementById('ww-sunset').textContent = formatTime(daily.sunset[0]);
+
+        document.getElementById('weather-loading').style.display = 'none';
+        const weatherData = document.getElementById('weather-data');
+        weatherData.style.display = 'block';
+        weatherData.classList.add('fade-in');
+      })
+      .catch(err => {
+        console.error('Failed to fetch weather data:', err);
+        document.getElementById('weather-loading').textContent = 'Weather telemetry offline.';
+      });
   });
 </script>
