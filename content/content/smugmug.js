@@ -1,6 +1,6 @@
 export async function onRequest(context) {
   const url = "https://furcologist.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=furcologist&format=rss200";
-  
+
   try {
     const response = await fetch(url, {
       headers: {

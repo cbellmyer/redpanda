@@ -1,6 +1,6 @@
 export async function onRequest(context) {
   const url = "https://pixelfed.social/users/roryredpanda.atom";
-  
+
   try {
     const response = await fetch(url, {
       headers: {
@@ -8,9 +8,9 @@ export async function onRequest(context) {
         "Accept": "application/atom+xml, application/xml, text/xml, */*"
       }
     });
-    
+
     if (!response.ok) return new Response(`Error: ${response.status}`, { status: response.status });
-    
+
     return new Response(await response.text(), {
       headers: {
         "Content-Type": "application/xml; charset=utf-8",
