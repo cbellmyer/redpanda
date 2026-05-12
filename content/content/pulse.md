@@ -568,51 +568,7 @@ menu:
         document.getElementById('weather-loading').textContent = 'Weather telemetry offline.';
       });
 
-    // 4. Air Quality Index Widget (Open-Meteo)
-    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5,pm10,ozone,carbon_monoxide&timezone=America%2FNew_York`;
-
-    fetch(aqiUrl)
-      .then(async response => {
-        const data = await response.json();
-        if (!response.ok || data.error) throw new Error(data.reason || `HTTP ${response.status}`);
-        return data;
-      })
-      .then(data => {
-        const current = data.current;
-        const aqi = current.us_aqi;
-
-        let icon = '🌿';
-        let desc = 'Good';
-        let color = '#43b581'; // Green
-
-        if (aqi > 300) { icon = '☣️'; desc = 'Hazardous'; color = '#7e0023'; }
-        else if (aqi > 200) { icon = '🫁'; desc = 'Very Unhealthy'; color = '#8f3f97'; }
-        else if (aqi > 150) { icon = '😷'; desc = 'Unhealthy'; color = '#f04747'; }
-        else if (aqi > 100) { icon = '🤧'; desc = 'Unhealthy (Sens.)'; color = '#faa61a'; }
-        else if (aqi > 50) { icon = '😐'; desc = 'Moderate'; color = '#e67e22'; }
-
-        document.getElementById('aqi-icon').textContent = icon;
-        document.getElementById('aqi-desc').textContent = desc;
-        document.getElementById('aqi-desc').style.color = color;
-        document.getElementById('aqi-value').style.color = color;
-
-        animateValue('aqi-value', 0, aqi, 1200, 0);
-        animateValue('aqi-pm25', 0, current.pm2_5, 1200, 1);
-        animateValue('aqi-pm10', 0, current.pm10, 1200, 1);
-        animateValue('aqi-o3', 0, current.ozone, 1200, 0);
-        animateValue('aqi-co', 0, current.carbon_monoxide, 1200, 0);
-
-        document.getElementById('aqi-loading').style.display = 'none';
-        const aqiData = document.getElementById('aqi-data');
-        aqiData.style.display = 'block';
-        aqiData.classList.add('fade-in');
-      })
-      .catch(err => {
-        console.error('Failed to fetch AQI data:', err);
-        document.getElementById('aqi-loading').textContent = 'Air Quality telemetry offline.';
-      });
-
-    // 5. Network Telemetry Widget (Client-to-Server Ping)
+    // 4. Network Telemetry Widget (Client-to-Server Ping)
     const measureUplink = () => {
       const start = performance.now();
       // We append a timestamp to the URL to prevent the browser from returning a cached response
@@ -654,7 +610,7 @@ menu:
     measureUplink();
     setInterval(measureUplink, 30000); // Ping every 30 seconds to keep the metric "live"
 
-    // 6. Suit Power Widget (Simulated Telemetry)
+    // 5. Suit Power Widget (Simulated Telemetry)
     const calculateSuitPower = () => {
       const now = new Date();
       const hours = now.getHours() + now.getMinutes() / 60;
