@@ -74,7 +74,7 @@ menu:
         discordContainer.innerHTML = '<span style="color: var(--muzzle-grey);">Signal lost</span>';
       }
     }
-    
+
     fetchDiscord();
     setInterval(fetchDiscord, 60000); // Check discord every 60 seconds
 
