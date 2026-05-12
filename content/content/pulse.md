@@ -1,5 +1,5 @@
 ---
-title: "Omni-Pulse"
+title: "Pulse"
 description: "Live signals and recent dashboard activity."
 type: "page"
 ShowToc: false
@@ -82,12 +82,45 @@ menu:
   @keyframes eq-bounce { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); } }
   .activity-indicator { display: inline-flex; align-items: center; gap: 0.4rem; }
   .activity-indicator strong { color: var(--eye-highlight); }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
 </style>
 
 <div class="bio-container" style="text-align: center; margin-bottom: 3rem;">
   <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--primary);">System Status</h2>
-  <div id="discord-widget" style="font-size: 1.1rem;">
+  <div id="discord-widget" style="font-size: 1.1rem; margin-bottom: 1.5rem;">
     <span style="opacity: 0.7;">Checking connection...</span>
+  </div>
+
+  <div id="system-status-weather" class="pulse-weather-widget" style="padding: 1.5rem; border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent); border-radius: 25px; background-color: color-mix(in srgb, var(--fur-secondary) 80%, transparent); max-width: 350px; margin: 0 auto; text-align: left; box-shadow: 0 4px 15px rgb(0 0 0 / 20%);">
+    <h3 style="margin-top: 0; margin-bottom: 1rem; color: var(--primary); font-size: 1.2rem; text-align: center;">Weather Conditions</h3>
+    <div id="weather-loading" style="text-align: center; opacity: 0.7;">Gathering atmospheric data...</div>
+    
+    <div id="weather-data" style="display: none;">
+      <div style="font-size: 2.5rem; margin-bottom: 1rem; text-align: center; color: var(--primary);">
+        <span id="ww-icon">☁️</span>
+        <span id="ww-temp">--</span><span style="font-size: 1.2rem; color: var(--secondary);">°F</span>
+      </div>
+      <ul style="list-style: none; padding-left: 0; line-height: 1.8; margin-bottom: 0; font-size: 0.95rem; color: var(--secondary);">
+        <li><strong style="color: var(--primary);">Condition:</strong> <span id="ww-desc" style="float: right; font-weight: 500;">--</span></li>
+        <li><strong style="color: var(--primary);">Heat Index:</strong> <span id="ww-feels" style="float: right; font-weight: 500;">--</span></li>
+        <li><strong style="color: var(--primary);">Humidity:</strong> <span id="ww-humidity" style="float: right; font-weight: 500;">--</span></li>
+        <li><strong style="color: var(--primary);">Precipitation:</strong> <span id="ww-precip" style="float: right; font-weight: 500;">--</span></li>
+        <li><strong style="color: var(--primary);">Wind Speed:</strong> <span id="ww-wind" style="float: right; font-weight: 500;">--</span></li>
+        <li><strong style="color: var(--primary);">Wind Direction:</strong> <span id="ww-wind-dir" style="float: right; font-weight: 500;">--</span></li>
+        <li><strong style="color: var(--primary);">Pressure:</strong> <span id="ww-pressure" style="float: right; font-weight: 500;">--</span></li>
+        <li><strong style="color: var(--primary);">Visibility:</strong> <span id="ww-visibility" style="float: right; font-weight: 500;">--</span></li>
+        <li><strong style="color: var(--primary);">Dew Point:</strong> <span id="ww-dewpoint" style="float: right; font-weight: 500;">--</span></li>
+        <li><strong style="color: var(--primary);">Cloud Cover:</strong> <span id="ww-cloud" style="float: right; font-weight: 500;">--</span></li>
+        <li><strong style="color: var(--primary);">Sunrise:</strong> <span id="ww-sunrise" style="float: right; font-weight: 500;">--</span></li>
+        <li><strong style="color: var(--primary);">Sunset:</strong> <span id="ww-sunset" style="float: right; font-weight: 500;">--</span></li>
+      </ul>
+    </div>
   </div>
 </div>
 
@@ -346,6 +379,78 @@ menu:
           <div class="content">${post.text}</div>
         </a>
       `).join('');
+
+    feedContainer.classList.add('fade-in');
     });
+
+    // 3. Weather Widget (Open-Meteo)
+    const lat = 39.2904; // Baltimore, MD
+    const lon = -76.6122;
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,surface_pressure,wind_direction_10m,visibility,dew_point_2m,cloud_cover&daily=sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto`;
+
+    function getWindDirection(degrees) {
+      const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+      const index = Math.round(degrees / 22.5) % 16;
+      return directions[index];
+    }
+
+    fetch(weatherUrl)
+      .then(response => response.json())
+      .then(data => {
+        const current = data.current;
+        const daily = data.daily;
+        
+        const weatherCodes = {
+          0: { icon: '☀️', desc: 'Clear sky' },
+          1: { icon: '🌤️', desc: 'Mainly clear' },
+          2: { icon: '⛅', desc: 'Partly cloudy' },
+          3: { icon: '☁️', desc: 'Overcast' },
+          45: { icon: '🌫️', desc: 'Fog' },
+          48: { icon: '🌫️', desc: 'Depositing rime fog' },
+          51: { icon: '🌧️', desc: 'Light drizzle' },
+          53: { icon: '🌧️', desc: 'Moderate drizzle' },
+          55: { icon: '🌧️', desc: 'Dense drizzle' },
+          61: { icon: '🌧️', desc: 'Light rain' },
+          63: { icon: '🌧️', desc: 'Moderate rain' },
+          65: { icon: '🌧️', desc: 'Heavy rain' },
+          71: { icon: '❄️', desc: 'Light snow' },
+          73: { icon: '❄️', desc: 'Moderate snow' },
+          75: { icon: '❄️', desc: 'Heavy snow' },
+          77: { icon: '❄️', desc: 'Snow grains' },
+          80: { icon: '🌧️', desc: 'Light showers' },
+          81: { icon: '🌧️', desc: 'Moderate showers' },
+          82: { icon: '⛈️', desc: 'Violent showers' },
+          95: { icon: '⛈️', desc: 'Thunderstorm' },
+          96: { icon: '⛈️', desc: 'Thunderstorm w/ hail' },
+          99: { icon: '⛈️', desc: 'Heavy thunderstorm w/ hail' }
+        };
+
+        const codeInfo = weatherCodes[current.weather_code] || { icon: '☁️', desc: 'Unknown' };
+        const formatTime = (isoString) => new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        document.getElementById('ww-icon').textContent = codeInfo.icon;
+        document.getElementById('ww-desc').textContent = codeInfo.desc;
+        document.getElementById('ww-temp').textContent = Math.round(current.temperature_2m);
+        document.getElementById('ww-feels').textContent = Math.round(current.apparent_temperature) + '°F';
+        document.getElementById('ww-humidity').textContent = current.relative_humidity_2m + '%';
+        document.getElementById('ww-precip').textContent = current.precipitation.toFixed(2) + '"';
+        document.getElementById('ww-wind').textContent = current.wind_speed_10m.toFixed(1) + ' mph';
+        document.getElementById('ww-wind-dir').textContent = getWindDirection(current.wind_direction_10m);
+        document.getElementById('ww-pressure').textContent = (current.surface_pressure * 0.02953).toFixed(2) + ' inHg';
+        document.getElementById('ww-visibility').textContent = (current.visibility * 0.000621371).toFixed(1) + ' mi';
+        document.getElementById('ww-dewpoint').textContent = Math.round(current.dew_point_2m) + '°F';
+        document.getElementById('ww-cloud').textContent = current.cloud_cover + '%';
+        document.getElementById('ww-sunrise').textContent = formatTime(daily.sunrise[0]);
+        document.getElementById('ww-sunset').textContent = formatTime(daily.sunset[0]);
+
+        document.getElementById('weather-loading').style.display = 'none';
+        const weatherData = document.getElementById('weather-data');
+        weatherData.style.display = 'block';
+        weatherData.classList.add('fade-in');
+      })
+      .catch(err => {
+        console.error('Failed to fetch weather data:', err);
+        document.getElementById('weather-loading').textContent = 'Weather telemetry offline.';
+      });
   });
 </script>
