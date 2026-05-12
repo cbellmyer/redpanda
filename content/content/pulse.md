@@ -253,66 +253,79 @@ menu:
         const targetUrl = 'https://pixelfed.social/users/roryredpanda.atom';
         const encodedUrl = encodeURIComponent(targetUrl);
 
-        // Attempt 1: rss2json
-        try {
-          const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.status === 'ok' && data.items) {
-              return data.items.slice(0, 10).map(item => {
-                let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
-                if (!image) {
-                  const content = item.content || item.description || "";
-                  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-                  if (imgMatch) image = imgMatch[1];
-                }
-                const tempDiv = document.createElement("div");
-                tempDiv.innerHTML = item.content || item.description || "";
-                const text = tempDiv.textContent || tempDiv.innerText || "";
+        let xmlText = null;
 
-                return {
-                  source: 'Pixelfed',
-                  date: new Date(item.pubDate),
-                  text: text.trim(),
-                  image: image,
-                  url: item.link,
-                  isRepost: false
-                };
-              });
+        // Attempt 1: First-party Cloudflare Pages Proxy
+        try {
+          const proxyRes = await fetch('/api/pixelfed');
+          if (proxyRes.ok) {
+            const text = await proxyRes.text();
+            if (!text.trim().toLowerCase().startsWith('<html')) {
+              xmlText = text;
             }
           }
-        } catch (e) {
-          console.warn("Pixelfed rss2json failed, trying raw proxies...");
-        }
+        } catch (e) {}
 
-        const proxies = [
-          { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false },
-          { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true }
-        ];
-
-        let xmlText = null;
-        for (const proxy of proxies) {
+        if (!xmlText) {
+          // Attempt 2: rss2json fallback
           try {
-            const res = await fetch(proxy.url);
+            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
             if (res.ok) {
-              if (proxy.isJson) {
-                const data = await res.json();
-                xmlText = data.contents;
-              } else {
-                xmlText = await res.text();
-              }
-              if (xmlText) {
-                const textStart = xmlText.trim().toLowerCase();
-                if (textStart.startsWith('<html') || textStart.startsWith('<!doctype')) {
-                  console.warn(`Proxy returned HTML instead of XML, skipping: ${proxy.url}`);
-                  xmlText = null;
-                  continue;
-                }
-                break;
+              const data = await res.json();
+              if (data.status === 'ok' && data.items) {
+                return data.items.slice(0, 10).map(item => {
+                  let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
+                  if (!image) {
+                    const content = item.content || item.description || "";
+                    const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+                    if (imgMatch) image = imgMatch[1];
+                  }
+                  const tempDiv = document.createElement("div");
+                  tempDiv.innerHTML = item.content || item.description || "";
+                  const text = tempDiv.textContent || tempDiv.innerText || "";
+
+                  return {
+                    source: 'Pixelfed',
+                    date: new Date(item.pubDate),
+                    text: text.trim(),
+                    image: image,
+                    url: item.link,
+                    isRepost: false
+                  };
+                });
               }
             }
           } catch (e) {
-            console.warn(`Proxy fetch failed for ${proxy.url}`);
+            console.warn("Pixelfed rss2json failed, trying raw proxies...");
+          }
+        }
+
+        if (!xmlText) {
+          // Attempt 3: Raw proxy fallbacks
+          const proxies = [
+            { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false },
+            { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true }
+          ];
+          for (const proxy of proxies) {
+            try {
+              const res = await fetch(proxy.url);
+              if (res.ok) {
+                if (proxy.isJson) {
+                  const data = await res.json();
+                  xmlText = data.contents;
+                } else {
+                  xmlText = await res.text();
+                }
+                if (xmlText) {
+                  const textStart = xmlText.trim().toLowerCase();
+                  if (textStart.startsWith('<html') || textStart.startsWith('<!doctype')) {
+                    xmlText = null;
+                    continue;
+                  }
+                  break;
+                }
+              }
+            } catch (e) {}
           }
         }
 
@@ -451,74 +464,88 @@ menu:
         const targetUrl = `https://${SMUGMUG_NICKNAME}.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=${SMUGMUG_NICKNAME}&format=rss200`;
         const encodedUrl = encodeURIComponent(targetUrl);
 
-        // Attempt 1: RSS2JSON API. This is heavily allowlisted by SmugMug since it acts like a normal feed reader,
-        // and entirely bypasses the browser's XML parser which prevents HTML-blocking errors.
+        let xmlText = null;
+
+        // Attempt 1: First-party Cloudflare Pages Proxy
+        // This solves CORS permanently without relying on public third-party proxies.
         try {
-          console.log("[SmugMug] Trying rss2json API...");
-          const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.status === 'ok' && data.items && data.items.length > 0) {
-              console.log("[SmugMug] rss2json successful!");
-              const latest = data.items.slice(0, 6);
-              photoFeedContainer.innerHTML = latest.map(item => {
-                const title = item.title || "Field Update";
-                const link = item.link || "#";
-                let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
-                if (!image) {
-                  const content = item.content || item.description || "";
-                  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-                  if (imgMatch) image = imgMatch[1];
-                }
-                return `
-                  <a href="${link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
-                    ${image ? `<img src="${image}" alt="${title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
-                    <div style="padding: 1.2rem;">
-                      <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary); text-align: left;">${title}</h3>
-                    </div>
-                  </a>
-                `;
-              }).join('');
-              return; // Success, exit early!
+          console.log("[SmugMug] Trying local API proxy...");
+          const proxyRes = await fetch('/api/smugmug');
+          if (proxyRes.ok) {
+            const text = await proxyRes.text();
+            if (!text.trim().toLowerCase().startsWith('<html')) {
+              xmlText = text;
+              console.log("[SmugMug] Local API proxy successful!");
             }
           }
-        } catch (e) {
-          console.warn("[SmugMug] rss2json failed. Falling back to raw proxies.", e);
+        } catch (e) {}
+
+        if (!xmlText) {
+          // Attempt 2: RSS2JSON API (Fallback for local dev server)
+          try {
+            console.log("[SmugMug] Trying rss2json API...");
+            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.status === 'ok' && data.items && data.items.length > 0) {
+                console.log("[SmugMug] rss2json successful!");
+                const latest = data.items.slice(0, 6);
+                photoFeedContainer.innerHTML = latest.map(item => {
+                  const title = item.title || "Field Update";
+                  const link = item.link || "#";
+                  let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
+                  if (!image) {
+                    const content = item.content || item.description || "";
+                    const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+                    if (imgMatch) image = imgMatch[1];
+                  }
+                  return `
+                    <a href="${link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
+                      ${image ? `<img src="${image}" alt="${title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
+                      <div style="padding: 1.2rem;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary); text-align: left;">${title}</h3>
+                      </div>
+                    </a>
+                  `;
+                }).join('');
+                return; // Success, exit early!
+              }
+            }
+          } catch (e) {
+            console.warn("[SmugMug] rss2json failed. Falling back to raw proxies.", e);
+          }
         }
 
-        // Attempt 2: Raw XML Proxies
-        let xmlText = null;
-        const proxies = [
-          { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false },
-          { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true }
-        ];
+        if (!xmlText) {
+          // Attempt 3: Raw XML Proxies
+          const proxies = [
+            { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false },
+            { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true }
+          ];
 
-        for (const proxy of proxies) {
-          try {
-            console.log(`[SmugMug] Trying proxy: ${proxy.url}`);
-            const res = await fetch(proxy.url);
-            if (res.ok) {
-              if (proxy.isJson) {
-                const data = await res.json();
-                xmlText = data.contents;
-              } else {
-                xmlText = await res.text();
-              }
-              if (xmlText) {
-                const textStart = xmlText.trim().toLowerCase();
-                if (textStart.startsWith('<html') || textStart.startsWith('<!doctype')) {
-                  console.warn(`[SmugMug] Proxy returned HTML instead of XML. Skipping.`);
-                  xmlText = null;
-                  continue;
+          for (const proxy of proxies) {
+            try {
+              console.log(`[SmugMug] Trying proxy: ${proxy.url}`);
+              const res = await fetch(proxy.url);
+              if (res.ok) {
+                if (proxy.isJson) {
+                  const data = await res.json();
+                  xmlText = data.contents;
+                } else {
+                  xmlText = await res.text();
                 }
-                console.log(`[SmugMug] Proxy successful!`);
-                break;
+                if (xmlText) {
+                  const textStart = xmlText.trim().toLowerCase();
+                  if (textStart.startsWith('<html') || textStart.startsWith('<!doctype')) {
+                    console.warn(`[SmugMug] Proxy returned HTML instead of XML. Skipping.`);
+                    xmlText = null;
+                    continue;
+                  }
+                  console.log(`[SmugMug] Proxy successful!`);
+                  break;
+                }
               }
-            } else {
-              console.warn(`[SmugMug] Proxy returned status: ${res.status}`);
-            }
-          } catch (err) {
-            console.warn(`[SmugMug] Proxy network error: ${err.message}`);
+            } catch (err) {}
           }
         }
 
