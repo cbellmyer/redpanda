@@ -254,6 +254,8 @@ menu:
         const encodedUrl = encodeURIComponent(targetUrl);
 
         const proxies = [
+          { url: `https://corsproxy.io/?${encodedUrl}`, isJson: false },
+          { url: `https://thingproxy.freeboard.io/fetch/${targetUrl}`, isJson: false },
           { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true },
           { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false }
         ];
@@ -417,14 +419,48 @@ menu:
 
         const SMUGMUG_NICKNAME = 'furcologist';
         const targetUrl = `https://${SMUGMUG_NICKNAME}.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=${SMUGMUG_NICKNAME}&format=rss200`;
-        let xmlText = null;
-
-        // SmugMug does not support CORS. Skip direct fetch to avoid browser console errors.
-        // SmugMug's legacy API rejects unknown parameters like the cache buster, causing 403s!
-        // We must pass the exact URL. We'll also use AllOrigins JSON endpoint which avoids raw blocks.
         const encodedUrl = encodeURIComponent(targetUrl);
+
+        // Attempt 1: RSS2JSON API. This is heavily allowlisted by SmugMug since it acts like a normal feed reader,
+        // and entirely bypasses the browser's XML parser which prevents HTML-blocking errors.
+        try {
+          console.log("[SmugMug] Trying rss2json API...");
+          const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.status === 'ok' && data.items && data.items.length > 0) {
+              console.log("[SmugMug] rss2json successful!");
+              const latest = data.items.slice(0, 6);
+              photoFeedContainer.innerHTML = latest.map(item => {
+                const title = item.title || "Field Update";
+                const link = item.link || "#";
+                let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
+                if (!image) {
+                  const content = item.content || item.description || "";
+                  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+                  if (imgMatch) image = imgMatch[1];
+                }
+                return `
+                  <a href="${link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
+                    ${image ? `<img src="${image}" alt="${title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
+                    <div style="padding: 1.2rem;">
+                      <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary); text-align: left;">${title}</h3>
+                    </div>
+                  </a>
+                `;
+              }).join('');
+              return; // Success, exit early!
+            }
+          }
+        } catch (e) {
+          console.warn("[SmugMug] rss2json failed. Falling back to raw proxies.", e);
+        }
+
+        // Attempt 2: Raw XML Proxies
+        let xmlText = null;
         const proxies = [
           { url: `https://corsproxy.io/?${encodedUrl}`, isJson: false },
+          { url: `https://thingproxy.freeboard.io/fetch/${targetUrl}`, isJson: false },
           { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true },
           { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false }
         ];
