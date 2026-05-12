@@ -191,28 +191,6 @@ menu:
         </div>
       </div>
     </div>
-    <div id="system-status-aqi" style="margin: 0; text-align: center;">
-      <div id="aqi-loading" style="opacity: 0.7; font-size: 1.1rem;">Gathering air quality data...</div>
-      <div id="aqi-data" style="display: none;">
-        <div class="weather-card">
-          <div class="weather-avatar">
-            <div style="font-size: 3.5rem; line-height: 1.1;" id="aqi-icon">🌿</div>
-            <div style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 0.2rem; letter-spacing: -0.02em;"><span id="aqi-value">--</span></div>
-            <div id="aqi-desc" style="font-size: 0.9rem; font-weight: 600; text-align: center; margin-top: 0.2rem; line-height: 1.2;">--</div>
-          </div>
-          <div class="weather-info-col">
-            <div class="discord-username" style="margin-bottom: 0.5rem; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent); padding-bottom: 0.4rem;">Air Quality Index</div>
-            <div class="weather-grid" style="grid-template-columns: 1fr; row-gap: 0.6rem; min-width: 180px;">
-              <span><strong>PM2.5:</strong> <span><span id="aqi-pm25">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
-              <span><strong>PM10:</strong> <span><span id="aqi-pm10">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
-              <span><strong>Ozone:</strong> <span><span id="aqi-o3">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
-              <span><strong>Carbon Mono:</strong> <span><span id="aqi-co">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
   </div>
 </div>
 
@@ -224,27 +202,6 @@ menu:
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const animateValue = (id, start, end, duration, decimals = 0, suffix = '') => {
-      const obj = document.getElementById(id);
-      if (!obj) return;
-      let startTimestamp = null;
-      const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        const current = start + (end - start) * easeOut;
-
-        obj.textContent = (decimals > 0 ? current.toFixed(decimals) : Math.round(current)) + suffix;
-
-        if (progress < 1) {
-          window.requestAnimationFrame(step);
-        } else {
-          obj.textContent = (decimals > 0 ? end.toFixed(decimals) : Math.round(end)) + suffix;
-        }
-      };
-      window.requestAnimationFrame(step);
-    };
-
     // 1. Discord Lanyard Widget (Client-Side)
     const discordContainer = document.getElementById('discord-widget');
     const DISCORD_ID = '104330735866884096';
