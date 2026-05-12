@@ -596,7 +596,7 @@ menu:
       const start = performance.now();
       // We append a timestamp to the URL to prevent the browser from returning a cached response
       const pingUrl = window.location.origin + window.location.pathname + '?ping=' + Date.now();
-      
+
       // Use a HEAD request to minimize data transfer (we just want the connection time)
       fetch(pingUrl, { method: 'HEAD', cache: 'no-store' })
         .then(response => {
@@ -629,7 +629,7 @@ menu:
           document.getElementById('uplink-loading').textContent = 'Uplink telemetry offline.';
         });
     };
-    
+
     measureUplink();
     setInterval(measureUplink, 30000); // Ping every 30 seconds to keep the metric "live"
 
@@ -680,7 +680,7 @@ menu:
       spData.style.display = 'block';
       spData.classList.add('fade-in');
     };
-    
+
     setTimeout(calculateSuitPower, 400); // Slight delay so animations stagger gracefully
 
     // Interactive Glitch Effect for Suit Power
@@ -688,21 +688,21 @@ menu:
     powerWidget.style.cursor = 'pointer';
     powerWidget.title = 'Reboot Telemetry';
     let isGlitching = false;
-    
+
     powerWidget.addEventListener('click', () => {
       if (isGlitching) return;
       isGlitching = true;
-      
+
       const spValue = document.getElementById('sp-value');
       const spTemp = document.getElementById('sp-temp');
       const spDraw = document.getElementById('sp-draw');
       const spStatus = document.getElementById('sp-status-text');
       const spIcon = document.getElementById('sp-icon');
-      
+
       spStatus.textContent = 'ERR_SYNC';
       spStatus.style.color = '#f04747';
       spIcon.textContent = '⚠️';
-      
+
       const chars = '0123456789!@#$%^&*';
       const getRandomStr = (minLen) => {
         const len = minLen + Math.floor(Math.random() * 2); // Jitter the string length
