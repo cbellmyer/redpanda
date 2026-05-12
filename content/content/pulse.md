@@ -255,7 +255,7 @@ menu:
 
         const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
         if (!res.ok) throw new Error("rss2json API failed");
-        
+
         const data = await res.json();
         if (data.status !== 'ok' || !data.items) throw new Error("Invalid data from rss2json");
 
@@ -266,7 +266,7 @@ menu:
             const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
             if (imgMatch) image = imgMatch[1];
           }
-          
+
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = item.content || item.description || "";
           const text = tempDiv.textContent || tempDiv.innerText || "";
