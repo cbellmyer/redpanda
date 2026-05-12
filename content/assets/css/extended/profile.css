@@ -112,6 +112,11 @@ main, .post-entry {
   box-shadow: 0 8px 25px rgb(0 0 0 / 30%);
 }
 
+/* Center Page Headers and Subtext */
+.page-header, .post-header {
+  text-align: center;
+}
+
 /* Site Header & Navigation Polish */
 .header {
   position: sticky;
@@ -594,6 +599,12 @@ a:hover {
 .feed-source.mastodon {
   color: #fff;
   background: #e67e22; /* Industrial engineer orange */
+}
+
+/* GitHub Tag */
+.feed-source.github {
+  color: #fff;
+  background: #24292e;
 }
 
 .feed-card .content { font-size: 0.95rem; color: var(--primary); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; }

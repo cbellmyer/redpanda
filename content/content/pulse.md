@@ -10,10 +10,77 @@ menu:
 ---
 
 <style>
-  /* Ensure feed-card sizing behaves perfectly when placed inside a CSS Grid instead of a horizontal scroll */
-  .pulse-feed-grid .feed-card {
-    flex: auto;
+  .discord-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.2rem;
+    background: color-mix(in srgb, var(--fur-secondary) 80%, transparent);
+    padding: 0.8rem 1.8rem 0.8rem 1rem;
+    border-radius: 50px;
+    border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+    box-shadow: 0 4px 15px rgb(0 0 0 / 20%);
+    transition: all 0.3s ease;
+    text-align: left;
   }
+  .discord-card.active {
+    border-color: color-mix(in srgb, #00E5FF 60%, transparent);
+    box-shadow: 0 0 20px rgb(0 229 255 / 15%);
+  }
+  .discord-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgb(0 229 255 / 25%);
+    border-color: #00E5FF;
+  }
+  .discord-avatar-wrapper {
+    position: relative;
+    width: 60px;
+    height: 60px;
+  }
+  .discord-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid color-mix(in srgb, var(--fur-secondary) 80%, transparent);
+  }
+  .discord-status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 3px solid var(--fur-secondary);
+    z-index: 2;
+  }
+  .discord-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .discord-username {
+    font-weight: 800;
+    color: var(--primary);
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+  }
+  .discord-details {
+    font-size: 0.9rem;
+    color: var(--secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-top: 0.1rem;
+  }
+  .voice-indicator { display: inline-flex; align-items: center; gap: 0.4rem; color: #00E5FF; font-weight: 600; }
+  .eq-bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
+  .eq-bar { width: 3px; background-color: #00E5FF; border-radius: 2px; animation: eq-bounce 0.8s infinite ease-in-out alternate; }
+  .eq-bar:nth-child(1) { height: 60%; animation-delay: 0.1s; }
+  .eq-bar:nth-child(2) { height: 100%; animation-delay: 0.3s; }
+  .eq-bar:nth-child(3) { height: 80%; animation-delay: 0.2s; }
+  @keyframes eq-bounce { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); } }
+  .activity-indicator { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .activity-indicator strong { color: var(--eye-highlight); }
 </style>
 
 <div class="bio-container" style="text-align: center; margin-bottom: 3rem;">
@@ -25,8 +92,8 @@ menu:
 
 <h2 class="upcoming-section-title" style="margin-top: 1rem;">Recent Transmissions</h2>
 
-<div id="social-feed-grid" class="upcoming-grid pulse-feed-grid">
-  <div class="loading-feed" style="grid-column: 1 / -1;">Establishing connection to signals...</div>
+<div id="social-feed-grid" class="feed-scroll">
+  <div class="loading-feed">Establishing connection to signals...</div>
 </div>
 
 <script>
@@ -231,7 +298,7 @@ menu:
         .slice(0, 20); // Show latest 20 items combined
 
       if (combined.length === 0) {
-        feedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">Could not retrieve signals at this time.</div>';
+        feedContainer.innerHTML = '<div class="loading-feed">Could not retrieve signals at this time.</div>';
         return;
       }
 
