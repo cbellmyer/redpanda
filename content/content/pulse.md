@@ -255,7 +255,7 @@ menu:
 
         const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
         if (!res.ok) throw new Error("rss2json API failed");
-        
+
         const data = await res.json();
         if (data.status !== 'ok' || !data.items) throw new Error("Invalid data from rss2json");
 
@@ -266,7 +266,7 @@ menu:
             const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
             if (imgMatch) image = imgMatch[1];
           }
-          
+
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = item.content || item.description || "";
           const text = tempDiv.textContent || tempDiv.innerText || "";
@@ -367,7 +367,7 @@ menu:
 
         const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
         if (!res.ok) throw new Error("rss2json API failed");
-        
+
         const data = await res.json();
         if (data.status !== 'ok' || !data.items || data.items.length === 0) {
           photoFeedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">No field data found at this time.</div>';
@@ -379,7 +379,7 @@ menu:
           const title = item.title || "Field Update";
           const link = item.link || "#";
           let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
-          
+
           if (!image) {
             const content = item.content || item.description || "";
             const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
