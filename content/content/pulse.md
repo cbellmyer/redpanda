@@ -269,7 +269,15 @@ menu:
               } else {
                 xmlText = await res.text();
               }
-              if (xmlText) break;
+              if (xmlText) {
+                const textStart = xmlText.trim().toLowerCase();
+                if (textStart.startsWith('<html') || textStart.startsWith('<!doctype')) {
+                  console.warn(`Proxy returned HTML instead of XML, skipping: ${proxy.url}`);
+                  xmlText = null;
+                  continue;
+                }
+                break;
+              }
             }
           } catch (e) {
             console.warn(`Proxy fetch failed for ${proxy.url}`);
@@ -338,6 +346,11 @@ menu:
         // exclude_replies=true filters out thread spam, just like we do for Bluesky
         const res = await fetch('https://furry.engineer/api/v1/accounts/110373887192663991/statuses?limit=10&exclude_replies=true');
         const data = await res.json();
+
+        if (!Array.isArray(data)) {
+          console.warn("Mastodon fetch error: API returned non-array", data);
+          return [];
+        }
 
         return data.map(status => {
           const isRepost = !!status.reblog;
@@ -411,7 +424,8 @@ menu:
         // We must pass the exact URL. We'll also use AllOrigins JSON endpoint which avoids raw blocks.
         const encodedUrl = encodeURIComponent(targetUrl);
         const proxies = [
-          { url: `https://api.allorigins.win/get?url=${encodedUrl}&disableCache=true`, isJson: true },
+          { url: `https://corsproxy.io/?${encodedUrl}`, isJson: false },
+          { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true },
           { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false }
         ];
 
@@ -427,6 +441,12 @@ menu:
                 xmlText = await res.text();
               }
               if (xmlText) {
+                const textStart = xmlText.trim().toLowerCase();
+                if (textStart.startsWith('<html') || textStart.startsWith('<!doctype')) {
+                  console.warn(`[SmugMug] Proxy returned HTML instead of XML. Skipping.`);
+                  xmlText = null;
+                  continue;
+                }
                 console.log(`[SmugMug] Proxy successful!`);
                 break;
               }
