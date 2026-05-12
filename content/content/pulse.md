@@ -161,38 +161,62 @@ menu:
 </style>
 
 <div class="bio-container" style="text-align: center; margin-bottom: 3rem;">
-  <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--primary);">System Status</h2>
+  <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--primary);">Field Conditions</h2>
   <div id="discord-widget" style="font-size: 1.1rem; margin-bottom: 1.5rem;">
     <span style="opacity: 0.7;">Checking connection...</span>
   </div>
-  <div id="system-status-weather" style="margin: 0 auto; text-align: center;">
-    <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem;">Gathering atmospheric data...</div>
-    <div id="weather-data" style="display: none;">
-      <div class="weather-card">
-        <div class="weather-avatar">
-          <div style="font-size: 3.5rem; line-height: 1.1;" id="ww-icon">☁️</div>
-          <div style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 0.2rem; letter-spacing: -0.02em;"><span id="ww-temp">--</span><span style="font-size: 1.1rem; color: var(--secondary); font-weight: 600;">°F</span></div>
-          <div id="ww-desc" style="font-size: 0.9rem; color: var(--throat-teal); font-weight: 600; text-align: center; margin-top: 0.2rem; line-height: 1.2;">--</div>
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin: 0 auto;">
+    <div id="system-status-weather" style="margin: 0; text-align: center;">
+      <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem;">Gathering atmospheric data...</div>
+      <div id="weather-data" style="display: none;">
+        <div class="weather-card">
+          <div class="weather-avatar">
+            <div style="font-size: 3.5rem; line-height: 1.1;" id="ww-icon">☁️</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 0.2rem; letter-spacing: -0.02em;"><span id="ww-temp">--</span><span style="font-size: 1.1rem; color: var(--secondary); font-weight: 600;">°F</span></div>
+            <div id="ww-desc" style="font-size: 0.9rem; color: var(--throat-teal); font-weight: 600; text-align: center; margin-top: 0.2rem; line-height: 1.2;">--</div>
+          </div>
+          <div class="weather-info-col">
+            <div class="discord-username" style="margin-bottom: 0.5rem; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent); padding-bottom: 0.4rem;">Atmospheric Conditions</div>
+            <div class="weather-grid">
+              <span><strong>Heat Index:</strong> <span id="ww-feels">--</span></span>
+              <span><strong>Humidity:</strong> <span id="ww-humidity">--</span></span>
+              <span><strong>Precipitation:</strong> <span id="ww-precip">--</span></span>
+              <span><strong>Wind:</strong> <span><span id="ww-wind">--</span> <span id="ww-wind-dir" style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">--</span></span></span>
+              <span><strong>Pressure:</strong> <span id="ww-pressure">--</span></span>
+              <span><strong>Cloud Cover:</strong> <span id="ww-cloud">--</span></span>
+              <span><strong>Sunrise:</strong> <span id="ww-sunrise">--</span></span>
+              <span><strong>Sunset:</strong> <span id="ww-sunset">--</span></span>
+            </div>
+          </div>
         </div>
-        <div class="weather-info-col">
-          <div class="discord-username" style="margin-bottom: 0.5rem; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent); padding-bottom: 0.4rem;">Atmospheric Conditions</div>
-          <div class="weather-grid">
-            <span><strong>Heat Index:</strong> <span id="ww-feels">--</span></span>
-            <span><strong>Humidity:</strong> <span id="ww-humidity">--</span></span>
-            <span><strong>Precipitation:</strong> <span id="ww-precip">--</span></span>
-            <span><strong>Wind:</strong> <span><span id="ww-wind">--</span> <span id="ww-wind-dir" style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">--</span></span></span>
-            <span><strong>Pressure:</strong> <span id="ww-pressure">--</span></span>
-            <span><strong>Cloud Cover:</strong> <span id="ww-cloud">--</span></span>
-            <span><strong>Sunrise:</strong> <span id="ww-sunrise">--</span></span>
-            <span><strong>Sunset:</strong> <span id="ww-sunset">--</span></span>
+      </div>
+    </div>
+    <div id="system-status-aqi" style="margin: 0; text-align: center;">
+      <div id="aqi-loading" style="opacity: 0.7; font-size: 1.1rem;">Gathering air quality data...</div>
+      <div id="aqi-data" style="display: none;">
+        <div class="weather-card">
+          <div class="weather-avatar">
+            <div style="font-size: 3.5rem; line-height: 1.1;" id="aqi-icon">🌿</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 0.2rem; letter-spacing: -0.02em;"><span id="aqi-value">--</span></div>
+            <div id="aqi-desc" style="font-size: 0.9rem; font-weight: 600; text-align: center; margin-top: 0.2rem; line-height: 1.2;">--</div>
+          </div>
+          <div class="weather-info-col">
+            <div class="discord-username" style="margin-bottom: 0.5rem; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent); padding-bottom: 0.4rem;">Air Quality Index</div>
+            <div class="weather-grid" style="grid-template-columns: 1fr; row-gap: 0.6rem; min-width: 180px;">
+              <span><strong>PM2.5:</strong> <span><span id="aqi-pm25">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
+              <span><strong>PM10:</strong> <span><span id="aqi-pm10">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
+              <span><strong>Ozone:</strong> <span><span id="aqi-o3">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
+              <span><strong>Carbon Mono:</strong> <span><span id="aqi-co">--</span> <span style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">μg/m³</span></span></span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+  </div>
 </div>
 
-<h2 class="upcoming-section-title" style="margin-top: 1rem;">Recent Transmissions</h2>
+<h2 class="upcoming-section-title" style="margin-top: 1rem;">Field Notes</h2>
 
 <div id="social-feed-grid" class="feed-scroll">
   <div class="loading-feed">Establishing connection to signals...</div>
@@ -522,5 +546,180 @@ menu:
         console.error('Failed to fetch weather data:', err);
         document.getElementById('weather-loading').textContent = 'Weather telemetry offline.';
       });
+
+    // 4. Air Quality Index Widget (Open-Meteo)
+    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5,pm10,ozone,carbon_monoxide&timezone=America%2FNew_York`;
+
+    fetch(aqiUrl)
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(data.reason || `HTTP ${response.status}`);
+        return data;
+      })
+      .then(data => {
+        const current = data.current;
+        const aqi = current.us_aqi;
+
+        let icon = '🌿';
+        let desc = 'Good';
+        let color = '#43b581'; // Green
+
+        if (aqi > 300) { icon = '☣️'; desc = 'Hazardous'; color = '#7e0023'; }
+        else if (aqi > 200) { icon = '🫁'; desc = 'Very Unhealthy'; color = '#8f3f97'; }
+        else if (aqi > 150) { icon = '😷'; desc = 'Unhealthy'; color = '#f04747'; }
+        else if (aqi > 100) { icon = '🤧'; desc = 'Unhealthy (Sens.)'; color = '#faa61a'; }
+        else if (aqi > 50) { icon = '😐'; desc = 'Moderate'; color = '#e67e22'; }
+
+        document.getElementById('aqi-icon').textContent = icon;
+        document.getElementById('aqi-desc').textContent = desc;
+        document.getElementById('aqi-desc').style.color = color;
+        document.getElementById('aqi-value').style.color = color;
+
+        animateValue('aqi-value', 0, aqi, 1200, 0);
+        animateValue('aqi-pm25', 0, current.pm2_5, 1200, 1);
+        animateValue('aqi-pm10', 0, current.pm10, 1200, 1);
+        animateValue('aqi-o3', 0, current.ozone, 1200, 0);
+        animateValue('aqi-co', 0, current.carbon_monoxide, 1200, 0);
+
+        document.getElementById('aqi-loading').style.display = 'none';
+        const aqiData = document.getElementById('aqi-data');
+        aqiData.style.display = 'block';
+        aqiData.classList.add('fade-in');
+      })
+      .catch(err => {
+        console.error('Failed to fetch AQI data:', err);
+        document.getElementById('aqi-loading').textContent = 'Air Quality telemetry offline.';
+      });
+
+    // 5. Network Telemetry Widget (Client-to-Server Ping)
+    const measureUplink = () => {
+      const start = performance.now();
+      // We append a timestamp to the URL to prevent the browser from returning a cached response
+      const pingUrl = window.location.origin + window.location.pathname + '?ping=' + Date.now();
+      
+      // Use a HEAD request to minimize data transfer (we just want the connection time)
+      fetch(pingUrl, { method: 'HEAD', cache: 'no-store' })
+        .then(response => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          const end = performance.now();
+          const latency = Math.max(1, end - start); // Ensure it reads at least 1ms
+
+          let icon = '📡';
+          let desc = 'Optimal';
+          let color = '#43b581'; // Green
+
+          if (latency > 300) { icon = '⚠️'; desc = 'Degraded'; color = '#f04747'; }
+          else if (latency > 100) { icon = '🐢'; desc = 'Slow'; color = '#faa61a'; }
+
+          document.getElementById('up-icon').textContent = icon;
+          document.getElementById('up-desc').textContent = desc;
+          document.getElementById('up-desc').style.color = color;
+          document.getElementById('up-status-text').textContent = 'Active';
+          document.getElementById('up-status-text').style.color = color;
+
+          animateValue('up-value', 0, latency, 1200, 0);
+
+          document.getElementById('uplink-loading').style.display = 'none';
+          const upData = document.getElementById('uplink-data');
+          upData.style.display = 'block';
+          upData.classList.add('fade-in');
+        })
+        .catch(err => {
+          console.error('Failed to measure uplink:', err);
+          document.getElementById('uplink-loading').textContent = 'Uplink telemetry offline.';
+        });
+    };
+    
+    measureUplink();
+    setInterval(measureUplink, 30000); // Ping every 30 seconds to keep the metric "live"
+
+    // 6. Suit Power Widget (Simulated Telemetry)
+    const calculateSuitPower = () => {
+      const now = new Date();
+      const hours = now.getHours() + now.getMinutes() / 60;
+      let power = 100;
+      let isCharging = false;
+
+      // Simulate battery: Discharges from 08:00 to 24:00, charges from 00:00 to 08:00
+      if (hours >= 8) {
+        power = 100 - ((hours - 8) / 16) * 85; // Drops to ~15% by midnight
+        isCharging = false;
+      } else {
+        power = 15 + (hours / 8) * 85; // Charges back to 100% by 8 AM
+        isCharging = true;
+      }
+
+      let icon = '🔋';
+      let desc = isCharging ? 'Recharging' : 'Discharging';
+      let color = '#43b581'; // Green
+
+      if (power <= 20 && !isCharging) {
+        icon = '🪫'; desc = 'Critical'; color = '#f04747'; // Red
+      } else if (power <= 50 && !isCharging) {
+        desc = 'Draining'; color = '#faa61a'; // Yellow
+      } else if (isCharging) {
+        icon = '⚡'; color = '#00E5FF'; // Cyan
+      }
+
+      document.getElementById('sp-icon').textContent = icon;
+      document.getElementById('sp-desc').textContent = desc;
+      document.getElementById('sp-desc').style.color = color;
+      document.getElementById('sp-status-text').textContent = isCharging ? 'Docked' : 'Active';
+      document.getElementById('sp-status-text').style.color = color;
+
+      // Simulate jittering "live" numbers
+      const coreTemp = 98.6 + (Math.random() * 0.4 - 0.2);
+      const drawRate = isCharging ? -0.8 + (Math.random() * 0.1) : 1.2 + (Math.random() * 0.3);
+
+      animateValue('sp-value', 0, power, 1200, 0);
+      animateValue('sp-temp', 90, coreTemp, 1200, 1);
+      animateValue('sp-draw', 0, drawRate, 1200, 2);
+
+      document.getElementById('power-loading').style.display = 'none';
+      const spData = document.getElementById('power-data');
+      spData.style.display = 'block';
+      spData.classList.add('fade-in');
+    };
+    
+    setTimeout(calculateSuitPower, 400); // Slight delay so animations stagger gracefully
+
+    // Interactive Glitch Effect for Suit Power
+    const powerWidget = document.getElementById('system-status-power');
+    powerWidget.style.cursor = 'pointer';
+    powerWidget.title = 'Reboot Telemetry';
+    let isGlitching = false;
+    
+    powerWidget.addEventListener('click', () => {
+      if (isGlitching) return;
+      isGlitching = true;
+      
+      const spValue = document.getElementById('sp-value');
+      const spTemp = document.getElementById('sp-temp');
+      const spDraw = document.getElementById('sp-draw');
+      const spStatus = document.getElementById('sp-status-text');
+      const spIcon = document.getElementById('sp-icon');
+      
+      spStatus.textContent = 'ERR_SYNC';
+      spStatus.style.color = '#f04747';
+      spIcon.textContent = '⚠️';
+      
+      const chars = '0123456789!@#$%^&*';
+      const getRandomStr = (minLen) => {
+        const len = minLen + Math.floor(Math.random() * 2); // Jitter the string length
+        return Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+      };
+
+      const glitchInterval = setInterval(() => {
+        spValue.textContent = getRandomStr(2);
+        spTemp.textContent = getRandomStr(3);
+        spDraw.textContent = getRandomStr(3);
+      }, 50);
+
+      setTimeout(() => {
+        clearInterval(glitchInterval);
+        isGlitching = false;
+        calculateSuitPower(); // Re-initialize and animate back to normal
+      }, 800);
+    });
   });
 </script>
