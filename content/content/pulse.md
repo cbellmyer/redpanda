@@ -168,7 +168,7 @@ menu:
 
   <div id="system-status-weather" style="margin: 0 auto; text-align: center;">
     <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem;">Gathering atmospheric data...</div>
-    
+
     <div id="weather-data" style="display: none;">
       <div class="weather-card">
         <div class="weather-avatar">
