@@ -466,16 +466,32 @@ menu:
 
         let xmlText = null;
 
-        // Attempt 1: First-party Cloudflare Pages Proxy
-        // This solves CORS permanently without relying on public third-party proxies.
+        // Attempt 1: First-party Cloudflare Pages JSON API
         try {
-          console.log("[SmugMug] Trying local API proxy...");
+          console.log("[SmugMug] Trying local JSON API proxy...");
           const proxyRes = await fetch('/api/smugmug');
           if (proxyRes.ok) {
-            const text = await proxyRes.text();
-            if (!text.trim().toLowerCase().startsWith('<html')) {
-              xmlText = text;
-              console.log("[SmugMug] Local API proxy successful!");
+            const contentType = proxyRes.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const data = await proxyRes.json();
+              if (Array.isArray(data) && data.length > 0) {
+                console.log("[SmugMug] Local JSON API proxy successful!");
+                photoFeedContainer.innerHTML = data.map(item => `
+                  <a href="${item.link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
+                    ${item.image ? `<img src="${item.image}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
+                    <div style="padding: 1.2rem;">
+                      <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary); text-align: left;">${item.title}</h3>
+                    </div>
+                  </a>
+                `).join('');
+                return; // Success, exit early!
+              }
+            } else {
+              // Local dev fallback if local proxy returns HTML instead of JSON
+              const text = await proxyRes.text();
+              if (!text.trim().toLowerCase().startsWith('<html')) {
+                xmlText = text;
+              }
             }
           }
         } catch (e) {}
