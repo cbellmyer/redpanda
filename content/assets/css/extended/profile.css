@@ -112,11 +112,6 @@ main, .post-entry {
   box-shadow: 0 8px 25px rgb(0 0 0 / 30%);
 }
 
-/* Center Page Headers and Subtext */
-.page-header, .post-header {
-  text-align: center;
-}
-
 /* Site Header & Navigation Polish */
 .header {
   position: sticky;
