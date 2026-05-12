@@ -40,7 +40,7 @@ menu:
   .discord-avatar {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
+    border-radius: 50% !important;
     object-fit: cover;
     border: 2px solid color-mix(in srgb, var(--fur-secondary) 80%, transparent);
   }
@@ -415,22 +415,29 @@ menu:
           console.warn(`[SmugMug] Direct fetch failed (likely CORS). ${e.message}`);
           
           // Proxy fallbacks
-          const cacheBuster = (targetUrl.includes('?') ? '&t=' : '?t=') + Date.now();
-          const encodedUrl = encodeURIComponent(targetUrl + cacheBuster);
+          // SmugMug's legacy API rejects unknown parameters like the cache buster, causing 403s!
+          // We must pass the exact URL. We'll also use AllOrigins JSON endpoint which avoids raw blocks.
+          const encodedUrl = encodeURIComponent(targetUrl);
           const proxies = [
-            `https://corsproxy.io/?${encodedUrl}`,
-            `https://api.allorigins.win/raw?url=${encodedUrl}`,
-            `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`
+            { url: `https://api.allorigins.win/get?url=${encodedUrl}&disableCache=true`, isJson: true },
+            { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false }
           ];
 
           for (const proxy of proxies) {
             try {
-              console.log(`[SmugMug] Trying proxy: ${proxy}`);
-              const res = await fetch(proxy);
+              console.log(`[SmugMug] Trying proxy: ${proxy.url}`);
+              const res = await fetch(proxy.url);
               if (res.ok) {
-                xmlText = await res.text();
-                console.log(`[SmugMug] Proxy successful via ${proxy}`);
-                break;
+                if (proxy.isJson) {
+                  const data = await res.json();
+                  xmlText = data.contents;
+                } else {
+                  xmlText = await res.text();
+                }
+                if (xmlText) {
+                  console.log(`[SmugMug] Proxy successful!`);
+                  break;
+                }
               } else {
                 console.warn(`[SmugMug] Proxy returned status: ${res.status}`);
               }
