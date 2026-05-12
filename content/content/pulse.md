@@ -224,6 +224,27 @@ menu:
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
+    const animateValue = (id, start, end, duration, decimals = 0, suffix = '') => {
+      const obj = document.getElementById(id);
+      if (!obj) return;
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3); 
+        const current = start + (end - start) * easeOut;
+        
+        obj.textContent = (decimals > 0 ? current.toFixed(decimals) : Math.round(current)) + suffix;
+        
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        } else {
+          obj.textContent = (decimals > 0 ? end.toFixed(decimals) : Math.round(end)) + suffix;
+        }
+      };
+      window.requestAnimationFrame(step);
+    };
+
     // 1. Discord Lanyard Widget (Client-Side)
     const discordContainer = document.getElementById('discord-widget');
     const DISCORD_ID = '104330735866884096';
