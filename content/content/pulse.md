@@ -130,11 +130,11 @@ menu:
           const status = data.discord_status;
           const isOnline = status !== "offline";
           const isVoice = data.active_on_discord_voice;
-          
+
           const customStatus = data.activities?.find(a => a.type === 4);
           const playingActivity = data.activities?.find(a => a.type === 0);
           const spotify = data.spotify;
-          
+
           const user = data.discord_user;
           const avatarUrl = user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp?size=128` : 'https://cdn.discordapp.com/embed/avatars/0.png';
           const username = user.global_name || user.username;
@@ -189,7 +189,7 @@ menu:
             if (data.active_on_discord_desktop) activeClients.push('💻 Desktop');
             if (data.active_on_discord_mobile) activeClients.push('📱 Mobile');
             if (data.active_on_discord_web) activeClients.push('🌐 Web');
-            
+
             if (activeClients.length > 0) {
               detailsHtml += `<div style="font-size: 0.8rem; color: var(--muzzle-grey); margin-top: 6px; display: flex; gap: 0.5rem; align-items: center; font-weight: 500;">${activeClients.join('<span style="opacity: 0.4; font-size: 0.5rem;">⚫</span>')}</div>`;
             }
@@ -397,7 +397,7 @@ menu:
     async function fetchPhotos() {
       try {
         console.log("[SmugMug] Starting field data retrieval...");
-        
+
         const SMUGMUG_NICKNAME = 'furcologist';
         const targetUrl = `https://${SMUGMUG_NICKNAME}.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=${SMUGMUG_NICKNAME}&format=rss200`;
         let xmlText = null;
@@ -413,7 +413,7 @@ menu:
           }
         } catch (e) {
           console.warn(`[SmugMug] Direct fetch failed (likely CORS). ${e.message}`);
-          
+
           // Proxy fallbacks
           // SmugMug's legacy API rejects unknown parameters like the cache buster, causing 403s!
           // We must pass the exact URL. We'll also use AllOrigins JSON endpoint which avoids raw blocks.
