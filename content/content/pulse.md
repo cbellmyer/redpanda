@@ -250,14 +250,44 @@ menu:
     // Fetch latest 10 from Pixelfed
     async function fetchPixelfed() {
       try {
-        const targetUrl = 'https://pixelfed.social/users/roryredpanda.atom?t=' + Date.now();
+        const targetUrl = 'https://pixelfed.social/users/roryredpanda.atom';
         const encodedUrl = encodeURIComponent(targetUrl);
 
+        // Attempt 1: rss2json
+        try {
+          const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.status === 'ok' && data.items) {
+              return data.items.slice(0, 10).map(item => {
+                let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
+                if (!image) {
+                  const content = item.content || item.description || "";
+                  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+                  if (imgMatch) image = imgMatch[1];
+                }
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = item.content || item.description || "";
+                const text = tempDiv.textContent || tempDiv.innerText || "";
+
+                return {
+                  source: 'Pixelfed',
+                  date: new Date(item.pubDate),
+                  text: text.trim(),
+                  image: image,
+                  url: item.link,
+                  isRepost: false
+                };
+              });
+            }
+          }
+        } catch (e) {
+          console.warn("Pixelfed rss2json failed, trying raw proxies...");
+        }
+
         const proxies = [
-          { url: `https://corsproxy.io/?${encodedUrl}`, isJson: false },
-          { url: `https://thingproxy.freeboard.io/fetch/${targetUrl}`, isJson: false },
-          { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true },
-          { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false }
+          { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false },
+          { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true }
         ];
 
         let xmlText = null;
@@ -459,10 +489,8 @@ menu:
         // Attempt 2: Raw XML Proxies
         let xmlText = null;
         const proxies = [
-          { url: `https://corsproxy.io/?${encodedUrl}`, isJson: false },
-          { url: `https://thingproxy.freeboard.io/fetch/${targetUrl}`, isJson: false },
-          { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true },
-          { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false }
+          { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false },
+          { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true }
         ];
 
         for (const proxy of proxies) {
