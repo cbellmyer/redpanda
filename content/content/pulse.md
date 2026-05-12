@@ -253,129 +253,30 @@ menu:
         const targetUrl = 'https://pixelfed.social/users/roryredpanda.atom';
         const encodedUrl = encodeURIComponent(targetUrl);
 
-        let xmlText = null;
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
+        if (!res.ok) throw new Error("rss2json API failed");
+        
+        const data = await res.json();
+        if (data.status !== 'ok' || !data.items) throw new Error("Invalid data from rss2json");
 
-        // Attempt 1: First-party Cloudflare Pages Proxy
-        try {
-          const proxyRes = await fetch('/api/pixelfed');
-          if (proxyRes.ok) {
-            const text = await proxyRes.text();
-            if (!text.trim().toLowerCase().startsWith('<html')) {
-              xmlText = text;
-            }
-          }
-        } catch (e) {}
-
-        if (!xmlText) {
-          // Attempt 2: rss2json fallback
-          try {
-            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
-            if (res.ok) {
-              const data = await res.json();
-              if (data.status === 'ok' && data.items) {
-                return data.items.slice(0, 10).map(item => {
-                  let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
-                  if (!image) {
-                    const content = item.content || item.description || "";
-                    const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-                    if (imgMatch) image = imgMatch[1];
-                  }
-                  const tempDiv = document.createElement("div");
-                  tempDiv.innerHTML = item.content || item.description || "";
-                  const text = tempDiv.textContent || tempDiv.innerText || "";
-
-                  return {
-                    source: 'Pixelfed',
-                    date: new Date(item.pubDate),
-                    text: text.trim(),
-                    image: image,
-                    url: item.link,
-                    isRepost: false
-                  };
-                });
-              }
-            }
-          } catch (e) {
-            console.warn("Pixelfed rss2json failed, trying raw proxies...");
-          }
-        }
-
-        if (!xmlText) {
-          // Attempt 3: Raw proxy fallbacks
-          const proxies = [
-            { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false },
-            { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true }
-          ];
-          for (const proxy of proxies) {
-            try {
-              const res = await fetch(proxy.url);
-              if (res.ok) {
-                if (proxy.isJson) {
-                  const data = await res.json();
-                  xmlText = data.contents;
-                } else {
-                  xmlText = await res.text();
-                }
-                if (xmlText) {
-                  const textStart = xmlText.trim().toLowerCase();
-                  if (textStart.startsWith('<html') || textStart.startsWith('<!doctype')) {
-                    xmlText = null;
-                    continue;
-                  }
-                  break;
-                }
-              }
-            } catch (e) {}
-          }
-        }
-
-        if (!xmlText) return [];
-
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(xmlText, "text/xml");
-        const entries = Array.from(xml.getElementsByTagName("entry")).slice(0, 10);
-
-        return entries.map(entry => {
-          const contentNodes = entry.getElementsByTagName("content");
-          const contentHtml = contentNodes.length > 0 ? contentNodes[0].textContent : '';
-
-          let image = null;
-          let postUrl = 'https://pixelfed.social/roryredpanda';
-
-          const links = entry.getElementsByTagName("link");
-          for (let i = 0; i < links.length; i++) {
-            const rel = links[i].getAttribute("rel");
-            const type = links[i].getAttribute("type") || '';
-            const href = links[i].getAttribute("href");
-
-            if (rel === "enclosure" && type.startsWith("image")) {
-              if (!image) image = href;
-            } else if (!rel || rel === "alternate") {
-              postUrl = href;
-            }
-          }
-
+        return data.items.slice(0, 10).map(item => {
+          let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
           if (!image) {
-            const imgMatch = contentHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
+            const content = item.content || item.description || "";
+            const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
             if (imgMatch) image = imgMatch[1];
           }
-
+          
           const tempDiv = document.createElement("div");
-          tempDiv.innerHTML = contentHtml;
+          tempDiv.innerHTML = item.content || item.description || "";
           const text = tempDiv.textContent || tempDiv.innerText || "";
-
-          const pubNodes = entry.getElementsByTagName("published");
-          const updNodes = entry.getElementsByTagName("updated");
-          const dateStr = (pubNodes.length > 0 ? pubNodes[0].textContent : null) ||
-                          (updNodes.length > 0 ? updNodes[0].textContent : null);
-          const date = dateStr ? new Date(dateStr) : new Date();
 
           return {
             source: 'Pixelfed',
-            date: date,
+            date: new Date(item.pubDate),
             text: text.trim(),
             image: image,
-            url: postUrl,
+            url: item.link,
             isRepost: false
           };
         });
@@ -464,161 +365,26 @@ menu:
         const targetUrl = `https://${SMUGMUG_NICKNAME}.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=${SMUGMUG_NICKNAME}&format=rss200`;
         const encodedUrl = encodeURIComponent(targetUrl);
 
-        let xmlText = null;
-
-        // Attempt 1: First-party Cloudflare Pages JSON API
-        try {
-          console.log("[SmugMug] Trying local JSON API proxy...");
-          const proxyRes = await fetch('/api/smugmug');
-          if (proxyRes.ok) {
-            const contentType = proxyRes.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-              const data = await proxyRes.json();
-              if (Array.isArray(data) && data.length > 0) {
-                console.log("[SmugMug] Local JSON API proxy successful!");
-                photoFeedContainer.innerHTML = data.map(item => `
-                  <a href="${item.link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
-                    ${item.image ? `<img src="${item.image}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
-                    <div style="padding: 1.2rem;">
-                      <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary); text-align: left;">${item.title}</h3>
-                    </div>
-                  </a>
-                `).join('');
-                return; // Success, exit early!
-              }
-            } else {
-              // Local dev fallback if local proxy returns HTML instead of JSON
-              const text = await proxyRes.text();
-              if (!text.trim().toLowerCase().startsWith('<html')) {
-                xmlText = text;
-              }
-            }
-          }
-        } catch (e) {}
-
-        if (!xmlText) {
-          // Attempt 2: RSS2JSON API (Fallback for local dev server)
-          try {
-            console.log("[SmugMug] Trying rss2json API...");
-            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
-            if (res.ok) {
-              const data = await res.json();
-              if (data.status === 'ok' && data.items && data.items.length > 0) {
-                console.log("[SmugMug] rss2json successful!");
-                const latest = data.items.slice(0, 6);
-                photoFeedContainer.innerHTML = latest.map(item => {
-                  const title = item.title || "Field Update";
-                  const link = item.link || "#";
-                  let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
-                  if (!image) {
-                    const content = item.content || item.description || "";
-                    const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-                    if (imgMatch) image = imgMatch[1];
-                  }
-                  return `
-                    <a href="${link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
-                      ${image ? `<img src="${image}" alt="${title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
-                      <div style="padding: 1.2rem;">
-                        <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary); text-align: left;">${title}</h3>
-                      </div>
-                    </a>
-                  `;
-                }).join('');
-                return; // Success, exit early!
-              }
-            }
-          } catch (e) {
-            console.warn("[SmugMug] rss2json failed. Falling back to raw proxies.", e);
-          }
-        }
-
-        if (!xmlText) {
-          // Attempt 3: Raw XML Proxies
-          const proxies = [
-            { url: `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`, isJson: false },
-            { url: `https://api.allorigins.win/get?url=${encodedUrl}`, isJson: true }
-          ];
-
-          for (const proxy of proxies) {
-            try {
-              console.log(`[SmugMug] Trying proxy: ${proxy.url}`);
-              const res = await fetch(proxy.url);
-              if (res.ok) {
-                if (proxy.isJson) {
-                  const data = await res.json();
-                  xmlText = data.contents;
-                } else {
-                  xmlText = await res.text();
-                }
-                if (xmlText) {
-                  const textStart = xmlText.trim().toLowerCase();
-                  if (textStart.startsWith('<html') || textStart.startsWith('<!doctype')) {
-                    console.warn(`[SmugMug] Proxy returned HTML instead of XML. Skipping.`);
-                    xmlText = null;
-                    continue;
-                  }
-                  console.log(`[SmugMug] Proxy successful!`);
-                  break;
-                }
-              }
-            } catch (err) {}
-          }
-        }
-
-        if (!xmlText) throw new Error("All fetching methods failed.");
-
-        console.log("[SmugMug] Raw XML snippet:", xmlText.substring(0, 200) + "...");
-
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(xmlText, "text/xml");
-
-        const parseError = xml.querySelector("parsererror");
-        if (parseError) {
-          console.error("[SmugMug] XML Parse Error:", parseError.textContent);
-          throw new Error("Failed to parse XML response.");
-        }
-
-        // Support both RSS <item> and Atom <entry> format feeds
-        let items = Array.from(xml.getElementsByTagName("item"));
-        if (items.length === 0) items = Array.from(xml.getElementsByTagName("entry"));
-
-        console.log(`[SmugMug] Found ${items.length} items in feed.`);
-
-        const latest = items.slice(0, 6); // Fetch latest 6 shots for a balanced grid
-
-        if (latest.length === 0) {
-          photoFeedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">No field data found at this time. (Feed empty)</div>';
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
+        if (!res.ok) throw new Error("rss2json API failed");
+        
+        const data = await res.json();
+        if (data.status !== 'ok' || !data.items || data.items.length === 0) {
+          photoFeedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">No field data found at this time.</div>';
           return;
         }
 
+        const latest = data.items.slice(0, 6);
         photoFeedContainer.innerHTML = latest.map(item => {
-          const title = item.getElementsByTagName("title")[0]?.textContent || "Field Update";
-
-          let link = "#";
-          const linkNodes = item.getElementsByTagName("link");
-          if (linkNodes.length > 0) link = linkNodes[0].textContent.trim() || linkNodes[0].getAttribute("href") || "#";
-
-          let image = null;
-
-          // SmugMug specific image tags
-          const mediaContents = item.getElementsByTagName("media:content");
-          if (mediaContents.length > 0) image = mediaContents[0].getAttribute("url");
-
+          const title = item.title || "Field Update";
+          const link = item.link || "#";
+          let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
+          
           if (!image) {
-            const mediaThumbs = item.getElementsByTagName("media:thumbnail");
-            if (mediaThumbs.length > 0) image = mediaThumbs[0].getAttribute("url");
-          }
-
-          const enclosures = item.getElementsByTagName("enclosure");
-          if (enclosures.length > 0 && !image) image = enclosures[0].getAttribute("url");
-
-          if (!image) {
-            const desc = item.getElementsByTagName("description")[0]?.textContent || "";
-            const content = item.getElementsByTagNameNS("*", "encoded")[0]?.textContent || item.getElementsByTagName("content")[0]?.textContent || "";
-            const imgMatch = (content || desc).match(/<img[^>]+src=["']([^"']+)["']/i);
+            const content = item.content || item.description || "";
+            const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
             if (imgMatch) image = imgMatch[1];
           }
-
           return `
             <a href="${link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
               ${image ? `<img src="${image}" alt="${title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
