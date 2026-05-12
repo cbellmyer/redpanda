@@ -11,49 +11,71 @@ title: "Home"
   </div>
 </div>
 
-<div id="omni-pulse-wrapper">
-  <a href="#" id="omni-pulse-link" target="_blank" rel="noopener" class="omni-pulse-ticker">
-    <span class="pulse-label" id="omni-pulse-label"></span>
-    <span class="pulse-divider">//</span>
-    <span class="pulse-text" id="omni-pulse-text">Loading signals...</span>
-  </a>
+<h2 class="upcoming-section-title" style="margin-top: 4rem;">Shots from the Field</h2>
+<div id="photo-feed-grid" class="upcoming-grid">
+  <div class="loading-feed" style="grid-column: 1 / -1;">Developing latest field shots...</div>
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const pulseLink = document.getElementById("omni-pulse-link");
-    const pulseLabel = document.getElementById("omni-pulse-label");
-    const pulseText = document.getElementById("omni-pulse-text");
-    const pulseWrapper = document.getElementById("omni-pulse-wrapper");
+  document.addEventListener('DOMContentLoaded', () => {
+    const feedContainer = document.getElementById('photo-feed-grid');
 
-    // TODO: Update this with your actual Worker deployed URL
-    const WORKER_URL = "https://pulse.redpanda.workers.dev";
-
-    async function updatePulse() {
+    async function fetchPhotos() {
       try {
-        const res = await fetch(WORKER_URL);
-        const data = await res.json();
+        console.log("[SmugMug] Starting field data retrieval...");
+        let items = [];
 
-        if (data && data.label && data.text) {
-          pulseWrapper.style.display = "block";
-
-          if (pulseText.textContent !== data.text) {
-            pulseText.style.animation = "none";
-            void pulseText.offsetWidth; // Trigger DOM reflow to restart animation seamlessly
-            pulseLabel.textContent = data.label;
-            pulseText.textContent = data.text;
-            pulseLink.href = data.url || "#";
-            pulseText.style.animation = "pulseSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)";
+        try {
+          const res = await fetch('/api/smugmug');
+          if (res.ok) {
+            items = await res.json();
+          } else {
+            throw new Error(`Local API returned ${res.status}`);
           }
-        } else if (data && data.error) {
-          console.error("Omni-Pulse Worker Error:", data.error);
-        } else {
-          console.warn("Omni-Pulse Worker returned incomplete data:", data);
+        } catch (err) {
+          console.warn("[SmugMug] Local API failed, trying rss2json...", err.message);
+          const SMUGMUG_NICKNAME = 'furcologist';
+          const targetUrl = `https://${SMUGMUG_NICKNAME}.smugmug.com/hack/feed.mg?Type=NicknameRecentPhotos&Data=${SMUGMUG_NICKNAME}&format=rss200`;
+          const encodedUrl = encodeURIComponent(targetUrl);
+          
+          const res2 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
+          if (!res2.ok) throw new Error("rss2json API failed");
+          
+          const data = await res2.json();
+          if (data.status !== 'ok' || !data.items) throw new Error("Invalid data from rss2json");
+          
+          items = data.items.map(item => {
+            let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
+            if (!image) {
+              const content = item.content || item.description || "";
+              const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+              if (imgMatch) image = imgMatch[1];
+            }
+            return { title: item.title || "Field Update", link: item.link || "#", image: image };
+          });
         }
-      } catch (err) { console.warn("Omni-Pulse fetch failed:", err); }
-    }
 
-    updatePulse();
-    setInterval(updatePulse, 60000); // Check for new signals every 60 seconds
+        if (!items || items.length === 0) {
+          feedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">No field data found at this time.</div>';
+          return;
+        }
+
+        const latest = items.slice(0, 6);
+        feedContainer.innerHTML = latest.map(item => {
+          return `
+            <a href="${item.link}" target="_blank" rel="noopener" class="con-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; text-decoration: none;">
+              ${item.image ? `<img src="${item.image}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">` : ''}
+              <div style="padding: 1.2rem;">
+                <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary); text-align: left;">${item.title}</h3>
+              </div>
+            </a>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error("Photo fetch error:", e);
+        feedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">Could not load transmissions from the field at this time.</div>';
+      }
+    }
+    fetchPhotos();
   });
 </script>
