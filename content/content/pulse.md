@@ -100,7 +100,7 @@ menu:
   <div id="system-status-weather" class="pulse-weather-widget" style="padding: 1.5rem; border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent); border-radius: 25px; background-color: color-mix(in srgb, var(--fur-secondary) 80%, transparent); max-width: 350px; margin: 0 auto; text-align: left; box-shadow: 0 4px 15px rgb(0 0 0 / 20%);">
     <h3 style="margin-top: 0; margin-bottom: 1rem; color: var(--primary); font-size: 1.2rem; text-align: center;">Weather Conditions</h3>
     <div id="weather-loading" style="text-align: center; opacity: 0.7;">Gathering atmospheric data...</div>
-    
+
     <div id="weather-data" style="display: none;">
       <div style="font-size: 2.5rem; margin-bottom: 1rem; text-align: center; color: var(--primary);">
         <span id="ww-icon">☁️</span>
@@ -121,6 +121,7 @@ menu:
         <li><strong style="color: var(--primary);">Sunset:</strong> <span id="ww-sunset" style="float: right; font-weight: 500;">--</span></li>
       </ul>
     </div>
+
   </div>
 </div>
 
@@ -399,7 +400,7 @@ menu:
       .then(data => {
         const current = data.current;
         const daily = data.daily;
-        
+
         const weatherCodes = {
           0: { icon: '☀️', desc: 'Clear sky' },
           1: { icon: '🌤️', desc: 'Mainly clear' },
