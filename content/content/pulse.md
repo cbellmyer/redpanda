@@ -8,102 +8,200 @@ menu:
     weight: 30
 ---
 
-<div id="pulse-container" class="pulse-grid">
-  <div class="loading-feed">Establishing connection to signals...</div>
+<style>
+  /* Ensure feed-card sizing behaves perfectly when placed inside a CSS Grid instead of a horizontal scroll */
+  .pulse-feed-grid .feed-card {
+    flex: auto;
+  }
+</style>
+
+<div class="bio-container" style="text-align: center; margin-bottom: 3rem;">
+  <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--primary);">System Status</h2>
+  <div id="discord-widget" style="font-size: 1.1rem;">
+    <span style="opacity: 0.7;">Checking connection...</span>
+  </div>
+</div>
+
+<h2 class="upcoming-section-title" style="margin-top: 1rem;">Recent Transmissions</h2>
+
+<div id="social-feed-grid" class="upcoming-grid pulse-feed-grid">
+  <div class="loading-feed" style="grid-column: 1 / -1;">Establishing connection to signals...</div>
 </div>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const pulseContainer = document.getElementById("pulse-container");
+    // 1. Discord Lanyard Widget (Client-Side)
+    const discordContainer = document.getElementById('discord-widget');
+    const DISCORD_ID = '104330735866884096';
 
-    // Use a relative path! Cloudflare Pages will automatically route this to the 'functions' folder.
-    // Note: When testing locally with 'hugo server', this will show a 404 error because Hugo isn't a Cloudflare server.
-    // It will work flawlessly the second it is pushed to GitHub and built by Cloudflare!
-    const WORKER_URL = "/api/pulse";
-
-    function timeAgo(timestamp) {
-      if (!timestamp) return "";
-      const seconds = Math.floor((new Date() - timestamp) / 1000);
-      let interval = seconds / 31536000;
-      if (interval > 1) return Math.floor(interval) + " years ago";
-      interval = seconds / 2592000;
-      if (interval > 1) return Math.floor(interval) + " months ago";
-      interval = seconds / 86400;
-      if (interval > 1) return Math.floor(interval) + " days ago";
-      interval = seconds / 3600;
-      if (interval > 1) return Math.floor(interval) + " hours ago";
-      interval = seconds / 60;
-      if (interval > 1) return Math.floor(interval) + " minutes ago";
-      return Math.floor(seconds) + " seconds ago";
-    }
-
-    async function fetchSignals() {
+    async function fetchDiscord() {
       try {
-        const res = await fetch(WORKER_URL);
+        const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
+        if (res.ok) {
+          const { data } = await res.json();
+          const isOnline = data.discord_status !== "offline";
+          const activity = data.activities?.find(a => a.type === 0) || data.activities?.[0];
 
-        // Fetch as text first so we can see exactly what the worker is sending back
-        const rawText = await res.text();
-        let signals;
-        try {
-          signals = JSON.parse(rawText);
-        } catch (e) {
-          console.error("Omni-Pulse received a non-JSON response. Raw text:", rawText);
-          
-          if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-            throw new Error(`Local server detected! The Pulse API relies on Cloudflare Pages, which doesn't run on the basic 'hugo server'. Push to GitHub to see it working live!`);
-          }
-
-          const titleMatch = rawText.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-          const errorReason = titleMatch ? titleMatch[1].trim() : "Unknown HTML Response";
-          
-          throw new Error(`Cloudflare intercepted the request: ${errorReason}`);
-        }
-
-        if (signals && signals.error) {
-          console.error("Worker explicitly returned an error:", signals.error);
-          pulseContainer.innerHTML = `<div class="loading-feed" style="color: var(--eye-highlight);">Worker Error: ${signals.error}</div>`;
-        } else if (Array.isArray(signals) && signals.length > 0) {
-          pulseContainer.innerHTML = signals.map(sig => {
-            let opacity = 1;
-            let timeStr = "";
-
-            if (sig.isActive) {
-              opacity = 1;
-              timeStr = "Live Now";
-            } else if (sig.timestamp) {
-              const hoursAgo = (Date.now() - sig.timestamp) / (1000 * 60 * 60);
-              // Dim the cards slowly, capping out at 0.4 opacity once they hit 168 hours (1 week) old
-              opacity = Math.max(0.4, 0.9 - (hoursAgo / 168) * 0.5);
-              timeStr = timeAgo(sig.timestamp);
-            } else {
-              opacity = 0.5; // Static fallbacks like X
-            }
-
-            return `
-              <a href="${sig.url}" target="_blank" rel="noopener" class="pulse-card ${sig.isActive ? 'active' : ''}" style="opacity: ${opacity}">
-                <div class="pulse-card-header">
-                  <span class="pulse-source">${sig.source} // ${sig.label}</span>
-                  <div class="pulse-indicator"></div>
-                </div>
-                <div class="pulse-content">${sig.text}</div>
-                <div class="pulse-time">${timeStr}</div>
-              </a>
+          if (isOnline) {
+            const text = activity ? `Playing <strong>${activity.name}</strong>` : "Online";
+            discordContainer.innerHTML = `
+              <div style="display: inline-flex; align-items: center; gap: 0.8rem; background: color-mix(in srgb, var(--fur-secondary) 80%, transparent); padding: 0.8rem 1.5rem; border-radius: 30px; border: 1px solid #00E5FF; box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: #00E5FF; box-shadow: 0 0 10px #00E5FF; animation: pulse-dot 1.5s infinite;"></div>
+                <span>LIVE // ${text}</span>
+              </div>
             `;
-          }).join('');
-        } else {
-          pulseContainer.innerHTML = '<div class="loading-feed">No signals available at the moment.</div>';
+          } else {
+            discordContainer.innerHTML = `
+              <div style="display: inline-flex; align-items: center; gap: 0.8rem; background: color-mix(in srgb, var(--fur-secondary) 80%, transparent); padding: 0.8rem 1.5rem; border-radius: 30px; border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--muzzle-grey);"></div>
+                <span style="color: var(--muzzle-grey);">OFFLINE</span>
+              </div>
+            `;
+          }
         }
-      } catch (err) {
-        console.error("Pulse fetch failed:", err);
-        pulseContainer.innerHTML = `
-          <div class="loading-feed" style="color: var(--eye-highlight); line-height: 1.6;">
-            Failed to connect to the signal relay.<br>
-            <span style="font-size: 0.85rem; opacity: 0.8;">(${err.message})</span>
-          </div>`;
+      } catch (e) {
+        console.error("Discord fetch failed:", e);
+        discordContainer.innerHTML = '<span style="color: var(--muzzle-grey);">Signal lost</span>';
+      }
+    }
+    
+    fetchDiscord();
+    setInterval(fetchDiscord, 60000); // Check discord every 60 seconds
+
+    // 2. Social Feeds (Bluesky + Pixelfed Grid)
+    const feedContainer = document.getElementById('social-feed-grid');
+
+    // Fetch latest 10 from Bluesky
+    async function fetchBluesky() {
+      try {
+        const res = await fetch('https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=redpanda.pet&filter=posts_no_replies&limit=20');
+        const data = await res.json();
+
+        return data.feed.filter(item => !item.reply).slice(0, 10).map(item => {
+          const post = item.post;
+          const text = post.record.text || '';
+          const image = post.embed?.images?.[0]?.thumb || null;
+          return {
+            source: 'Bluesky',
+            date: new Date(post.indexedAt),
+            text: text,
+            image: image,
+            url: `https://bsky.app/profile/${post.author.handle}/post/${post.uri.split('/').pop()}`,
+            isRepost: !!item.reason
+          };
+        });
+      } catch (e) {
+        console.error("Bluesky fetch error:", e);
+        return [];
       }
     }
 
-    fetchSignals();
-    setInterval(fetchSignals, 60000); // Check for new signals every 60 seconds
+    // Fetch latest 10 from Pixelfed
+    async function fetchPixelfed() {
+      try {
+        const targetUrl = 'https://pixelfed.social/users/roryredpanda.atom?t=' + Date.now();
+        const encodedUrl = encodeURIComponent(targetUrl);
+
+        const proxies = [
+          `https://corsproxy.io/?${encodedUrl}`,
+          `https://api.allorigins.win/raw?url=${encodedUrl}`,
+          `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`
+        ];
+
+        let xmlText = null;
+        for (const proxy of proxies) {
+          try {
+            const res = await fetch(proxy);
+            if (res.ok) {
+              xmlText = await res.text();
+              break;
+            }
+          } catch (e) {
+            console.warn(`Proxy fetch failed for ${proxy}`);
+          }
+        }
+
+        if (!xmlText) return [];
+
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "text/xml");
+        const entries = Array.from(xml.getElementsByTagName("entry")).slice(0, 10);
+
+        return entries.map(entry => {
+          const contentNodes = entry.getElementsByTagName("content");
+          const contentHtml = contentNodes.length > 0 ? contentNodes[0].textContent : '';
+
+          let image = null;
+          let postUrl = 'https://pixelfed.social/roryredpanda';
+
+          const links = entry.getElementsByTagName("link");
+          for (let i = 0; i < links.length; i++) {
+            const rel = links[i].getAttribute("rel");
+            const type = links[i].getAttribute("type") || '';
+            const href = links[i].getAttribute("href");
+
+            if (rel === "enclosure" && type.startsWith("image")) {
+              if (!image) image = href;
+            } else if (!rel || rel === "alternate") {
+              postUrl = href;
+            }
+          }
+
+          if (!image) {
+            const imgMatch = contentHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
+            if (imgMatch) image = imgMatch[1];
+          }
+
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = contentHtml;
+          const text = tempDiv.textContent || tempDiv.innerText || "";
+
+          const pubNodes = entry.getElementsByTagName("published");
+          const updNodes = entry.getElementsByTagName("updated");
+          const dateStr = (pubNodes.length > 0 ? pubNodes[0].textContent : null) ||
+                          (updNodes.length > 0 ? updNodes[0].textContent : null);
+          const date = dateStr ? new Date(dateStr) : new Date();
+
+          return {
+            source: 'Pixelfed',
+            date: date,
+            text: text.trim(),
+            image: image,
+            url: postUrl,
+            isRepost: false
+          };
+        });
+      } catch (e) {
+        console.error("Pixelfed fetch error:", e);
+        return [];
+      }
+    }
+
+    // Load, combine, and render the feeds into the grid
+    Promise.all([fetchBluesky(), fetchPixelfed()]).then(([bsky, pxfed]) => {
+      let combined = [...bsky, ...pxfed]
+        .filter(post => post.date && !isNaN(post.date.getTime()))
+        .sort((a, b) => b.date.getTime() - a.date.getTime())
+        .slice(0, 20); // Show latest 20 items combined
+
+      if (combined.length === 0) {
+        feedContainer.innerHTML = '<div class="loading-feed" style="grid-column: 1 / -1;">Could not retrieve signals at this time.</div>';
+        return;
+      }
+
+      feedContainer.innerHTML = combined.map(post => `
+        <a href="${post.url}" target="_blank" rel="noopener" class="feed-card">
+          <div class="meta">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="feed-source ${post.source.toLowerCase()}">${post.source}</span>
+              ${post.isRepost ? '<span style="font-size: 0.8rem; opacity: 0.8;" title="Repost">🔁 Repost</span>' : ''}
+            </div>
+            <span class="feed-date">${post.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          </div>
+          ${post.image ? `<img src="${post.image}" alt="Post image" loading="lazy">` : ''}
+          <div class="content">${post.text}</div>
+        </a>
+      `).join('');
+    });
   });
 </script>
