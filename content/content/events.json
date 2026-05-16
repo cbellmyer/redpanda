@@ -1,0 +1,362 @@
+[
+  {
+    "locationName": "Pittsburgh, PA",
+    "type": "convention",
+    "coordinates": [-79.9959, 40.4406],
+    "history": [
+      {
+        "year": "2025",
+        "eventName": "Anthrocon",
+        "dates": "July 3–6, 2025",
+        "venue": "DLCC",
+        "roundTripMiles": 440,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {
+          "Roaming": "#"
+        }
+      },
+      {
+        "year": "2024",
+        "eventName": "Anthrocon",
+        "dates": "July 4–7, 2024",
+        "venue": "DLCC",
+        "roundTripMiles": 440,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {
+          "Parade": "#"    
+        }
+      }
+    ]
+  },
+  {
+    "locationName": "Portland, ME",
+    "type": "convention",
+    "coordinates": [-70.2568, 43.6591],
+    "history": [
+      {
+        "year": "2027",
+        "eventName": "Furcationland",
+        "dates": "April 9–11, 2027",
+        "venue": "Holiday Inn By The Bay",
+        "roundTripMiles": 920,
+        "withHyper": true,
+        "role": "Staff",
+        "albums": {}
+      },
+      {
+        "year": "2026",
+        "eventName": "Furcationland",
+        "dates": "April 10–12, 2026",
+        "venue": "Holiday Inn By The Bay",
+        "roundTripMiles": 920,
+        "withHyper": true,
+        "role": "Volunteer",
+        "albums": {}
+      },
+      {
+        "year": "2025",
+        "eventName": "Furcationland",
+        "dates": "April 11–13, 2025",
+        "venue": "Holiday Inn By The Bay",
+        "roundTripMiles": 920,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {
+          "Roaming": "#"
+        }
+      }
+    ]
+  },
+  {
+    "locationName": "Fairfield, NJ",
+    "type": "convention",
+    "coordinates": [-74.2724, 40.8729],
+    "history": [
+      {
+        "year": "2027",
+        "eventName": "Furgeddaboutdit",
+        "dates": "April 22–24, 2027",
+        "venue": "Crowne Plaza",
+        "roundTripMiles": 360,
+        "withHyper": true,
+        "role": "Unknown",
+        "albums": {}
+      },
+      {
+        "year": "2026",
+        "eventName": "Furgeddaboutdit",
+        "dates": "April 23–25, 2026",
+        "venue": "Crowne Plaza",
+        "roundTripMiles": 360,
+        "withHyper": true,
+        "role": "Volunteer",
+        "albums": {}
+      },
+      {
+        "year": "2025",
+        "eventName": "Furgeddaboutdit",
+        "dates": "May 1–3, 2025",
+        "venue": "Crowne Plaza",
+        "roundTripMiles": 360,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Newark, DE",
+    "type": "convention",
+    "coordinates": [-75.7497, 39.6837],
+    "history": [
+      {
+        "year": "2025",
+        "eventName": "New Year's Fur Ball",
+        "dates": "December 31, 2025",
+        "venue": "Embassy Suites",
+        "roundTripMiles": 120,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Newport News, VA",
+    "type": "convention",
+    "coordinates": [-76.4944, 37.0857],
+    "history": [
+      {
+        "year": "2026",
+        "eventName": "FursonaCon",
+        "dates": "September 3–6, 2026",
+        "venue": "Holiday Inn",
+        "roundTripMiles": 380,
+        "withHyper": true,
+        "role": "Staff",
+        "albums": {}
+      },
+      {
+        "year": "2025",
+        "eventName": "FursonaCon",
+        "dates": "September 4–7, 2025",
+        "venue": "Holiday Inn",
+        "roundTripMiles": 380,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {}
+      },
+      {
+        "year": "2024",
+        "eventName": "FursonaCon",
+        "dates": "September 5–8, 2024",
+        "venue": "Holiday Inn",
+        "roundTripMiles": 380,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Baltimore, MD",
+    "type": "convention",
+    "coordinates": [-76.6122, 39.2904],
+    "history": [
+      {
+        "year": "2027",
+        "eventName": "Fur the 'More",
+        "dates": "April 9–11, 2027",
+        "venue": "Hyatt Regency",
+        "roundTripMiles": 30,
+        "withHyper": true,
+        "role": "Staff",
+        "albums": {}
+      },
+      {
+        "year": "2026",
+        "eventName": "Fur the 'More",
+        "dates": "April 10–12, 2026",
+        "venue": "Hyatt Regency",
+        "roundTripMiles": 30,
+        "withHyper": true,
+        "role": "Volunteer",
+        "albums": {}
+      },
+      {
+        "year": "2025",
+        "eventName": "Fur the 'More",
+        "dates": "April 4–6, 2025",
+        "venue": "Hyatt Regency",
+        "roundTripMiles": 30,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Toronto, ON",
+    "type": "convention",
+    "coordinates": [-79.3832, 43.6532],
+    "history": [
+      {
+        "year": "2027",
+        "eventName": "Furnal Equinox",
+        "dates": "March 19–21, 2027",
+        "venue": "Westin Harbour Castle",
+        "roundTripMiles": 800,
+        "withHyper": true,
+        "role": "Unknown",
+        "albums": {}
+      },
+      {
+        "year": "2026",
+        "eventName": "Furnal Equinox",
+        "dates": "March 20–22, 2026",
+        "venue": "Westin Harbour Castle",
+        "roundTripMiles": 800,
+        "withHyper": true,
+        "role": "Volunteer",
+        "albums": {}
+      },
+      {
+        "year": "2025",
+        "eventName": "Furnal Equinox",
+        "dates": "March 14–16, 2025",
+        "venue": "Westin Harbour Castle",
+        "roundTripMiles": 800,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Ottawa, ON",
+    "type": "convention",
+    "coordinates": [-75.6972, 45.4215],
+    "history": [
+      {
+        "year": "2027",
+        "eventName": "CanFURence",
+        "dates": "August 6–8, 2027",
+        "venue": "Delta Hotels",
+        "roundTripMiles": 960,
+        "withHyper": true,
+        "role": "Unknown",
+        "albums": {}
+      },
+      {
+        "year": "2025",
+        "eventName": "CanFURence",
+        "dates": "August 1–3, 2025",
+        "venue": "Delta Hotels",
+        "roundTripMiles": 960,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Stamford, CT",
+    "type": "convention",
+    "coordinates": [-73.5387, 41.0534],
+    "history": [
+      {
+        "year": "2026",
+        "eventName": "Furpocalypse",
+        "dates": "October 29–November 1, 2026",
+        "venue": "Stamford Marriott",
+        "roundTripMiles": 460,
+        "withHyper": true,
+        "role": "Staff",
+        "albums": {}
+      },
+      {
+        "year": "2025",
+        "eventName": "Furpocalypse",
+        "dates": "October 30–November 2, 2025",
+        "venue": "Stamford Marriott",
+        "roundTripMiles": 460,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Albany, NY",
+    "type": "convention",
+    "coordinates": [-73.7562, 42.6526],
+    "history": [
+      {
+        "year": "2025",
+        "eventName": "Eufuria",
+        "dates": "April 18–20, 2025",
+        "venue": "Hilton Albany",
+        "roundTripMiles": 600,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Philadelphia, PA",
+    "type": "convention",
+    "coordinates": [-75.1652, 39.9526],
+    "history": [
+      {
+        "year": "2026",
+        "eventName": "Furrydelphia",
+        "dates": "August 14–16, 2026",
+        "venue": "Sheraton Philadelphia",
+        "roundTripMiles": 200,
+        "withHyper": true,
+        "role": "Staff",
+        "albums": {}
+      },
+      {
+        "year": "2025",
+        "eventName": "Furrydelphia",
+        "dates": "August 8–10, 2025",
+        "venue": "Sheraton Philadelphia",
+        "roundTripMiles": 200,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {}
+      },
+      {
+        "year": "2024",
+        "eventName": "Furrydelphia",
+        "dates": "August 9–11, 2024",
+        "venue": "Sheraton Philadelphia",
+        "roundTripMiles": 200,
+        "withHyper": true,
+        "role": "Attendee",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Boston, MA",
+    "type": "roadtrip",
+    "coordinates": [-71.0589, 42.3601],
+    "history": [
+      {
+        "year": "2025",
+        "eventName": "Boston Road Trip",
+        "dates": "June 1–4, 2025",
+        "venue": "Downtown",
+        "roundTripMiles": 790,
+        "withHyper": false,
+        "role": "Photographer",
+        "albums": {}
+      }
+    ]
+  }
+]
