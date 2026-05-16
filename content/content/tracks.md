@@ -77,7 +77,9 @@ ShowBreadCrumbs: false
     try {
       const response = await fetch('/data/events.json');
       if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to load events.json`);
-      eventsData = await response.json();
+      const textData = await response.text();
+      if (!textData || textData.trim() === '') throw new Error('The events.json file is completely empty (0 bytes).');
+      eventsData = JSON.parse(textData);
     } catch (error) {
       console.error("Error loading events data:", error);
       document.getElementById('map-container').insertAdjacentHTML('afterbegin', `<div style="position: absolute; z-index: 1000; top: 10px; left: 50%; transform: translateX(-50%); background: var(--color-con); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); text-align: center;">⚠️ Error: Could not load map locations (${error.message}).<br><br>Please make sure <b>events.json</b> is saved inside the <b>content/static/data/</b> directory, NOT the <b>content/content/</b> directory!</div>`);
