@@ -76,11 +76,11 @@ ShowBreadCrumbs: false
     let eventsData = [];
     try {
       const response = await fetch('/data/events.json');
-      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to load events.json`);
       eventsData = await response.json();
     } catch (error) {
       console.error("Error loading events data:", error);
-      document.getElementById('map-container').insertAdjacentHTML('afterbegin', '<div style="position: absolute; z-index: 1000; top: 10px; left: 50%; transform: translateX(-50%); background: var(--color-con); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">⚠️ Error: Could not load map locations. Ensure events.json is inside static/data/</div>');
+      document.getElementById('map-container').insertAdjacentHTML('afterbegin', `<div style="position: absolute; z-index: 1000; top: 10px; left: 50%; transform: translateX(-50%); background: var(--color-con); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">⚠️ Error: Could not load map locations (${error.message}). Ensure events.json is inside content/static/data/</div>`);
       return; // Stop execution if data fails to load
     }
 
