@@ -27,15 +27,20 @@ disableKinds:
 
 menu:
   main:
-    - name: Shutterpaws
-      url: https://shutterpaws.pics/
-      weight: 30
-    - name: Tracks
-      url: /tracks/
-      weight: 15
     - name: About
       url: /about/
+      weight: 10
+    - name: Tracks
+      url: /tracks/
       weight: 20
+    - name: Pulse
+      url: /pulse/
+      weight: 30
+    - name: Shutterpaws
+      url: https://shutterpaws.pics/
+      weight: 40
+      params:
+        target: _blank
     # - name: Search
     #   url: search/
     #   weight: 10
