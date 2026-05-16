@@ -185,7 +185,7 @@ ShowBreadCrumbs: false
 
         contentHtml += `
           <div id="${tabId}" class="tooltip-tab-content ${isActive}">
-            <div style="font-weight: 800; font-size: 1.2em; color: var(--primary); margin-bottom: 2px;">
+            <div style="font-weight: 800; font-size: 1.25em; color: var(--eye-highlight); margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
               ${hist.eventName}
             </div>
             <div style="color: var(--secondary); font-size: 0.95em; margin-bottom: 12px; font-weight: 500;">
