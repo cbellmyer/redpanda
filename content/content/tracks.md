@@ -12,7 +12,7 @@ ShowBreadCrumbs: false
 > This is where I keep track of all the conventions, furmeets, and fun places I've visited around the world. Click on any of the bouncing paw prints below to see the details!
 
 <div id="next-con-widget" class="next-con-widget" style="display: none;">
-  <div class="widget-header">Next Deployment</div>
+  <div class="widget-header">Next Convention</div>
   <div class="widget-body">
     <div class="con-name" id="widget-con-name">Loading...</div>
     <div class="countdown"><span id="widget-days">0</span> Days</div>
@@ -51,8 +51,8 @@ ShowBreadCrumbs: false
   };
 
   document.addEventListener('DOMContentLoaded', async function() {
-    // Initialize map with a default view so it renders even if data is still loading
-    var map = L.map('map-container').setView([39.0, -95.0], 4);
+    // Initialize map focused on the Northeast US
+    var map = L.map('map-container').setView([41.5, -73.5], 6);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
@@ -80,6 +80,7 @@ ShowBreadCrumbs: false
       eventsData = await response.json();
     } catch (error) {
       console.error("Error loading events data:", error);
+      document.getElementById('map-container').insertAdjacentHTML('afterbegin', '<div style="position: absolute; z-index: 1000; top: 10px; left: 50%; transform: translateX(-50%); background: var(--color-con); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">⚠️ Error: Could not load map locations. Ensure events.json is inside static/data/</div>');
       return; // Stop execution if data fails to load
     }
 
@@ -228,8 +229,10 @@ ShowBreadCrumbs: false
     }
 
     // 3. Next Deployment Widget (Weather Integration)
-    if (upcomingExposures.length > 0) {
-      const nextEvent = upcomingExposures[0];
+    // Filter specifically for the next convention (ignoring road trips/NPO business)
+    const upcomingCons = upcomingExposures.filter(exp => exp.type === 'convention');
+    if (upcomingCons.length > 0) {
+      const nextEvent = upcomingCons[0];
       const daysUntil = Math.ceil((nextEvent.dateObj - now) / (1000 * 60 * 60 * 24));
 
       document.getElementById('widget-con-name').textContent = nextEvent.eventName;
@@ -265,9 +268,5 @@ ShowBreadCrumbs: false
         });
     }
 
-    // Automatically zoom the map to fit all markers with some padding
-    if (markerBounds.length > 0) {
-      map.fitBounds(markerBounds, { padding: [50, 50] });
-    }
   });
 </script>
