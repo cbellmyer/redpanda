@@ -325,7 +325,7 @@ a:hover {
 
 .tooltip-tab-btn.active {
   background: var(--throat-teal) !important;
-  color: #ffffff !important;
+  color: #fff !important;
   box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
 }
 
