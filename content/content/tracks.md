@@ -51,7 +51,8 @@ ShowBreadCrumbs: false
   };
 
   document.addEventListener('DOMContentLoaded', async function() {
-    var map = L.map('map-container');
+    // Initialize map with a default view so it renders even if data is still loading
+    var map = L.map('map-container').setView([39.0, -95.0], 4);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
