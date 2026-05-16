@@ -50,9 +50,36 @@ ShowBreadCrumbs: false
     container.querySelector('#' + targetId).classList.add('active');
   };
 
+  // Auto-Pan & Open Popup from Filmstrip Timeline
+  window.focusMapEvent = function(locIndex, tabId, lat, lng) {
+    // Smooth scroll the user back up to the map
+    document.getElementById('map-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Slight delay to allow the scroll to begin before triggering the map fly animation
+    setTimeout(() => {
+      window.tracksMap.flyTo([lat, lng], 9, { duration: 1.2 });
+      
+      // Wait for map to finish "flying" before opening popup
+      setTimeout(() => {
+        const marker = window.tracksMapMarkers[locIndex];
+        if (marker) {
+          marker.openPopup();
+          
+          // Wait a fraction of a second for the DOM popup to render, then select the right year tab
+          setTimeout(() => {
+            const tabBtn = document.querySelector(`.tooltip-tab-btn[onclick*="${tabId}"]`);
+            if (tabBtn) tabBtn.click();
+          }, 50);
+        }
+      }, 1250);
+    }, 150);
+  };
+
   document.addEventListener('DOMContentLoaded', async function() {
     // Initialize map focused on the Northeast US
     var map = L.map('map-container').setView([41.5, -73.5], 6);
+    window.tracksMap = map;
+    window.tracksMapMarkers = {};
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
@@ -135,12 +162,12 @@ ShowBreadCrumbs: false
 
         // Collect for timeline
         const parsedDate = parseStartDate(hist.dates, hist.year);
-        allExposures.push({ ...hist, locationName: loc.locationName, type: loc.type, dateObj: parsedDate, coords: latLng });
+        allExposures.push({ ...hist, locationName: loc.locationName, type: loc.type, dateObj: parsedDate, coords: latLng, locIndex: locIndex, tabId: tabId });
 
         // Album Pills
         let pillsHtml = '';
         if (hist.albums && Object.keys(hist.albums).length > 0) {
-          pillsHtml = '<div style="margin-top:10px;">';
+          pillsHtml = '<div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;">';
           for (const [albumName, url] of Object.entries(hist.albums)) {
             pillsHtml += `<a href="${url}" target="_blank" class="album-pill">${getAlbumEmoji(albumName)} ${albumName}</a>`;
           }
@@ -148,16 +175,27 @@ ShowBreadCrumbs: false
         }
 
         // Tooltip Content Frame
-        const hyperTag = hist.withHyper ? `<span class="hypercat-tag">[HYPER_LINK]</span>` : '';
+        let companionsHtml = '';
+        if (hist.withHyper) {
+          companionsHtml = `<div style="margin-top: 10px; font-size: 0.9em; color: var(--muzzle-grey);">Traveled with: <a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a></div>`;
+        }
+        
         const roleClass = hist.role ? `role-${hist.role.toLowerCase()}` : 'role-unknown';
-        const roleDisplay = hist.role ? `<span class="${roleClass}">(${hist.role})</span>` : '';
+        const roleDisplay = hist.role ? `<span class="${roleClass}" style="font-size: 0.85em; vertical-align: middle; margin-left: 4px;">(${hist.role})</span>` : '';
 
         contentHtml += `
           <div id="${tabId}" class="tooltip-tab-content ${isActive}">
-            <div style="font-weight:bold; font-size:1.1em;">${hist.eventName} ${hyperTag}</div>
-            <div style="color:var(--muzzle-grey); margin-bottom: 8px;">${loc.locationName} ${roleDisplay}</div>
-            <div>📅 ${hist.dates}</div>
-            <div>📍 ${hist.venue}</div>
+            <div style="font-weight: 800; font-size: 1.2em; color: var(--primary); margin-bottom: 2px;">
+              ${hist.eventName}
+            </div>
+            <div style="color: var(--secondary); font-size: 0.95em; margin-bottom: 12px; font-weight: 500;">
+              ${loc.locationName} ${roleDisplay}
+            </div>
+            <div style="background: color-mix(in srgb, var(--nose-dark) 40%, transparent); padding: 8px 12px; border-radius: 8px; font-size: 0.9em; color: var(--muzzle-grey); display: inline-block; text-align: left; margin: 0 auto;">
+              <div style="margin-bottom: 4px;">📅 <span style="color: var(--primary); margin-left: 6px;">${hist.dates}</span></div>
+              <div>📍 <span style="color: var(--primary); margin-left: 6px;">${hist.venue}</span></div>
+            </div>
+            ${companionsHtml}
             ${pillsHtml}
           </div>
         `;
@@ -178,7 +216,8 @@ ShowBreadCrumbs: false
         </div>
       `;
 
-      L.marker(latLng, {icon: pawIcon}).addTo(map).bindPopup(finalPopupHtml);
+      const marker = L.marker(latLng, {icon: pawIcon}).addTo(map).bindPopup(finalPopupHtml);
+      window.tracksMapMarkers[locIndex] = marker;
     });
 
     // Populate Odometer
@@ -210,14 +249,19 @@ ShowBreadCrumbs: false
           lastSeason = seasonId;
         }
 
-        const hyperTag = exp.withHyper ? `<span class="hypercat-tag">[HYPER]</span>` : '';
+        let companionsHtml = '';
+        if (exp.withHyper) {
+          companionsHtml = `<div style="font-size: 0.85em; color: var(--muzzle-grey); margin-bottom: 8px;">Traveled with: <a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a></div>`;
+        }
+        
         const roleClass = exp.role ? `role-${exp.role.toLowerCase()}` : 'role-unknown';
         const roleDisplay = exp.role ? `<span class="${roleClass}" style="margin-left: 6px;">(${exp.role})</span>` : '';
 
         trackHtml += `
-          <div class="event-card">
-            <h3>${exp.eventName} ${hyperTag}</h3>
-            <div style="color: var(--secondary); font-size: 0.9em; margin-bottom: 8px;">📍 ${exp.locationName}${roleDisplay}</div>
+          <div class="event-card" onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
+            <h3>${exp.eventName}</h3>
+            <div style="color: var(--secondary); font-size: 0.9em; margin-bottom: ${exp.withHyper ? '4px' : '8px'};">📍 ${exp.locationName}${roleDisplay}</div>
+            ${companionsHtml}
             <div style="font-size: 0.95em;">${exp.dates}</div>
             <div class="frame-meta">
               <span>FRM-${String(index + 1).padStart(2, '0')}</span>

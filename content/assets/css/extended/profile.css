@@ -297,36 +297,51 @@ a:hover {
 /* Tabbed Tooltips */
 .tooltip-tabs {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   margin-bottom: 12px;
-  border-bottom: 1px solid var(--muzzle-grey);
-  padding-bottom: 4px;
+  padding: 4px;
+  background: color-mix(in srgb, var(--nose-dark) 50%, transparent);
+  border-radius: 20px;
   justify-content: center;
 }
 
 .tooltip-tab-btn {
-  background: transparent;
-  color: var(--muzzle-grey);
-  border: none;
-  font-weight: bold;
+  background: transparent !important;
+  color: var(--muzzle-grey) !important;
+  border: none !important;
+  font-weight: 600;
   cursor: pointer;
-  padding: 4px 8px;
-  font-size: 0.9em;
-  transition: color 0.2s ease;
+  padding: 4px 12px;
+  font-size: 0.85em;
+  border-radius: 16px;
+  transition: all 0.2s ease;
+  margin: 0;
 }
 
-.tooltip-tab-btn:hover,
+.tooltip-tab-btn:hover {
+  color: var(--primary) !important;
+  background: color-mix(in srgb, var(--muzzle-grey) 20%, transparent) !important;
+}
+
 .tooltip-tab-btn.active {
-  color: var(--eye-highlight);
+  background: var(--throat-teal) !important;
+  color: var(--fur-base) !important;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
 }
 
 .tooltip-tab-content {
   display: none;
-  text-align: left;
+  text-align: center;
 }
 
 .tooltip-tab-content.active {
   display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Map Container Polish */
@@ -567,6 +582,14 @@ a:hover {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+  border-color: var(--throat-teal);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgb(0 0 0 / 40%);
 }
 
 /* CSS Noise Grain */
@@ -627,7 +650,7 @@ a:hover {
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 600;
-  margin: 4px 4px 0 0;
+  margin: 0;
   transition: filter 0.2s ease, transform 0.2s ease;
 }
 
@@ -639,7 +662,7 @@ a:hover {
 /* Hypercat Tag */
 .hypercat-tag {
   background: #111;
-  color: var(--color-hyper-eyes);
+  color: var(--color-hyper-eyes) !important;
   border: 1px solid transparent;
   border-image: linear-gradient(to right, #ff9500, #fff) 1;
   font-family: monospace;
@@ -647,6 +670,14 @@ a:hover {
   font-size: 0.75rem;
   margin-left: 6px;
   vertical-align: middle;
+  text-decoration: none;
+  display: inline-block;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.hypercat-tag:hover {
+  filter: brightness(1.2);
+  transform: translateY(-2px);
 }
 
 /* About Page Styles */
