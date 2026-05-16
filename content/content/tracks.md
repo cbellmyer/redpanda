@@ -54,17 +54,17 @@ ShowBreadCrumbs: false
   window.focusMapEvent = function(locIndex, tabId, lat, lng) {
     // Smooth scroll the user back up to the map
     document.getElementById('map-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
+
     // Slight delay to allow the scroll to begin before triggering the map fly animation
     setTimeout(() => {
       window.tracksMap.flyTo([lat, lng], 9, { duration: 1.2 });
-      
+
       // Wait for map to finish "flying" before opening popup
       setTimeout(() => {
         const marker = window.tracksMapMarkers[locIndex];
         if (marker) {
           marker.openPopup();
-          
+
           // Wait a fraction of a second for the DOM popup to render, then select the right year tab
           setTimeout(() => {
             const tabBtn = document.querySelector(`.tooltip-tab-btn[onclick*="${tabId}"]`);
@@ -179,7 +179,7 @@ ShowBreadCrumbs: false
         if (hist.withHyper) {
           companionsHtml = `<div style="margin-top: 10px; font-size: 0.9em; color: var(--muzzle-grey);">Traveled with: <a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a></div>`;
         }
-        
+
         const roleClass = hist.role ? `role-${hist.role.toLowerCase()}` : 'role-unknown';
         const roleDisplay = hist.role ? `<span class="${roleClass}" style="font-size: 0.85em; vertical-align: middle; margin-left: 4px;">(${hist.role})</span>` : '';
 
@@ -253,7 +253,7 @@ ShowBreadCrumbs: false
         if (exp.withHyper) {
           companionsHtml = `<div style="font-size: 0.85em; color: var(--muzzle-grey); margin-bottom: 8px;">Traveled with: <a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a></div>`;
         }
-        
+
         const roleClass = exp.role ? `role-${exp.role.toLowerCase()}` : 'role-unknown';
         const roleDisplay = exp.role ? `<span class="${roleClass}" style="margin-left: 6px;">(${exp.role})</span>` : '';
 
