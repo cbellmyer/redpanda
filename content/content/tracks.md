@@ -123,10 +123,10 @@ ShowBreadCrumbs: false
       loc.history.forEach((hist, histIdx) => {
         const isActive = histIdx === 0 ? 'active' : '';
         const tabId = `tab-${locIndex}-${hist.year}`;
-        
+
         // Tab Button
         tabsHtml += `<button class="tooltip-tab-btn ${isActive}" onclick="window.switchTab(this, '${tabId}', '${popupId}')">'${hist.year.slice(2)}</button>`;
-        
+
         // Distance Odometer Aggregation
         if (hist.roundTripMiles) totalMiles += hist.roundTripMiles;
 
@@ -148,7 +148,7 @@ ShowBreadCrumbs: false
         const hyperTag = hist.withHyper ? `<span class="hypercat-tag">[HYPER_LINK]</span>` : '';
         const roleClass = hist.role ? `role-${hist.role.toLowerCase()}` : 'role-unknown';
         const roleDisplay = hist.role ? `<span class="${roleClass}">(${hist.role})</span>` : '';
-        
+
         contentHtml += `
           <div id="${tabId}" class="tooltip-tab-content ${isActive}">
             <div style="font-weight:bold; font-size:1.1em;">${hist.eventName} ${hyperTag}</div>
@@ -210,7 +210,7 @@ ShowBreadCrumbs: false
         const hyperTag = exp.withHyper ? `<span class="hypercat-tag">[HYPER]</span>` : '';
         const roleClass = exp.role ? `role-${exp.role.toLowerCase()}` : 'role-unknown';
         const roleDisplay = exp.role ? `<span class="${roleClass}" style="margin-left: 6px;">(${exp.role})</span>` : '';
-        
+
         trackHtml += `
           <div class="event-card">
             <h3>${exp.eventName} ${hyperTag}</h3>

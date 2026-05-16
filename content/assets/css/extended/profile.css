@@ -3,15 +3,15 @@
   --color-con: #ff4d4d;      /* Red Panda Orange - Conventions */
   --color-trip: #2ecc71;     /* Forest Green - Road Trips */
   --color-sp: #3498db;       /* Sky Blue - Shutterpaws NPO Business */
-  
+
   /* Travel Partner Color (Hypercat) */
   --color-hyper-eyes: #00d4ff; /* Electric Blue for text */
-  
+
   /* Seasonal Timeline Tints */
   --winter: #00d4ff;
   --spring: #a2ff00;
-  --summer: #ffcc00;
-  --autumn: #ff6600;
+  --summer: #fc0;
+  --autumn: #f60;
 }
 
 html {
@@ -262,10 +262,12 @@ a:hover {
   color: var(--color-con);
   filter: drop-shadow(0 0 8px var(--color-con));
 }
+
 .paw-marker.type-roadtrip {
   color: var(--color-trip);
   filter: drop-shadow(0 0 8px var(--color-trip));
 }
+
 .paw-marker.type-shutterpaws {
   color: var(--color-sp);
   filter: drop-shadow(0 0 8px var(--color-sp));
@@ -282,6 +284,7 @@ a:hover {
   font-size: 0.85rem;
   line-height: 1.8;
 }
+
 .map-legend span {
   display: inline-block;
   width: 12px;
@@ -300,6 +303,7 @@ a:hover {
   padding-bottom: 4px;
   justify-content: center;
 }
+
 .tooltip-tab-btn {
   background: transparent;
   color: var(--muzzle-grey);
@@ -310,14 +314,17 @@ a:hover {
   font-size: 0.9em;
   transition: color 0.2s ease;
 }
+
 .tooltip-tab-btn:hover,
 .tooltip-tab-btn.active {
   color: var(--eye-highlight);
 }
+
 .tooltip-tab-content {
   display: none;
   text-align: left;
 }
+
 .tooltip-tab-content.active {
   display: block;
 }
@@ -567,9 +574,9 @@ a:hover {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: 
-    repeating-radial-gradient(circle at 10% 10%, rgba(255,255,255,0.03) 0%, transparent 1%),
-    repeating-radial-gradient(circle at 90% 90%, rgba(255,255,255,0.02) 0%, transparent 2%);
+  background-image:
+    repeating-radial-gradient(circle at 10% 10%, rgb(255 255 255 / 3%) 0%, transparent 1%),
+    repeating-radial-gradient(circle at 90% 90%, rgb(255 255 255 / 2%) 0%, transparent 2%);
   background-size: 6px 6px;
   pointer-events: none;
   z-index: 0;
@@ -604,7 +611,7 @@ a:hover {
   letter-spacing: 4px;
   padding: 0 10px;
   text-transform: uppercase;
-  border-left: 1px dashed rgba(255,255,255,0.15);
+  border-left: 1px dashed rgb(255 255 255 / 15%);
 }
 
 /* Touch-Friendly Pill Links */
@@ -623,6 +630,7 @@ a:hover {
   margin: 4px 4px 0 0;
   transition: filter 0.2s ease, transform 0.2s ease;
 }
+
 .album-pill:hover {
   filter: brightness(1.2);
   transform: translateY(-2px);
@@ -633,7 +641,7 @@ a:hover {
   background: #111;
   color: var(--color-hyper-eyes);
   border: 1px solid transparent;
-  border-image: linear-gradient(to right, #ff9500, #ffffff) 1;
+  border-image: linear-gradient(to right, #ff9500, #fff) 1;
   font-family: monospace;
   padding: 2px 6px;
   font-size: 0.75rem;
