@@ -358,5 +358,92 @@
         "albums": {}
       }
     ]
+  },
+  [
+  {
+    "locationName": "Edgemere, MD",
+    "type": "photoshoot",
+    "coordinates": [-76.4355, 39.2134],
+    "history": [
+      {
+        "year": "2024",
+        "eventName": "Shutterpaws First Meetup",
+        "dates": "September 2024",
+        "venue": "North Point State Park",
+        "roundTripMiles": 0,
+        "withHyper": true,
+        "role": "Board Member",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Annapolis, MD",
+    "type": "shutterpaws",
+    "coordinates": [-76.4922, 38.9784],
+    "history": [
+      {
+        "year": "2024",
+        "eventName": "Midnight Madness",
+        "dates": "December 2024",
+        "venue": "Downtown Annapolis",
+        "roundTripMiles": 0,
+        "withHyper": true,
+        "role": "Board Member",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Baltimore, MD",
+    "type": "shutterpaws",
+    "coordinates": [-76.6219, 39.3308],
+    "history": [
+      {
+        "year": "2024",
+        "eventName": "Miracle on 34th Street Lights Walk",
+        "dates": "December 2024",
+        "venue": "Hampden 34th Street",
+        "roundTripMiles": 0,
+        "withHyper": true,
+        "role": "Board Member",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Washington, D.C.",
+    "type": "shutterpaws",
+    "coordinates": [-77.0365, 38.8895],
+    "history": [
+      {
+        "year": "2026",
+        "eventName": "Paws + Petals (Cherry Blossom Walk)",
+        "dates": "March 14, 2026",
+        "venue": "National Mall & Tidal Basin",
+        "roundTripMiles": 0,
+        "withHyper": true,
+        "role": "Board Member",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Knoxville, MD",
+    "type": "shutterpaws",
+    "coordinates": [-77.6711, 39.3371],
+    "history": [
+      {
+        "year": "2026",
+        "eventName": "Tulip Photoshoot",
+        "dates": "April 2026",
+        "venue": "Montpelier Farms",
+        "roundTripMiles": 0,
+        "withHyper": true,
+        "role": "Board Member",
+        "albums": {}
+      }
+    ]
   }
+]
 ]
