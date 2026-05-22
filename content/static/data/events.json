@@ -428,20 +428,21 @@
     ]
   },
   {
-    "locationName": "Knoxville, MD",
-    "type": "shutterpaws",
-    "coordinates": [-77.6711, 39.3371],
-    "history": [
-      {
-        "year": "2026",
-        "eventName": "Tulip Photoshoot",
-        "dates": "April 2026",
-        "venue": "Montpelier Farms",
-        "roundTripMiles": 0,
-        "withHyper": true,
-        "role": "Board Member",
-        "albums": {}
-      }
+  "locationName": "Upper Marlboro, MD",
+  "address": "1720 Crain Hwy, Upper Marlboro, MD 20774",
+  "type": "shutterpaws",
+  "coordinates": [-76.7517, 38.8435],
+  "history": [
+    {
+      "year": "2026",
+      "eventName": "Tulip Photoshoot",
+      "dates": "April 2026",
+      "venue": "Montpelier Farms",
+      "roundTripMiles": 0,
+      "withHyper": true,
+      "role": "Board Member",
+      "albums": {}
+    }
     ]
   }
 ]
