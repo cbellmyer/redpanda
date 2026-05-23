@@ -199,27 +199,32 @@ a:hover {
   font-size: 1.1em;
 }
 
-.leaflet-popup-content .role-attendee {
+.leaflet-popup-content .role-attendee,
+.event-card .role-attendee {
   color: var(--secondary); /* Changed for better contrast against white backgrounds */
   font-weight: 500;
 }
 
-.leaflet-popup-content .role-volunteer {
+.leaflet-popup-content .role-volunteer,
+.event-card .role-volunteer {
   color: var(--throat-teal); /* Using the site's primary accent color */
   font-weight: 500;
 }
 
-.leaflet-popup-content .role-staff {
+.leaflet-popup-content .role-staff,
+.event-card .role-staff {
   color: var(--eye-highlight); /* A secondary accent for importance */
   font-weight: 500;
 }
 
-.leaflet-popup-content .role-photographer {
+.leaflet-popup-content .role-photographer,
+.event-card .role-photographer {
   color: var(--tongue-blue); /* A special color for the photographer role */
   font-weight: 500;
 }
 
-.leaflet-popup-content .role-unknown {
+.leaflet-popup-content .role-unknown,
+.event-card .role-unknown {
   color: var(--muzzle-grey); /* A muted color for pending/unknown roles */
   font-weight: 500;
   font-style: italic;
@@ -509,6 +514,87 @@ a:hover {
   margin: 0 0 1rem;
   color: var(--secondary);
   font-size: 0.95rem;
+}
+
+/* --- Filmstrip Timeline Styles (Tracks Page) --- */
+.filmstrip-scroll {
+  display: flex;
+  overflow-x: auto;
+  padding: 2.5rem 1rem;
+  margin: 1.5rem 0 3rem;
+  background: #111;
+  border-top: 15px dashed #000;
+  border-bottom: 15px dashed #000;
+  scrollbar-width: thin;
+  scrollbar-color: var(--throat-teal) #000;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.filmstrip-scroll::-webkit-scrollbar { height: 10px; }
+.filmstrip-scroll::-webkit-scrollbar-track { background: #000; }
+.filmstrip-scroll::-webkit-scrollbar-thumb { background-color: var(--throat-teal); border-radius: 5px; }
+
+.filmstrip-track {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  width: max-content;
+  padding: 0 1rem;
+}
+
+.season-divider {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  padding: 0 0.5rem;
+  opacity: 0.85;
+}
+.season-winter { color: #E1F5FE; text-shadow: 0 0 8px rgba(225,245,254,0.4); }
+.season-spring { color: #A5D6A7; text-shadow: 0 0 8px rgba(165,214,167,0.4); }
+.season-summer { color: #FFF59D; text-shadow: 0 0 8px rgba(255,245,157,0.4); }
+.season-autumn { color: #FFCC80; text-shadow: 0 0 8px rgba(255,204,128,0.4); }
+
+.event-card {
+  background: color-mix(in srgb, var(--fur-secondary) 85%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+  border-radius: 6px;
+  padding: 1.5rem;
+  min-width: 280px;
+  max-width: 320px;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 40%), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.event-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: var(--eye-highlight);
+  box-shadow: 0 10px 25px rgb(0 0 0 / 60%), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.event-card h3 {
+  margin: 0 0 0.5rem;
+  color: var(--primary);
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.frame-meta {
+  margin-top: 1.2rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+  display: flex;
+  justify-content: space-between;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 0.8rem;
+  color: var(--throat-teal);
+  letter-spacing: 0.05em;
 }
 
 /* About Page Styles */
