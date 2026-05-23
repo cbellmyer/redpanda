@@ -604,7 +604,7 @@ menu:
 
         document.getElementById('ww-desc').textContent = codeInfo.desc;
         document.getElementById('ww-temp').textContent = Math.round(current.temperature_2m);
-        
+
         let isCritical = false;
 
         // Heat Index Logic
@@ -634,7 +634,7 @@ menu:
 
         document.getElementById('ww-humidity').textContent = current.relative_humidity_2m + '%';
         document.getElementById('ww-precip').textContent = current.precipitation.toFixed(2) + '"';
-        
+
         // Wind Velocity Logic
         const windSpeed = current.wind_speed_10m;
         let windColor = '#00E5FF';
