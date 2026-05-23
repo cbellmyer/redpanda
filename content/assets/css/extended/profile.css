@@ -374,6 +374,37 @@ a:hover {
   color: var(--throat-teal) !important;
 }
 
+/* Map Legend Styling */
+.map-legend {
+  background: color-mix(in srgb, var(--fur-secondary) 85%, transparent) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--throat-teal) 60%, transparent);
+  border-radius: var(--radius);
+  padding: 10px 15px;
+  color: var(--primary) !important;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 60%);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.map-legend div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.map-legend div:last-child {
+  margin-bottom: 0;
+}
+
+.map-legend span {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
 /* Map Marker Bounce Animation */
 .paw-marker:hover div,
 .paw-marker.highlight div {
