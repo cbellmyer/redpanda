@@ -244,13 +244,13 @@ menu:
     // Global SCADA Timer
     function updateScadaClocks() {
       const now = new Date();
-      const timeString = now.getFullYear() + '-' + 
-        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-        String(now.getDate()).padStart(2, '0') + ' ' + 
-        String(now.getHours()).padStart(2, '0') + ':' + 
-        String(now.getMinutes()).padStart(2, '0') + ':' + 
+      const timeString = now.getFullYear() + '-' +
+        String(now.getMonth() + 1).padStart(2, '0') + '-' +
+        String(now.getDate()).padStart(2, '0') + ' ' +
+        String(now.getHours()).padStart(2, '0') + ':' +
+        String(now.getMinutes()).padStart(2, '0') + ':' +
         String(now.getSeconds()).padStart(2, '0');
-      
+
       document.querySelectorAll('.scada-time').forEach(el => {
         el.textContent = timeString;
       });
@@ -606,14 +606,14 @@ menu:
           throw new Error("GitHub API failed");
         }
         const events = await res.json();
-        
+
         const recentEvent = events.find(e => e.type === 'PushEvent' || e.type === 'CreateEvent' || e.type === 'PullRequestEvent') || events[0];
-        
+
         if (recentEvent) {
           const repoName = recentEvent.repo.name;
           const isPush = recentEvent.type === 'PushEvent';
           const actionType = isPush ? 'CODE PUSH' : recentEvent.type.replace('Event', '').toUpperCase();
-          
+
           let commitMessage = 'No commit details available.';
           if (isPush && recentEvent.payload.commits && recentEvent.payload.commits.length > 0) {
             commitMessage = recentEvent.payload.commits[0].message;
@@ -665,7 +665,7 @@ menu:
         }
       } catch (e) {
         console.error("GitHub fetch failed:", e);
-        
+
         let errorText = "Unable to establish link...";
         if (e.message.includes("recent events")) errorText = "No recent public activity.";
         else if (e.message.includes("rate limit")) errorText = "API rate limit exceeded.";
@@ -696,7 +696,7 @@ menu:
         updateScadaClocks();
       }
     }
-    
+
     fetchGitHub();
   });
 </script>
