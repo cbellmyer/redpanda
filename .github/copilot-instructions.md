@@ -1,26 +1,26 @@
-# Copilot Instructions for hypercat_me
+# Copilot Instructions for redpanda
 
 ## Repository Overview
 
-**hypercat_me** is a static website built with Hugo (v0.156.0+) using the PaperMod theme. It's a small personal portfolio/profile site (37 pages) showcasing a furry character's sona reference sheets and convention information. The site is approximately 66MB when built, with most content being optimized images.
+**redpanda** is a static website built with Hugo (v0.156.0+) using the PaperMod theme. It's a small personal portfolio/profile site (37 pages) showcasing a furry character's sona reference sheets and convention information. The site is approximately 66MB when built, with most content being optimized images.
 
 **Tech Stack:**
 
 - Static Site Generator: Hugo v0.156.0+ (extended version required)
-- Theme: hypercat-theme (customized PaperMod theme, included in repository)
+- Theme: redpanda-theme (customized PaperMod theme, included in repository)
 - Languages: Hugo templates (.html), Markdown (.md), YAML configuration
 - No backend, no Node.js, no Python - pure Hugo site
 
 ## Consistency Note
 
 Keep build tooling, SRI scripts, and CI workflow patterns aligned across the
-`hypercat_me`, `felle_me`, and `shutterpaws_pics` repos whenever possible.
+`redpanda`, `felle_me`, and `shutterpaws_pics` repos whenever possible.
 
 ## Critical Setup Requirements
 
 ### 1. Theme (INCLUDED)
 
-The theme is a customized version of PaperMod located at `themes/hypercat-theme/`. It is **not a git submodule** and is included directly in the repository, so no special initialization is required.
+The theme is a customized version of PaperMod located at `themes/redpanda-theme/`. It is **not a git submodule** and is included directly in the repository, so no special initialization is required.
 
 ## Hugo Installation
 
@@ -98,7 +98,7 @@ Clean these artifacts when:
 │       └── myAge.html           # Custom shortcode for age calculation
 ├── static/                      # Static files (favicons, icons)
 ├── themes/
-│   └── hypercat-theme/          # Customized PaperMod theme (included in repo)
+│   └── redpanda-theme/          # Customized PaperMod theme (included in repo)
 ├── hugo.yaml                    # Main configuration file
 ├── .gitignore
 └── README.md
@@ -113,8 +113,8 @@ Clean these artifacts when:
 ## Configuration Details
 
 - **Main config:** `hugo.yaml` (159 lines)
-- **Theme:** hypercat-theme (customized PaperMod - see `themes/hypercat-theme/README.md`)
-- **Base URL:** https://hypercat.me/
+- **Theme:** redpanda-theme (customized PaperMod - see `themes/redpanda-theme/README.md`)
+- **Base URL:** https://redpanda.pet/
 - **Profile mode:** Enabled with custom image and social links
 - **Custom shortcode:** `{{< myAge >}}` - calculates age from birthdate (1988-11-02)
 
@@ -227,7 +227,7 @@ Shows Hugo version, Go version, libsass version, libwebp version.
    - Always test `hugo` command succeeds before committing
 
 4. **Theme is Included in Repository**
-   - Theme is at `themes/hypercat-theme/` (not a submodule)
+   - Theme is at `themes/redpanda-theme/` (not a submodule)
    - Safe to customize theme files directly if needed
    - Theme is based on PaperMod - see README for documentation
 
@@ -267,6 +267,6 @@ These instructions have been validated through:
 
 - These instructions appear outdated (check Hugo version)
 - You encounter errors not documented here
-- You need to understand hypercat-theme/PaperMod theme specifics
+- You need to understand redpanda-theme/PaperMod theme specifics
 
-For theme documentation, see `themes/hypercat-theme/README.md`.
+For theme documentation, see `themes/redpanda-theme/README.md`.

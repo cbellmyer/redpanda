@@ -1,12 +1,12 @@
 /**
- * Service Worker for hypercat.me
+ * Service Worker for redpanda.pet
  * Enables offline support for the poses page.
  */
 'use strict';
 
 var CACHE_VERSION = 'v1';
-var STATIC_CACHE = 'hypercat-static-' + CACHE_VERSION;
-var RUNTIME_CACHE = 'hypercat-runtime-' + CACHE_VERSION;
+var STATIC_CACHE = 'redpanda-static-' + CACHE_VERSION;
+var RUNTIME_CACHE = 'redpanda-runtime-' + CACHE_VERSION;
 
 var IMAGE_PATTERN = /\.(webp|jpg|jpeg|png|gif|svg)(\?.*)?$/;
 var ASSET_PATTERN = /\.(css|js)(\?.*)?$/;
@@ -42,7 +42,7 @@ self.addEventListener('activate', function (event) {
         caches.keys().then(function (cacheNames) {
             return Promise.all(
                 cacheNames.filter(function (name) {
-                    return name.startsWith('hypercat-') &&
+                    return (name.startsWith('redpanda-') || name.startsWith('hypercat-')) &&
                         name !== STATIC_CACHE &&
                         name !== RUNTIME_CACHE;
                 }).map(function (name) {
