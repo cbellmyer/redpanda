@@ -658,20 +658,6 @@ a:hover {
     100% 10px;
   mask-position: center, top, bottom, top 4px left 0, bottom 4px left 0;
   mask-repeat: no-repeat;
-  mask-image:
-    linear-gradient(#000, #000),
-    linear-gradient(#000, #000),
-    linear-gradient(#000, #000),
-    repeating-linear-gradient(to right, transparent 0, transparent 14px, #000 14px, #000 20px),
-    repeating-linear-gradient(to right, transparent 0, transparent 14px, #000 14px, #000 20px);
-  mask-size:
-    100% calc(100% - 28px),
-    100% 4px,
-    100% 4px,
-    100% 10px,
-    100% 10px;
-  mask-position: center, top, bottom, top 4px left 0, bottom 4px left 0;
-  mask-repeat: no-repeat;
 }
 
 .season-divider {
