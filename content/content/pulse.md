@@ -18,12 +18,17 @@ menu:
     border: 1px solid color-mix(in srgb, #00E5FF 50%, transparent);
     padding: 2px;
     background: color-mix(in srgb, #00E5FF 10%, transparent);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .discord-avatar {
     width: 100%;
     height: 100%;
     object-fit: cover;
     filter: grayscale(20%) contrast(120%);
+    display: block;
   }
   .eq-bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
   .eq-bar { width: 3px; background-color: #00E5FF; border-radius: 2px; animation: eq-bounce 0.8s infinite ease-in-out alternate; }
@@ -81,6 +86,11 @@ menu:
     position: relative;
     z-index: 2;
     text-shadow: 0 0 5px color-mix(in srgb, #00E5FF 50%, transparent);
+  }
+  .scada-time {
+    font-size: 0.75rem;
+    color: color-mix(in srgb, #00E5FF 80%, transparent);
+    letter-spacing: 0.1em;
   }
   .scada-body {
     display: flex;
@@ -152,6 +162,7 @@ menu:
   @media (max-width: 600px) {
     .scada-body { flex-direction: column; }
     .scada-grid { border-left: none; border-top: 1px solid color-mix(in srgb, #00E5FF 30%, transparent); }
+    .scada-time { display: none; }
   }
 </style>
 
@@ -161,13 +172,14 @@ menu:
     <span style="opacity: 0.7;">Checking connection...</span>
   </div>
   <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin: 0 auto;">
-    <div id="system-status-weather" style="margin: 0; text-align: center;">
+    <div id="system-status-weather" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
       <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem;">Gathering atmospheric data...</div>
       <div id="weather-data" style="display: none; width: 100%; max-width: 700px; margin: 0 auto;">
         <div class="scada-panel">
           <div style="width: 100%;">
             <div class="scada-header">
               <span>[ ATMOSPHERIC SENSOR TELEMETRY ]</span>
+              <span class="scada-time">--:--:--</span>
               <span class="scada-status"><div class="scada-status-dot"></div> ACTIVE</span>
             </div>
             <div class="scada-body">
@@ -215,6 +227,9 @@ menu:
         </div>
       </div>
     </div>
+    <div id="github-widget" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
+      <div style="opacity: 0.7; font-size: 1.1rem;">Querying source control telemetry...</div>
+    </div>
   </div>
 </div>
 
@@ -226,6 +241,23 @@ menu:
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
+    // Global SCADA Timer
+    function updateScadaClocks() {
+      const now = new Date();
+      const timeString = now.getFullYear() + '-' + 
+        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(now.getDate()).padStart(2, '0') + ' ' + 
+        String(now.getHours()).padStart(2, '0') + ':' + 
+        String(now.getMinutes()).padStart(2, '0') + ':' + 
+        String(now.getSeconds()).padStart(2, '0');
+      
+      document.querySelectorAll('.scada-time').forEach(el => {
+        el.textContent = timeString;
+      });
+    }
+    setInterval(updateScadaClocks, 1000);
+    updateScadaClocks();
+
     // 1. Discord Lanyard Widget (Client-Side)
     const discordContainer = document.getElementById('discord-widget');
     const DISCORD_ID = '104330735866884096';
@@ -302,6 +334,7 @@ menu:
               <div style="width: 100%;">
                 <div class="scada-header">
                   <span>[ COMM-LINK TELEMETRY ]</span>
+                  <span class="scada-time">--:--:--</span>
                   <span class="scada-status" style="color: ${statusColor}; text-shadow: 0 0 5px ${statusColor};">
                     <div class="scada-status-dot" style="background-color: ${statusColor}; box-shadow: 0 0 8px ${statusColor}; ${isOnline ? '' : 'animation: none; opacity: 0.5;'}"></div>
                     ${statusText}
@@ -560,5 +593,101 @@ menu:
         console.error('Failed to fetch weather data:', err);
         document.getElementById('weather-loading').textContent = 'Weather telemetry offline.';
       });
+
+    // 4. GitHub Telemetry Widget
+    const githubContainer = document.getElementById('github-widget');
+    const GITHUB_USERNAME = 'cbellmyer'; // <-- Change to your GitHub username!
+
+    async function fetchGitHub() {
+      try {
+        const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/events/public`);
+        if (!res.ok) throw new Error("GitHub API failed");
+        const events = await res.json();
+        
+        const recentEvent = events.find(e => e.type === 'PushEvent' || e.type === 'CreateEvent' || e.type === 'PullRequestEvent') || events[0];
+        
+        if (recentEvent) {
+          const repoName = recentEvent.repo.name;
+          const isPush = recentEvent.type === 'PushEvent';
+          const actionType = isPush ? 'CODE PUSH' : recentEvent.type.replace('Event', '').toUpperCase();
+          
+          let commitMessage = 'No commit details available.';
+          if (isPush && recentEvent.payload.commits && recentEvent.payload.commits.length > 0) {
+            commitMessage = recentEvent.payload.commits[0].message;
+          } else if (recentEvent.type === 'CreateEvent') {
+            commitMessage = `Created ${recentEvent.payload.ref_type || 'repository'} ${recentEvent.payload.ref || ''}`;
+          }
+
+          if (commitMessage.length > 60) commitMessage = commitMessage.substring(0, 60) + '...';
+
+          const timeAgo = new Date(recentEvent.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+          githubContainer.innerHTML = `
+            <div class="scada-panel fade-in" style="max-width: 700px; margin: 0 auto;">
+              <div style="width: 100%;">
+                <div class="scada-header">
+                  <span>[ SOURCE CONTROL LOG ]</span>
+                  <span class="scada-time">--:--:--</span>
+                  <span class="scada-status"><div class="scada-status-dot"></div> ACTIVE</span>
+                </div>
+                <div class="scada-body">
+                  <div class="scada-primary" style="flex-direction: row; gap: 1.2rem; justify-content: center; padding: 1.2rem; min-width: 200px;">
+                    <div style="font-size: 3.5rem; line-height: 1;" id="gh-icon">📦</div>
+                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start; text-align: left;">
+                      <div class="scada-label" style="margin-bottom: 0.2rem;">TARGET REPO</div>
+                      <div class="scada-value" style="font-size: 1.1rem; word-break: break-all; text-shadow: none;">${repoName.split('/').pop()}</div>
+                    </div>
+                  </div>
+                  <div class="scada-grid" style="flex: 1;">
+                    <div class="scada-metric">
+                      <span class="scada-label">Last Operation</span>
+                      <span class="scada-value" style="font-size: 1rem; color: #E1F5FE;">${actionType}</span>
+                    </div>
+                    <div class="scada-metric">
+                      <span class="scada-label">Timestamp</span>
+                      <span class="scada-value" style="font-size: 0.9rem; color: #B0BEC5; text-shadow: none;">${timeAgo}</span>
+                    </div>
+                    <div class="scada-metric" style="grid-column: 1 / -1;">
+                      <span class="scada-label">Commit Data</span>
+                      <span class="scada-value" style="font-size: 0.95rem; color: var(--eye-highlight); text-shadow: none; font-family: monospace;">> ${commitMessage}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          updateScadaClocks(); // Immediately update newly injected clock
+        } else {
+           throw new Error("No recent events found.");
+        }
+      } catch (e) {
+        console.error("GitHub fetch failed:", e);
+        githubContainer.innerHTML = `
+          <div class="scada-panel fade-in" style="max-width: 700px; margin: 0 auto;">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ SOURCE CONTROL LOG ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status" style="color: #f04747; text-shadow: 0 0 5px #f04747;"><div class="scada-status-dot" style="background-color: #f04747; box-shadow: 0 0 8px #f04747; animation: none;"></div> OFFLINE</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 200px;">
+                  <div style="font-size: 3.5rem; line-height: 1;">📦</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">System State</span>
+                    <span class="scada-value" style="font-size: 1rem; color: var(--muzzle-grey); text-shadow: none;">Unable to establish link...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      }
+    }
+    
+    fetchGitHub();
   });
 </script>
