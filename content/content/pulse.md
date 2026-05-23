@@ -376,8 +376,11 @@ menu:
     // Fetch latest 10 from Bluesky
     async function fetchBluesky() {
       try {
-        const res = await fetch('https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=redpanda.pet&filter=posts_no_replies&limit=20');
+        const BSKY_HANDLE = 'redpanda.pet'; // <-- Change to your actual Bluesky handle if you haven't linked the new domain!
+        const res = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${BSKY_HANDLE}&filter=posts_no_replies&limit=20`);
         const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
 
         return data.feed.filter(item => !item.reply).slice(0, 10).map(item => {
           const post = item.post;
