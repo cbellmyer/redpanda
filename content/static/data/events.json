@@ -399,6 +399,16 @@
     "coordinates": [-76.6219, 39.3308],
     "history": [
       {
+        "year": "2026",
+        "eventName": "Baltimore Pride 🏳️‍🌈🏳️‍⚧️",
+        "dates": "June 13, 2026",
+        "venue": "Charles Village / Station North",
+        "roundTripMiles": 30,
+        "withHyper": false,
+        "role": "Board Member",
+        "albums": {}
+      },
+      {
         "year": "2024",
         "eventName": "Miracle on 34th Street Lights Walk",
         "dates": "December 2024",
@@ -441,6 +451,33 @@
         "roundTripMiles": 0,
         "withHyper": true,
         "role": "Board Member",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Pittsburgh, PA",
+    "type": "event",
+    "coordinates": [-80.0029, 40.4406],
+    "history": [
+      {
+        "year": "2026",
+        "eventName": "Pittsburgh Pride 🏳️‍🌈🏳️‍⚧️",
+        "dates": "June 5-7, 2026",
+        "venue": "Downtown Pittsburgh",
+        "roundTripMiles": 440,
+        "withHyper": false,
+        "role": "Photographer",
+        "albums": {}
+      },
+      {
+        "year": "2026",
+        "eventName": "Yinzfur",
+        "dates": "June 5, 2026",
+        "venue": "Pittsburgh, PA",
+        "roundTripMiles": 440,
+        "withHyper": false,
+        "role": "Photographer",
         "albums": {}
       }
     ]

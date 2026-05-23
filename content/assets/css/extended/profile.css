@@ -223,6 +223,13 @@ a:hover {
   font-weight: 500;
 }
 
+.leaflet-popup-content .role-board,
+.event-card .role-board {
+  color: #00E5FF; /* Signature Shutterpaws cyan for Board Members */
+  font-weight: 700;
+  text-shadow: 0 0 5px rgb(0 229 255 / 30%);
+}
+
 .leaflet-popup-content .role-unknown,
 .event-card .role-unknown {
   color: var(--muzzle-grey); /* A muted color for pending/unknown roles */
@@ -236,6 +243,78 @@ a:hover {
 
 .leaflet-container a.leaflet-popup-close-button:hover {
   color: var(--eye-highlight);
+}
+
+/* Map Popup Tooltip Tabs */
+.tooltip-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+  padding-bottom: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.tooltip-tab-btn {
+  background: color-mix(in srgb, var(--nose-dark) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 40%, transparent);
+  color: var(--secondary);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tooltip-tab-btn:hover {
+  background: color-mix(in srgb, var(--throat-teal) 30%, transparent);
+  color: var(--primary);
+}
+
+.tooltip-tab-btn.active {
+  background: var(--throat-teal);
+  color: var(--fur-base);
+  border-color: var(--throat-teal);
+  font-weight: 700;
+}
+
+.tooltip-tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.tooltip-tab-content.active {
+  display: block;
+}
+
+/* Tooltip Album Pills */
+.album-pill {
+  background: color-mix(in srgb, var(--tongue-blue) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tongue-blue) 50%, transparent);
+  color: var(--primary);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.album-pill:hover {
+  background: var(--tongue-blue);
+  color: var(--fur-base);
+  text-decoration: none;
+}
+
+/* Tooltip Travel Tag */
+.hypercat-tag {
+  color: #FF6700;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.hypercat-tag:hover {
+  text-decoration: underline;
 }
 
 /* Map Container Polish */
@@ -314,6 +393,11 @@ a:hover {
   filter: drop-shadow(0 0 4px #00E5FF);
 }
 
+/* Special Events: Magenta */
+.paw-marker.type-event .paw-icon {
+  filter: drop-shadow(0 0 4px #E040FB);
+}
+
 .paw-marker.upcoming .paw-icon {
   color: transparent;
   text-shadow: 0 0 0 #FFB300;
@@ -354,6 +438,11 @@ a:hover {
 /* Shutterpaws: Teal/Cyan */
 .paw-marker.type-shutterpaws::after {
   background: radial-gradient(circle, #00E5FF 0%, #00E5FF00 70%);
+}
+
+/* Special Events: Magenta */
+.paw-marker.type-event::after {
+  background: radial-gradient(circle, #E040FB 0%, #E040FB00 70%);
 }
 
 @keyframes marker-pulse {
@@ -572,11 +661,20 @@ a:hover {
   box-shadow: 0 4px 15px rgb(0 0 0 / 40%), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
-.event-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  border-color: var(--eye-highlight);
-  box-shadow: 0 10px 25px rgb(0 0 0 / 60%), inset 0 1px 0 rgba(255,255,255,0.1);
-}
+/* Event Card Types - Colored Left Borders */
+.event-card.type-convention { border-left: 4px solid #FF6700; }
+.event-card.type-roadtrip, .event-card.type-photography { border-left: 4px solid #FFB300; }
+.event-card.type-shutterpaws { border-left: 4px solid #00E5FF; }
+.event-card.type-event { border-left: 4px solid #E040FB; }
+
+/* Base hover transform, overrides colored below */
+.event-card:hover { transform: translateY(-5px) scale(1.02); }
+
+/* Custom colored glow effects when hovering cards */
+.event-card.type-convention:hover { border-color: #FF6700; box-shadow: 0 10px 25px rgb(255 103 0 / 25%), inset 0 1px 0 rgba(255,255,255,0.1); }
+.event-card.type-roadtrip:hover, .event-card.type-photography:hover { border-color: #FFB300; box-shadow: 0 10px 25px rgb(255 179 0 / 25%), inset 0 1px 0 rgba(255,255,255,0.1); }
+.event-card.type-shutterpaws:hover { border-color: #00E5FF; box-shadow: 0 10px 25px rgb(0 229 255 / 25%), inset 0 1px 0 rgba(255,255,255,0.1); }
+.event-card.type-event:hover { border-color: #E040FB; box-shadow: 0 10px 25px rgb(224 64 251 / 25%), inset 0 1px 0 rgba(255,255,255,0.1); }
 
 .event-card h3 {
   margin: 0 0 0.5rem;

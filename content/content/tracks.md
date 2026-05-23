@@ -91,9 +91,10 @@ ShowBreadCrumbs: false
     legend.onAdd = function (map) {
       var div = L.DomUtil.create('div', 'map-legend');
       div.innerHTML = `
-        <div><span style="background: var(--color-con)"></span> Convention</div>
-        <div><span style="background: var(--color-trip)"></span> Road Trip</div>
-        <div><span style="background: var(--color-sp)"></span> Shutterpaws</div>
+        <div><span style="background: #FF6700"></span> Convention</div>
+        <div><span style="background: #FFB300"></span> Trip / Photo</div>
+        <div><span style="background: #00E5FF"></span> Shutterpaws</div>
+        <div><span style="background: #E040FB"></span> Special Event</div>
       `;
       return div;
     };
@@ -233,6 +234,14 @@ ShowBreadCrumbs: false
       const filmstripTrack = document.getElementById('filmstrip-track');
       filmstripContainer.style.display = 'block';
 
+      const typeIcons = {
+        convention: '🎪',
+        roadtrip: '🚗',
+        photography: '📸',
+        shutterpaws: '🐾',
+        event: '✨'
+      };
+
       let lastSeason = '';
       let trackHtml = '';
 
@@ -258,8 +267,8 @@ ShowBreadCrumbs: false
         const roleDisplay = exp.role ? `<span class="${roleClass}" style="margin-left: 6px;">(${exp.role})</span>` : '';
 
         trackHtml += `
-          <div class="event-card" onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
-            <h3>${exp.eventName}</h3>
+          <div class="event-card type-${exp.type}" onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
+            <h3><span style="opacity: 0.8; font-size: 0.9em; margin-right: 4px;">${typeIcons[exp.type] || '📅'}</span> ${exp.eventName}</h3>
             <div style="color: var(--secondary); font-size: 0.9em; margin-bottom: ${exp.withHyper ? '4px' : '8px'};">📍 ${exp.locationName}${roleDisplay}</div>
             ${companionsHtml}
             <div style="font-size: 0.95em;">${exp.dates}</div>
