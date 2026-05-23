@@ -3,7 +3,7 @@
 baseURL: "https://redpanda.pet"
 title: Rory
 copyright: "CC BY-NC 4.0"
-theme: [redpanda-theme]
+theme: [hypercat-theme]
 
 enableInlineShortcodes: true
 buildDrafts: false

@@ -46,7 +46,7 @@ for dir in "${ordered_dirs[@]}"; do
 
     # Sort by content hash for deterministic ordering.
     # Note: we enforce no tab/newline characters in filenames to keep sorting safe.
-    temp_list=$(mktemp -t redpanda-rename.XXXXXX)
+    temp_list=$(mktemp -t hypercat-rename.XXXXXX)
     temp_files_all+=("$temp_list")
     invalid_name=false
     while IFS= read -r -d '' file; do
