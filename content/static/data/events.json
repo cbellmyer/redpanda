@@ -404,7 +404,7 @@
         "dates": "June 13, 2026",
         "venue": "Charles Village / Station North",
         "roundTripMiles": 30,
-        "withHyper": false,
+        "withHyper": true,
         "role": "Board Member",
         "albums": {}
       },
@@ -466,7 +466,7 @@
         "dates": "June 5-7, 2026",
         "venue": "Downtown Pittsburgh",
         "roundTripMiles": 440,
-        "withHyper": false,
+        "withHyper": true,
         "role": "Photographer",
         "albums": {}
       },
@@ -476,7 +476,7 @@
         "dates": "June 5, 2026",
         "venue": "Pittsburgh, PA",
         "roundTripMiles": 440,
-        "withHyper": false,
+        "withHyper": true,
         "role": "Photographer",
         "albums": {}
       }

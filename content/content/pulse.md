@@ -347,7 +347,9 @@ menu:
                     </div>
                     <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start;">
                       <div class="scada-label" style="margin-bottom: 0.2rem;">OPERATOR ID</div>
-                      <div class="scada-value" style="font-size: 1.4rem;">${username}</div>
+                      <div class="scada-value" style="font-size: 1.4rem; margin-bottom: 0.8rem;">${username}</div>
+                      <div class="scada-label" style="margin-bottom: 0.2rem;">SQUAD LINK</div>
+                      <div class="scada-value" style="font-size: 1rem;"><a href="https://hypercat.me/" target="_blank" rel="noopener" style="color: #FF6700; text-shadow: 0 0 8px rgb(255 103 0 / 60%); text-decoration: none; border-bottom: 1px dashed #FF6700;">HYPER</a></div>
                     </div>
                   </div>
                   <div class="scada-grid" style="flex: 1; ${activitiesHtml || clientHtml ? '' : 'display: none;'}">
