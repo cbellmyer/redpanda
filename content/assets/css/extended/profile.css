@@ -639,25 +639,25 @@ a:hover {
 
   /* Inner depth for the film */
   box-shadow: inset 0 0 20px rgb(0 0 0 / 80%);
+
   /* Drop-shadow traces the actual masked shape (including holes!) */
   filter: drop-shadow(0 10px 15px rgb(0 0 0 / 40%));
 
   /* Punch true transparent sprocket holes through the filmstrip */
-  -webkit-mask-image:
+  mask-image:
     linear-gradient(#000, #000),
     linear-gradient(#000, #000),
     linear-gradient(#000, #000),
     repeating-linear-gradient(to right, transparent 0, transparent 14px, #000 14px, #000 20px),
     repeating-linear-gradient(to right, transparent 0, transparent 14px, #000 14px, #000 20px);
-  -webkit-mask-size:
+  mask-size:
     100% calc(100% - 28px),
     100% 4px,
     100% 4px,
     100% 10px,
     100% 10px;
-  -webkit-mask-position: center, top, bottom, top 4px left 0, bottom 4px left 0;
-  -webkit-mask-repeat: no-repeat;
-
+  mask-position: center, top, bottom, top 4px left 0, bottom 4px left 0;
+  mask-repeat: no-repeat;
   mask-image:
     linear-gradient(#000, #000),
     linear-gradient(#000, #000),
