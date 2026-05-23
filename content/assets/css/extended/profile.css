@@ -677,17 +677,17 @@ a:hover {
 .season-autumn { color: #FFCC80; text-shadow: 0 0 8px rgb(255 204 128 / 40%); }
 
 .event-card {
-  background: color-mix(in srgb, var(--fur-secondary) 85%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
-  border-radius: 6px;
+  /* Monochromatic film frame styling with subtle SVG grain texture */
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E"), #0a0a0a;
+  border: 1px solid #222;
+  border-radius: 2px;
   padding: 1.5rem;
   min-width: 280px;
   max-width: 320px;
   cursor: pointer;
   text-align: left;
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 15px rgb(0 0 0 / 40%), inset 0 1px 0 rgb(255 255 255 / 5%);
+  box-shadow: 0 5px 20px rgb(0 0 0 / 80%), inset 0 0 0 1px rgb(255 255 255 / 5%);
 }
 
 /* Event Card Types - Colored Left Borders */
@@ -715,12 +715,12 @@ a:hover {
 .frame-meta {
   margin-top: 1.2rem;
   padding-top: 0.8rem;
-  border-top: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+  border-top: 1px solid #222;
   display: flex;
   justify-content: space-between;
   font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
   font-size: 0.8rem;
-  color: var(--throat-teal);
+  color: #666; /* Monochromatic grey to let accents pop */
   letter-spacing: 0.05em;
 }
 
