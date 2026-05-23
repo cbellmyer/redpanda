@@ -28,13 +28,15 @@ cd redpanda
 # Run the Hugo development server
 hugo server
 ```
+
 Navigate to `http://localhost:1313/` to view the site.
 
 ## 🤝 Forking & Adapting
 
-You are welcome to fork this repository to build your own portfolio or telemetry dashboard! 
+You are welcome to fork this repository to build your own portfolio or telemetry dashboard!
 
 If you do, please make sure to:
+
 - Change the social media API endpoints and User IDs in `pulse.md` to your own handles.
 - Swap out the map points and coordinates in `events.json`.
 - Update the site variables and URLs in `hugo.yaml`.
