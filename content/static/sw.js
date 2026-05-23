@@ -42,7 +42,7 @@ self.addEventListener('activate', function (event) {
         caches.keys().then(function (cacheNames) {
             return Promise.all(
                 cacheNames.filter(function (name) {
-                    return name.startsWith('hypercat-') &&
+                    return (name.startsWith('redpanda-') || name.startsWith('hypercat-')) &&
                         name !== STATIC_CACHE &&
                         name !== RUNTIME_CACHE;
                 }).map(function (name) {

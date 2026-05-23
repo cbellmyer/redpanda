@@ -91,9 +91,10 @@ ShowBreadCrumbs: false
     legend.onAdd = function (map) {
       var div = L.DomUtil.create('div', 'map-legend');
       div.innerHTML = `
-        <div><span style="background: var(--color-con)"></span> Convention</div>
-        <div><span style="background: var(--color-trip)"></span> Road Trip</div>
-        <div><span style="background: var(--color-sp)"></span> Shutterpaws</div>
+        <div><span style="background: #FF6700"></span> Convention</div>
+        <div><span style="background: #FFB300"></span> Trip / Photo</div>
+        <div><span style="background: #00E5FF"></span> Shutterpaws</div>
+        <div><span style="background: #E040FB"></span> Special Event</div>
       `;
       return div;
     };
@@ -233,6 +234,14 @@ ShowBreadCrumbs: false
       const filmstripTrack = document.getElementById('filmstrip-track');
       filmstripContainer.style.display = 'block';
 
+      const typeIcons = {
+        convention: '🎪',
+        roadtrip: '🚗',
+        photography: '📸',
+        shutterpaws: '🐾',
+        event: '✨'
+      };
+
       let lastSeason = '';
       let trackHtml = '';
 
@@ -258,8 +267,8 @@ ShowBreadCrumbs: false
         const roleDisplay = exp.role ? `<span class="${roleClass}" style="margin-left: 6px;">(${exp.role})</span>` : '';
 
         trackHtml += `
-          <div class="event-card" onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
-            <h3>${exp.eventName}</h3>
+          <div class="event-card type-${exp.type}" onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
+            <h3><span style="opacity: 0.8; font-size: 0.9em; margin-right: 4px;">${typeIcons[exp.type] || '📅'}</span> ${exp.eventName}</h3>
             <div style="color: var(--secondary); font-size: 0.9em; margin-bottom: ${exp.withHyper ? '4px' : '8px'};">📍 ${exp.locationName}${roleDisplay}</div>
             ${companionsHtml}
             <div style="font-size: 0.95em;">${exp.dates}</div>
@@ -286,16 +295,16 @@ ShowBreadCrumbs: false
       document.getElementById('widget-location').textContent = nextEvent.locationName;
       document.getElementById('next-con-widget').style.display = 'block';
 
-      // Map WMO weather codes to emojis
-      function getWeatherEmoji(code) {
-        if (code === 0) return '☀️'; // Clear
-        if (code === 1 || code === 2 || code === 3) return '⛅'; // Partly cloudy
-        if (code >= 45 && code <= 48) return '🌫️'; // Fog
-        if (code >= 51 && code <= 67) return '🌧️'; // Rain/Drizzle
-        if (code >= 71 && code <= 77) return '❄️'; // Snow
-        if (code >= 80 && code <= 82) return '🌧️'; // Showers
-        if (code >= 95) return '⛈️'; // Thunderstorm
-        return '☁️';
+      // Map WMO weather codes to emojis and a complementary HEX outline color
+      function getWeatherInfo(code) {
+        if (code === 0) return { icon: '☀️', color: '#FFD700' }; // Clear (Gold)
+        if (code === 1 || code === 2 || code === 3) return { icon: '⛅', color: '#90CAF9' }; // Partly cloudy (Light Blue)
+        if (code >= 45 && code <= 48) return { icon: '🌫️', color: '#B0BEC5' }; // Fog (Blue Grey)
+        if (code >= 51 && code <= 67) return { icon: '🌧️', color: '#26C6DA' }; // Rain/Drizzle (Cyan)
+        if (code >= 71 && code <= 77) return { icon: '❄️', color: '#E1F5FE' }; // Snow (Icy Blue)
+        if (code >= 80 && code <= 82) return { icon: '🌧️', color: '#26C6DA' }; // Showers (Cyan)
+        if (code >= 95) return { icon: '⛈️', color: '#B39DDB' }; // Thunderstorm (Violet)
+        return { icon: '☁️', color: '#9E9E9E' }; // Default/Overcast (Grey)
       }
 
       // Fetch current weather for the convention location
@@ -305,7 +314,11 @@ ShowBreadCrumbs: false
         .then(data => {
           if (data.current_weather) {
             document.getElementById('widget-temp').textContent = Math.round(data.current_weather.temperature);
-            document.getElementById('widget-weather-icon').textContent = getWeatherEmoji(data.current_weather.weathercode);
+            const weather = getWeatherInfo(data.current_weather.weathercode);
+            const iconEl = document.getElementById('widget-weather-icon');
+            iconEl.textContent = weather.icon;
+            // Apply a drop-shadow for the outline/glow effect using the non-RGB hex color
+            iconEl.style.filter = `drop-shadow(0 0 4px ${weather.color})`;
           }
         })
         .catch(err => {

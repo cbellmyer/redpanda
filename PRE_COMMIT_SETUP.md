@@ -69,7 +69,7 @@ Before installing pre-commit hooks, ensure you have:
 ## Consistency Note
 
 Keep build tooling, SRI scripts, and CI workflow patterns aligned across the
-`hypercat_me`, `felle_me`, and `shutterpaws_pics` repos whenever possible.
+`redpanda`, `felle_me`, and `shutterpaws_pics` repos whenever possible.
 
 The GitHub Actions workflow (`.github/workflows/pre-commit.yml`) pins specific versions for reproducibility. **Version updates are handled automatically by Renovate**, which is configured in `renovate.json`. Renovate will:
 

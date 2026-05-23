@@ -1,8 +1,8 @@
-# Copilot Instructions for hypercat_me
+# Copilot Instructions for redpanda
 
 ## Repository Overview
 
-**hypercat_me** is a static website built with Hugo (v0.156.0+) using the PaperMod theme. It's a small personal portfolio/profile site (37 pages) showcasing a furry character's sona reference sheets and convention information. The site is approximately 66MB when built, with most content being optimized images.
+**redpanda** is a static website built with Hugo (v0.156.0+) using the PaperMod theme. It's a small personal portfolio/profile site (37 pages) showcasing a furry character's sona reference sheets and convention information. The site is approximately 66MB when built, with most content being optimized images.
 
 **Tech Stack:**
 
@@ -14,7 +14,7 @@
 ## Consistency Note
 
 Keep build tooling, SRI scripts, and CI workflow patterns aligned across the
-`hypercat_me`, `felle_me`, and `shutterpaws_pics` repos whenever possible.
+`redpanda`, `felle_me`, and `shutterpaws_pics` repos whenever possible.
 
 ## Critical Setup Requirements
 
@@ -114,7 +114,7 @@ Clean these artifacts when:
 
 - **Main config:** `hugo.yaml` (159 lines)
 - **Theme:** hypercat-theme (customized PaperMod - see `themes/hypercat-theme/README.md`)
-- **Base URL:** https://hypercat.me/
+- **Base URL:** https://redpanda.pet/
 - **Profile mode:** Enabled with custom image and social links
 - **Custom shortcode:** `{{< myAge >}}` - calculates age from birthdate (1988-11-02)
 
