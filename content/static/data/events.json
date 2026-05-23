@@ -469,13 +469,20 @@
         "withHyper": true,
         "role": "Photographer",
         "albums": {}
-      },
+      }
+    ]
+  },
+  {
+    "locationName": "Pittsburgh, PA",
+    "type": "event",
+    "coordinates": [-80.0099, 40.4406],
+    "history": [
       {
         "year": "2026",
         "eventName": "Yinzfur",
         "dates": "June 5, 2026",
         "venue": "Pittsburgh, PA",
-        "roundTripMiles": 440,
+        "roundTripMiles": 0,
         "withHyper": true,
         "role": "Photographer",
         "albums": {}
