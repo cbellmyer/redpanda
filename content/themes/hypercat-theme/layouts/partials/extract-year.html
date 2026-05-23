@@ -1,0 +1,15 @@
+{{- /* Extract year from month string */}}
+{{- /* Input: . (context with .con and .now) */}}
+{{- /* Returns: integer year */}}
+{{- /* Note: This now uses get-con-month.html for consistency with sorting/categorization logic */}}
+
+{{- $con := .con }}
+{{- $now := .now }}
+
+{{- /* Get the YYYY-MM format from get-con-month.html */}}
+{{- $monthYYYYMM := partial "get-con-month.html" (dict "con" $con "now" $now) }}
+
+{{- /* Extract just the year part (YYYY) */}}
+{{- $year := (index (split $monthYYYYMM "-") 0) | int }}
+
+{{- $year -}}

@@ -1,0 +1,98 @@
+{{- define "main" }}
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css" as="style" integrity="sha384-V/1Ew9pYm8xpy/L9i078ZXT6HSEOrGC6KNFYLbXOdtqb3+c6brpGqVzZtEPSQOiz" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css" integrity="sha384-V/1Ew9pYm8xpy/L9i078ZXT6HSEOrGC6KNFYLbXOdtqb3+c6brpGqVzZtEPSQOiz" crossorigin="anonymous"></noscript>
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.1/css/glightbox.min.css" as="style" integrity="sha384-GPAzSuZc0kFvdIev6wm9zg8gnafE8tLso7rsAYQfc9hAdWCpOcpcNI5W9lWkYcsd" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.1/css/glightbox.min.css" integrity="sha384-GPAzSuZc0kFvdIev6wm9zg8gnafE8tLso7rsAYQfc9hAdWCpOcpcNI5W9lWkYcsd" crossorigin="anonymous"></noscript>
+
+<header class="post-header">
+    <h1 class="post-title">{{ .Title }}</h1>
+</header>
+
+<nav class="poses-navigation" aria-label="Pose category filter">
+    <ul class="poses-nav-links" role="list">
+        <li><button class="poses-nav-btn active" data-filter="all" aria-pressed="true">All</button></li>
+        <li><button class="poses-nav-btn" data-filter="solo" aria-pressed="false">Solo</button></li>
+        <li><button class="poses-nav-btn" data-filter="duo" aria-pressed="false">Duo</button></li>
+        <li><button class="poses-nav-btn" data-filter="triple" aria-pressed="false">Triple</button></li>
+        <li><button class="poses-nav-btn" data-filter="groups" aria-pressed="false">Groups</button></li>
+    </ul>
+</nav>
+
+<div class="poses-container">
+        {{- $poseCategories := slice "solo" "duo" "triple" "groups" }}
+        
+        {{- range $poseCategories }}
+        {{- $category := . }}
+        {{- $section := $.Site.GetPage (printf "/poses/%s" $category) }}
+        {{- $categoryTitle := "Gallery" }}
+        {{- if $section }}
+            {{- $categoryTitle = $section.Title }}
+        {{- end }}
+        
+        {{- /* Get images from the section's resources */ -}}
+        {{- $images := slice }}
+        {{- $imageMap := dict }}
+        {{- if $section }}
+            {{- range $section.Resources.Match "*.{jpg,jpeg,png,webp,gif}" }}
+                {{- $baseName := path.BaseName .Name }}
+                {{- /* Only process files with purely numeric names */ -}}
+                {{- if gt (len (findRE "^[0-9]+$" $baseName)) 0 }}
+                    {{- $numericName := int $baseName }}
+                    {{- $imageMap = merge $imageMap (dict (string $numericName) .) }}
+                {{- end }}
+            {{- end }}
+            {{- /* Sort by numeric key and rebuild slice */ -}}
+            {{- $sortedKeys := slice }}
+            {{- range $key, $val := $imageMap }}
+                {{- $sortedKeys = $sortedKeys | append (int $key) }}
+            {{- end }}
+            {{- $sortedKeys = sort $sortedKeys }}
+            {{- range $sortedKeys }}
+                {{- $images = $images | append (index $imageMap (string .)) }}
+            {{- end }}
+        {{- end }}
+        
+        <section class="poses-section" id="{{ $category }}" data-category="{{ $category }}">
+            <h2 class="poses-section-heading">{{ $categoryTitle }}</h2>
+            {{- if gt (len $images) 0 }}
+                <div class="poses-grid" id="poses-grid-{{ $category }}">
+                    {{- range $images }}
+                    {{- $small := .Fit "300x2000 webp q85" }}
+                    {{- $medium := .Fit "600x2000 webp q85" }}
+                    {{- $large := .Fit "1200x2000 webp q85" }}
+                    {{- $imageName := path.BaseName .Name }}
+                    <a href="{{ $large.RelPermalink }}" class="poses-image-link" data-lg-size="{{ $large.Width }}-{{ $large.Height }}" data-description="{{ $imageName }}">
+                        <img 
+                            src="{{ $small.RelPermalink }}" 
+                            srcset="{{ $small.RelPermalink }} 300w, {{ $medium.RelPermalink }} 600w, {{ $large.RelPermalink }} 1200w"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            alt="Pose {{ $imageName }} in {{ $categoryTitle }} category"
+                            class="poses-grid-image"
+                            loading="lazy"
+                        >
+                        <span class="poses-image-number">{{ $imageName }}</span>
+                    </a>
+                    {{- end }}
+                </div>
+            {{- else }}
+                <p class="poses-empty-gallery">No images yet. Add images to <code>content/content/poses/{{ $category }}/</code></p>
+            {{- end }}
+        </section>
+        {{- end }}
+</div>
+
+<button type="button" class="poses-back-to-top" aria-label="Back to top">
+    ▲
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVsGrX5xXxAvs/HgeFs" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js" integrity="sha384-TOxsBplaL96/QDWPIUg+ye3v89qSE3s22XNtJMmCeZEep3cVDmXy1zEfZvVv+y2m" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.1/js/glightbox.min.js" integrity="sha384-MZZbZ6RXJudK43v1qY1zOWKOU2yfeBPatuFoKyHAaAgHTUZhwblRTc9CphTt4IGQ" crossorigin="anonymous"></script>
+{{- $posesScript := resources.Get "js/poses.js" | resources.Minify -}}
+{{- if not site.Params.assets.disableFingerprinting }}
+{{- $posesScript = $posesScript | fingerprint }}
+<script src="{{ $posesScript.RelPermalink }}" integrity="{{ $posesScript.Data.Integrity }}" crossorigin="anonymous"></script>
+{{- else }}
+<script src="{{ $posesScript.RelPermalink }}"></script>
+{{- end }}
+{{- end }}
