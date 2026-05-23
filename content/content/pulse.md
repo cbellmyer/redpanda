@@ -159,6 +159,31 @@ menu:
     50% { opacity: 0.4; box-shadow: 0 0 2px #00FF00; }
     100% { opacity: 1; box-shadow: 0 0 8px #00FF00; }
   }
+  @keyframes scada-warn-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .scada-panel.critical-alert {
+    animation: scada-critical-border 1s infinite;
+  }
+  .scada-panel.critical-alert .scada-header {
+    color: #f04747;
+    border-bottom-color: #f04747;
+    text-shadow: 0 0 8px rgb(240 71 71 / 60%);
+  }
+  .scada-panel.critical-alert .scada-status-dot {
+    background-color: #f04747;
+    box-shadow: 0 0 8px #f04747;
+    animation: scada-pulse-critical 1s infinite;
+  }
+  @keyframes scada-critical-border {
+    0%, 100% { border-color: #f04747; box-shadow: 0 0 25px rgb(240 71 71 / 60%), inset 0 0 15px rgb(240 71 71 / 20%); }
+    50% { border-color: color-mix(in srgb, #f04747 50%, transparent); box-shadow: 0 0 5px rgb(240 71 71 / 10%); }
+  }
+  @keyframes scada-pulse-critical {
+    0%, 100% { opacity: 1; box-shadow: 0 0 12px #f04747; }
+    50% { opacity: 0.5; box-shadow: 0 0 4px #f04747; }
+  }
   @media (max-width: 600px) {
     .scada-body { flex-direction: column; }
     .scada-grid { border-left: none; border-top: 1px solid color-mix(in srgb, #00E5FF 30%, transparent); }
@@ -579,15 +604,72 @@ menu:
 
         document.getElementById('ww-desc').textContent = codeInfo.desc;
         document.getElementById('ww-temp').textContent = Math.round(current.temperature_2m);
-        document.getElementById('ww-feels').textContent = Math.round(current.apparent_temperature) + '°F';
+        
+        let isCritical = false;
+
+        // Heat Index Logic
+        const feelsTemp = Math.round(current.apparent_temperature);
+        let feelsColor = '#00E5FF';
+        let feelsWarning = '';
+
+        if (feelsTemp >= 103) {
+          feelsColor = '#f04747';
+          feelsWarning = ' <span style="font-size: 0.55em; vertical-align: middle; animation: scada-warn-blink 1s infinite;">[CRITICAL]</span>';
+          isCritical = true;
+        } else if (feelsTemp >= 90) {
+          feelsColor = '#FF6700';
+          feelsWarning = ' <span style="font-size: 0.55em; vertical-align: middle;">[HIGH]</span>';
+        } else if (feelsTemp >= 80) {
+          feelsColor = '#FFB300';
+          feelsWarning = ' <span style="font-size: 0.55em; vertical-align: middle;">[ELEVATED]</span>';
+        } else if (feelsTemp <= 32) {
+          feelsColor = '#E1F5FE';
+          feelsWarning = ' <span style="font-size: 0.55em; vertical-align: middle;">[FREEZE]</span>';
+        }
+
+        const feelsEl = document.getElementById('ww-feels');
+        feelsEl.innerHTML = `${feelsTemp}°F${feelsWarning}`;
+        feelsEl.style.color = feelsColor;
+        feelsEl.style.textShadow = `0 0 8px color-mix(in srgb, ${feelsColor} 60%, transparent)`;
+
         document.getElementById('ww-humidity').textContent = current.relative_humidity_2m + '%';
         document.getElementById('ww-precip').textContent = current.precipitation.toFixed(2) + '"';
-        document.getElementById('ww-wind').textContent = current.wind_speed_10m.toFixed(1) + ' mph';
-        document.getElementById('ww-wind-dir').textContent = getWindDirection(current.wind_direction_10m);
+        
+        // Wind Velocity Logic
+        const windSpeed = current.wind_speed_10m;
+        let windColor = '#00E5FF';
+        let windWarning = '';
+
+        if (windSpeed >= 40) {
+          windColor = '#f04747';
+          windWarning = ' <span style="font-size: 0.55em; vertical-align: middle; animation: scada-warn-blink 1s infinite;">[GALE]</span>';
+          isCritical = true;
+        } else if (windSpeed >= 25) {
+          windColor = '#FF6700';
+          windWarning = ' <span style="font-size: 0.55em; vertical-align: middle;">[HIGH]</span>';
+        } else if (windSpeed >= 15) {
+          windColor = '#FFB300';
+          windWarning = ' <span style="font-size: 0.55em; vertical-align: middle;">[BREEZY]</span>';
+        }
+
+        document.getElementById('ww-wind').textContent = windSpeed.toFixed(1) + ' mph';
+        document.getElementById('ww-wind-dir').innerHTML = getWindDirection(current.wind_direction_10m) + windWarning;
+        const windParent = document.getElementById('ww-wind').parentElement;
+        windParent.style.color = windColor;
+        windParent.style.textShadow = `0 0 8px color-mix(in srgb, ${windColor} 60%, transparent)`;
+
         document.getElementById('ww-pressure').textContent = (current.surface_pressure * 0.02953).toFixed(2) + ' inHg';
         document.getElementById('ww-cloud').textContent = current.cloud_cover + '%';
         document.getElementById('ww-sunrise').textContent = formatTime(daily.sunrise[0]);
         document.getElementById('ww-sunset').textContent = formatTime(daily.sunset[0]);
+
+        // Trigger Global Weather Alert on Panel
+        if (isCritical) {
+          const weatherPanel = document.querySelector('#weather-data .scada-panel');
+          weatherPanel.classList.add('critical-alert');
+          document.querySelector('#weather-data .scada-header span:first-child').textContent = '[ CRITICAL WEATHER ALERT ]';
+          document.querySelector('#weather-data .scada-status').innerHTML = '<div class="scada-status-dot"></div> WARNING';
+        }
 
         document.getElementById('weather-loading').style.display = 'none';
         const weatherData = document.getElementById('weather-data');
