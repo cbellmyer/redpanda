@@ -1,3 +1,19 @@
+:root {
+  /* Category Colors */
+  --color-con: #ff4d4d;      /* Red Panda Orange - Conventions */
+  --color-trip: #2ecc71;     /* Forest Green - Road Trips */
+  --color-sp: #3498db;       /* Sky Blue - Shutterpaws NPO Business */
+
+  /* Travel Partner Color (Hypercat) */
+  --color-hyper-eyes: #00d4ff; /* Electric Blue for text */
+
+  /* Seasonal Timeline Tints */
+  --winter: #00d4ff;
+  --spring: #a2ff00;
+  --summer: #fc0;
+  --autumn: #f60;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -181,17 +197,17 @@ a:hover {
 }
 
 .leaflet-popup-content-wrapper {
-  background: color-mix(in srgb, var(--fur-secondary) 85%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid color-mix(in srgb, var(--throat-teal) 60%, transparent);
-  border-radius: var(--radius);
-  box-shadow: 0 4px 15px rgb(0 0 0 / 60%);
-  color: var(--primary);
-  text-align: center;
+  background: color-mix(in srgb, var(--fur-secondary) 85%, transparent) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid color-mix(in srgb, var(--throat-teal) 60%, transparent) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 60%) !important;
+  color: var(--primary) !important;
+  text-align: center !important;
 }
 
 .leaflet-popup-tip {
-  background: var(--fur-secondary);
+  background: var(--fur-secondary) !important;
 }
 
 .leaflet-popup-content b {
@@ -199,38 +215,133 @@ a:hover {
   font-size: 1.1em;
 }
 
-.leaflet-popup-content .role-attendee {
+.role-attendee {
   color: var(--secondary); /* Changed for better contrast against white backgrounds */
   font-weight: 500;
 }
 
-.leaflet-popup-content .role-volunteer {
+.role-volunteer {
   color: var(--throat-teal); /* Using the site's primary accent color */
   font-weight: 500;
 }
 
-.leaflet-popup-content .role-staff {
+.role-staff {
   color: var(--eye-highlight); /* A secondary accent for importance */
   font-weight: 500;
 }
 
-.leaflet-popup-content .role-photographer {
+.role-photographer {
   color: var(--tongue-blue); /* A special color for the photographer role */
   font-weight: 500;
 }
 
-.leaflet-popup-content .role-unknown {
+.role-unknown {
   color: var(--muzzle-grey); /* A muted color for pending/unknown roles */
   font-weight: 500;
   font-style: italic;
 }
 
 .leaflet-container a.leaflet-popup-close-button {
-  color: var(--muzzle-grey);
+  color: var(--primary) !important;
 }
 
 .leaflet-container a.leaflet-popup-close-button:hover {
-  color: var(--eye-highlight);
+  color: var(--eye-highlight) !important;
+}
+
+/* Dynamic Map Markers */
+.paw-marker {
+  position: relative;
+}
+
+.paw-marker .paw-icon {
+  text-shadow: 2px 2px 2px rgb(0 0 0 / 50%);
+}
+
+.paw-marker.type-convention {
+  color: var(--color-con);
+  filter: drop-shadow(0 0 8px var(--color-con));
+}
+
+.paw-marker.type-roadtrip {
+  color: var(--color-trip);
+  filter: drop-shadow(0 0 8px var(--color-trip));
+}
+
+.paw-marker.type-shutterpaws {
+  color: var(--color-sp);
+  filter: drop-shadow(0 0 8px var(--color-sp));
+}
+
+/* Map Legend */
+.map-legend {
+  background: color-mix(in srgb, var(--fur-secondary) 85%, transparent);
+  backdrop-filter: blur(8px);
+  padding: 10px 15px;
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+  color: var(--primary);
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+
+.map-legend span {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Tabbed Tooltips */
+.tooltip-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 4px;
+  background: color-mix(in srgb, var(--nose-dark) 50%, transparent);
+  border-radius: 20px;
+  justify-content: center;
+}
+
+.tooltip-tab-btn {
+  background: transparent !important;
+  color: var(--primary) !important;
+  border: none !important;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 12px;
+  font-size: 0.85em;
+  border-radius: 16px;
+  transition: all 0.2s ease;
+  margin: 0;
+}
+
+.tooltip-tab-btn:hover {
+  color: var(--primary) !important;
+  background: color-mix(in srgb, var(--muzzle-grey) 20%, transparent) !important;
+}
+
+.tooltip-tab-btn.active {
+  background: var(--throat-teal) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+}
+
+.tooltip-tab-content {
+  display: none;
+  text-align: center;
+}
+
+.tooltip-tab-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Map Container Polish */
@@ -277,22 +388,6 @@ a:hover {
 
 .leaflet-container .leaflet-control-attribution a {
   color: var(--throat-teal) !important;
-}
-
-/* Map Marker Bounce Animation */
-.paw-marker:hover div,
-.paw-marker.highlight div {
-  animation: paw-bounce 0.5s ease-in-out infinite;
-}
-
-@keyframes paw-bounce {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-8px) scale(1.1); }
-}
-
-/* Paw Icon Styling */
-.paw-icon {
-  text-shadow: 2px 2px 2px rgb(0 0 0 / 50%);
 }
 
 .paw-marker.upcoming .paw-icon {
@@ -442,42 +537,147 @@ a:hover {
   letter-spacing: 0.05em;
 }
 
-.upcoming-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+/* Filmstrip Timeline */
+.filmstrip-scroll {
+  overflow-x: auto;
+  padding-bottom: 1.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--throat-teal) transparent;
 }
 
-.con-card {
-  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
-  border-radius: var(--radius);
+.filmstrip-scroll::-webkit-scrollbar { height: 10px; }
+.filmstrip-scroll::-webkit-scrollbar-track { background: transparent; }
+.filmstrip-scroll::-webkit-scrollbar-thumb { background-color: var(--throat-teal); border-radius: 5px; }
+
+.filmstrip-track {
+  display: inline-flex;
+  align-items: stretch;
+  background: #0d0d0d;
+  padding: 30px 20px;
+  gap: 20px;
+  position: relative;
+  min-height: 200px;
+}
+
+/* Sprocket Holes (Pure CSS) */
+.filmstrip-track::before,
+.filmstrip-track::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 12px;
+  background: repeating-linear-gradient(to right, var(--nose-dark) 0, var(--nose-dark) 12px, transparent 12px, transparent 24px);
+}
+.filmstrip-track::before { top: 8px; }
+.filmstrip-track::after { bottom: 8px; }
+
+/* Film Frames (with Grain) */
+.event-card {
+  position: relative;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
   padding: 1.5rem;
-  text-align: center;
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-
-  /* Added an inner-highlight to enhance the glassmorphism depth */
-  box-shadow: 0 4px 15px rgb(0 0 0 / 20%), inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent);
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.con-card:hover {
-  transform: translateY(-5px);
-  border-color: var(--eye-highlight);
+.event-card:hover {
+  border-color: var(--throat-teal);
+  transform: translateY(-4px);
   box-shadow: 0 8px 25px rgb(0 0 0 / 40%);
 }
 
-.con-card h3 {
-  margin: 0 0 0.5rem;
-  color: var(--primary);
-  font-size: 1.3rem;
+/* CSS Noise Grain */
+.event-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-radial-gradient(circle at 10% 10%, rgb(255 255 255 / 3%) 0%, transparent 1%),
+    repeating-radial-gradient(circle at 90% 90%, rgb(255 255 255 / 2%) 0%, transparent 2%);
+  background-size: 6px 6px;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.con-card p.location {
-  margin: 0 0 1rem;
-  color: var(--secondary);
-  font-size: 0.95rem;
+.event-card > * { position: relative; z-index: 1; }
+
+.event-card h3 {
+  margin: 0 0 0.25rem;
+  color: var(--primary);
+}
+
+.frame-meta {
+  font-family: monospace;
+  color: var(--muzzle-grey);
+  font-size: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px dashed #333;
+}
+
+/* Seasonal Dividers */
+.season-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: monospace;
+  letter-spacing: 4px;
+  padding: 0 10px;
+  text-transform: uppercase;
+  border-left: 1px dashed rgb(255 255 255 / 15%);
+}
+
+/* Touch-Friendly Pill Links */
+.album-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  gap: 8px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--color-sp) 80%, transparent);
+  color: #fff !important;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.album-pill:hover {
+  filter: brightness(1.2);
+  transform: translateY(-2px);
+}
+
+/* Hypercat Tag */
+.hypercat-tag {
+  background: #111;
+  color: var(--color-hyper-eyes) !important;
+  border: 1px solid transparent;
+  border-image: linear-gradient(to right, #ff9500, #fff) 1;
+  font-family: monospace;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  margin-left: 6px;
+  vertical-align: middle;
+  text-decoration: none;
+  display: inline-block;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.hypercat-tag:hover {
+  filter: brightness(1.2);
+  transform: translateY(-2px);
 }
 
 /* About Page Styles */

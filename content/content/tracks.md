@@ -12,7 +12,7 @@ ShowBreadCrumbs: false
 > This is where I keep track of all the conventions, furmeets, and fun places I've visited around the world. Click on any of the bouncing paw prints below to see the details!
 
 <div id="next-con-widget" class="next-con-widget" style="display: none;">
-  <div class="widget-header">Next Deployment</div>
+  <div class="widget-header">Next Convention</div>
   <div class="widget-body">
     <div class="con-name" id="widget-con-name">Loading...</div>
     <div class="countdown"><span id="widget-days">0</span> Days</div>
@@ -36,152 +36,254 @@ ShowBreadCrumbs: false
 </div>
 
 <h2 class="upcoming-section-title" id="upcoming-title" style="display: none;">Upcoming Adventures</h2>
-<div id="upcoming-cons-grid" class="upcoming-grid"></div>
+<div id="upcoming-filmstrip" class="filmstrip-scroll" style="display: none;">
+  <div id="filmstrip-track" class="filmstrip-track"></div>
+</div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Initialize map without a default view; we'll set it automatically.
-    var map = L.map('map-container');
+  // Tab Switcher for Tooltips
+  window.switchTab = function(btn, targetId, parentClass) {
+    const container = btn.closest('.' + parentClass);
+    container.querySelectorAll('.tooltip-tab-btn').forEach(b => b.classList.remove('active'));
+    container.querySelectorAll('.tooltip-tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    container.querySelector('#' + targetId).classList.add('active');
+  };
+
+  // Auto-Pan & Open Popup from Filmstrip Timeline
+  window.focusMapEvent = function(locIndex, tabId, lat, lng) {
+    // Smooth scroll the user back up to the map
+    document.getElementById('map-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Slight delay to allow the scroll to begin before triggering the map fly animation
+    setTimeout(() => {
+      window.tracksMap.flyTo([lat, lng], 9, { duration: 1.2 });
+
+      // Wait for map to finish "flying" before opening popup
+      setTimeout(() => {
+        const marker = window.tracksMapMarkers[locIndex];
+        if (marker) {
+          marker.openPopup();
+
+          // Wait a fraction of a second for the DOM popup to render, then select the right year tab
+          setTimeout(() => {
+            const tabBtn = document.querySelector(`.tooltip-tab-btn[onclick*="${tabId}"]`);
+            if (tabBtn) tabBtn.click();
+          }, 50);
+        }
+      }, 1250);
+    }, 150);
+  };
+
+  document.addEventListener('DOMContentLoaded', async function() {
+    // Initialize map focused on the Northeast US
+    var map = L.map('map-container').setView([41.5, -73.5], 6);
+    window.tracksMap = map;
+    window.tracksMapMarkers = {};
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(map);
 
-    const conventions = [
-      { name: 'Anthrocon', location: 'Pittsburgh, PA', coords: [40.4406, -79.9959], info: '2024 (Attendee)<br>2025 (Attendee)', dates: ['2024-07-04', '2025-07-03'] },
-      { name: 'Furcationland', location: 'Portland, ME', coords: [43.6591, -70.2568], info: '2025 (Attendee)<br>2026 (Volunteer)<br>2027 (Staff)', dates: ['2025-04-11', '2026-04-10', '2027-04-09'] },
-      { name: 'Furgeddaboutdit', location: 'Fairfield, NJ', coords: [40.8729, -74.2724], info: '2025 (Attendee)<br>2026 (Volunteer)<br>2027 (Unknown)', dates: ['2025-05-01', '2026-04-23', '2027-04-22'] },
-      { name: 'New Year\'s Fur Ball', location: 'Newark, DE', coords: [39.6837, -75.7497], info: '2025 (Attendee)', dates: ['2025-12-31'] },
-      { name: 'FursonaCon', location: 'Newport News, VA', coords: [37.0857, -76.4944], info: '2024 (Attendee)<br>2025 (Attendee)<br>2026 (Staff)', dates: ['2024-09-05', '2025-09-04', '2026-09-03'] },
-      { name: 'Fur the \'More', location: 'Baltimore, MD', coords: [39.2904, -76.6122], info: '2025 (Attendee)<br>2026 (Volunteer)<br>2027 (Staff)', dates: ['2025-04-04', '2026-04-10', '2027-04-09'] },
-      { name: 'Furnal Equinox', location: 'Toronto, ON', coords: [43.6532, -79.3832], info: '2025 (Attendee)<br>2026 (Volunteer)<br>2027 (Unknown)', dates: ['2025-03-14', '2026-03-20', '2027-03-19'] },
-      { name: 'CanFURence', location: 'Ottawa, Canada', coords: [45.4215, -75.6972], info: '2025 (Attendee)<br>2027 (Unknown)', dates: ['2025-08-01', '2027-08-06'] },
-      { name: 'Furpocalypse', location: 'Stamford, CT', coords: [41.0534, -73.5387], info: '2025 (Attendee)<br>2026 (Staff)', dates: ['2025-10-30', '2026-10-29'] },
-      { name: 'Eufuria', location: 'Albany, NY', coords: [42.6526, -73.7562], info: '2025 (Attendee)', dates: ['2025-04-18'] },
-      { name: 'Furrydelphia', location: 'Philadelphia, PA', coords: [39.9526, -75.1652], info: '2024 (Attendee)<br>2025 (Attendee)<br>2026 (Staff)', dates: ['2024-08-09', '2025-08-08', '2026-08-14'] },
-      { name: 'Road Trip', location: 'Boston, MA', coords: [42.3601, -71.0589], info: '2025 (Photographer)', dates: ['2025-06-01'] }
-    ];
+    // Map Legend Control
+    var legend = L.control({position: 'bottomright'});
+    legend.onAdd = function (map) {
+      var div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = `
+        <div><span style="background: var(--color-con)"></span> Convention</div>
+        <div><span style="background: var(--color-trip)"></span> Road Trip</div>
+        <div><span style="background: var(--color-sp)"></span> Shutterpaws</div>
+      `;
+      return div;
+    };
+    legend.addTo(map);
 
-    const markerBounds = [];
-    const allMarkers = [];
-    const upcomingGrid = document.getElementById('upcoming-cons-grid');
-    const upcomingTitle = document.getElementById('upcoming-title');
-    let cardsHtml = '';
-    const currentYear = new Date().getFullYear();
-    const upcomingCardsData = [];
-
-    function formatInfo(info) {
-      return info
-        .replace(/\(Attendee\)/g, '<span class="role-attendee">(Attendee)</span>')
-        .replace(/\(Volunteer\)/g, '<span class="role-volunteer">(Volunteer)</span>')
-        .replace(/\(Staff\)/g, '<span class="role-staff">(Staff)</span>')
-        .replace(/\(Photographer\)/g, '<span class="role-photographer">(Photographer)</span>')
-        .replace(/\(Unknown\)/g, '<span class="role-unknown">(Unknown)</span>');
+    // Fetch Unified Data Schema
+    let eventsData = [];
+    try {
+      const response = await fetch('/data/events.json');
+      if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to load events.json`);
+      const textData = await response.text();
+      if (!textData || textData.trim() === '') throw new Error('The events.json file is completely empty (0 bytes).');
+      eventsData = JSON.parse(textData);
+    } catch (error) {
+      console.error("Error loading events data:", error);
+      document.getElementById('map-container').insertAdjacentHTML('afterbegin', `<div style="position: absolute; z-index: 1000; top: 10px; left: 50%; transform: translateX(-50%); background: var(--color-con); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); text-align: center;">⚠️ Error: Could not load map locations (${error.message}).<br><br>Please make sure <b>events.json</b> is saved inside the <b>content/static/data/</b> directory, NOT the <b>content/content/</b> directory!</div>`);
+      return; // Stop execution if data fails to load
     }
 
-    conventions.forEach((con, index) => {
-      // Identify upcoming cons by checking for current/future years
-      const years = con.info.match(/\b20\d{2}\b/g) || [];
-      const isUpcoming = years.some(year => parseInt(year, 10) >= currentYear);
-      let iconClass = 'paw-marker' + (isUpcoming ? ' upcoming' : '');
+    const markerBounds = [];
+    let totalMiles = 0;
+    const now = new Date();
+    const allExposures = [];
 
-      const formattedInfo = formatInfo(con.info);
+    // Emoji helper for pills
+    function getAlbumEmoji(name) {
+      const n = name.toLowerCase();
+      if (n.includes('parade')) return '🐾';
+      if (n.includes('dance')) return '💃';
+      return '📸';
+    }
 
-      // Generate card HTML for upcoming cons
-      if (isUpcoming) {
-        // Find the earliest upcoming year for sorting
-        const upcomingYears = years.map(y => parseInt(y, 10)).filter(y => y >= currentYear);
-        const earliestYear = Math.min(...upcomingYears);
+    // Date Parser helper for sorting/seasons
+    function parseStartDate(dateStr, yearStr) {
+      const match = dateStr.match(/([a-zA-Z]+)\s+(\d+)/);
+      if (match) return new Date(`${match[1]} ${match[2]}, ${yearStr}`);
+      return new Date(yearStr, 0, 1);
+    }
 
-        // Filter the info to only show current or future years on the cards
-        const upcomingInfo = con.info.split('<br>').filter(line => {
-          const yearMatch = line.match(/\b20\d{2}\b/);
-          return yearMatch && parseInt(yearMatch[0], 10) >= currentYear;
-        }).join('<br>');
-        const formattedCardInfo = formatInfo(upcomingInfo);
+    function getSeason(date) {
+      const m = date.getMonth();
+      if (m === 11 || m === 0 || m === 1) return { name: 'Winter', class: 'season-winter' };
+      if (m >= 2 && m <= 4) return { name: 'Spring', class: 'season-spring' };
+      if (m >= 5 && m <= 7) return { name: 'Summer', class: 'season-summer' };
+      return { name: 'Autumn', class: 'season-autumn' };
+    }
 
-        upcomingCardsData.push({
-          year: earliestYear,
-          html: `
-            <div class="con-card" data-index="${index}">
-              <h3>${con.name}</h3>
-              <p class="location">📍 ${con.location}</p>
-              <div class="roles">${formattedCardInfo}</div>
+    // 1. Process Data & Map Markers
+    eventsData.forEach((loc, locIndex) => {
+      const latLng = [loc.coordinates[1], loc.coordinates[0]];
+      markerBounds.push(latLng);
+
+      let tabsHtml = '';
+      let contentHtml = '';
+      const popupId = `popup-wrap-${locIndex}`;
+
+      loc.history.forEach((hist, histIdx) => {
+        const isActive = histIdx === 0 ? 'active' : '';
+        const tabId = `tab-${locIndex}-${hist.year}`;
+
+        // Tab Button
+        tabsHtml += `<button class="tooltip-tab-btn ${isActive}" onclick="window.switchTab(this, '${tabId}', '${popupId}')">'${hist.year.slice(2)}</button>`;
+
+        // Distance Odometer Aggregation
+        if (hist.roundTripMiles) totalMiles += hist.roundTripMiles;
+
+        // Collect for timeline
+        const parsedDate = parseStartDate(hist.dates, hist.year);
+        allExposures.push({ ...hist, locationName: loc.locationName, type: loc.type, dateObj: parsedDate, coords: latLng, locIndex: locIndex, tabId: tabId });
+
+        // Album Pills
+        let pillsHtml = '';
+        if (hist.albums && Object.keys(hist.albums).length > 0) {
+          pillsHtml = '<div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;">';
+          for (const [albumName, url] of Object.entries(hist.albums)) {
+            pillsHtml += `<a href="${url}" target="_blank" class="album-pill">${getAlbumEmoji(albumName)} ${albumName}</a>`;
+          }
+          pillsHtml += '</div>';
+        }
+
+        // Tooltip Content Frame
+        let companionsHtml = '';
+        if (hist.withHyper) {
+          companionsHtml = `<div style="margin-top: 10px; font-size: 0.9em; color: var(--muzzle-grey);">Traveled with: <a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a></div>`;
+        }
+
+        const roleClass = hist.role ? `role-${hist.role.toLowerCase()}` : 'role-unknown';
+        const roleDisplay = hist.role ? `<span class="${roleClass}" style="font-size: 0.85em; vertical-align: middle; margin-left: 4px;">(${hist.role})</span>` : '';
+
+        contentHtml += `
+          <div id="${tabId}" class="tooltip-tab-content ${isActive}">
+            <div style="font-weight: 800; font-size: 1.25em; color: var(--eye-highlight); margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+              ${hist.eventName}
             </div>
-          `
-        });
-      }
+            <div style="color: var(--secondary); font-size: 0.95em; margin-bottom: 12px; font-weight: 500;">
+              ${loc.locationName} ${roleDisplay}
+            </div>
+            <div style="background: color-mix(in srgb, var(--nose-dark) 40%, transparent); padding: 8px 12px; border-radius: 8px; font-size: 0.9em; color: var(--muzzle-grey); display: inline-block; text-align: left; margin: 0 auto;">
+              <div style="margin-bottom: 4px;">📅 <span style="color: var(--primary); margin-left: 6px;">${hist.dates}</span></div>
+              <div>📍 <span style="color: var(--primary); margin-left: 6px;">${hist.venue}</span></div>
+            </div>
+            ${companionsHtml}
+            ${pillsHtml}
+          </div>
+        `;
+      });
 
       var pawIcon = L.divIcon({
         html: '<div class="paw-icon" style="font-size: 24px; line-height: 1; cursor: pointer;">🐾</div>',
-        className: iconClass,
+        className: `paw-marker type-${loc.type}`,
         iconSize: [24, 24],
         iconAnchor: [12, 12],
         popupAnchor: [0, -12]
       });
 
-      const popupContent = `<b>${con.name}</b><br>${con.location}<br><br>${formattedInfo}`;
-      const marker = L.marker(con.coords, {icon: pawIcon}).addTo(map).bindPopup(popupContent);
-      markerBounds.push(con.coords);
-      allMarkers[index] = marker;
+      const finalPopupHtml = `
+        <div class="${popupId}">
+          <div class="tooltip-tabs">${tabsHtml}</div>
+          ${contentHtml}
+        </div>
+      `;
+
+      const marker = L.marker(latLng, {icon: pawIcon}).addTo(map).bindPopup(finalPopupHtml);
+      window.tracksMapMarkers[locIndex] = marker;
     });
 
-    // --- Odometer Calculation ---
-    const homeCoords = [39.1640, -76.6250]; // Glen Burnie, MD
-
-    function calculateDistance(coords1, coords2) {
-      const R = 3958.8; // Radius of the Earth in miles
-      const lat1 = coords1[0] * Math.PI/180;
-      const lon1 = coords1[1] * Math.PI/180;
-      const lat2 = coords2[0] * Math.PI/180;
-      const lon2 = coords2[1] * Math.PI/180;
-
-      const dLat = lat2 - lat1;
-      const dLon = lon2 - lon1;
-
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1) * Math.cos(lat2) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    }
-
-    let totalMiles = 0;
-    conventions.forEach(con => {
-      const oneWayDistance = calculateDistance(homeCoords, con.coords);
-      const roundTripDistance = oneWayDistance * 2;
-      const numTrips = (con.info.match(/\b20\d{2}\b/g) || []).length;
-      if (numTrips > 0) {
-        totalMiles += roundTripDistance * numTrips;
-      }
-    });
+    // Populate Odometer
     document.getElementById('odometer-miles').textContent = Math.round(totalMiles).toLocaleString();
 
-    // --- Next Deployment Widget Logic ---
-    const now = new Date();
-    let nextEvent = null;
-    let minDiff = Infinity;
+    // 2. Filmstrip Timeline Generation (Upcoming)
+    const upcomingExposures = allExposures.filter(exp => exp.dateObj >= now);
+    upcomingExposures.sort((a, b) => a.dateObj - b.dateObj);
 
-    // Find the closest future date
-    conventions.forEach(con => {
-      if (con.dates) {
-        con.dates.forEach(dateStr => {
-          const eventDate = new Date(dateStr + 'T00:00:00'); // Ensure local time parsing
-          const diff = eventDate - now;
-          if (diff > 0 && diff < minDiff) {
-            minDiff = diff;
-            nextEvent = { ...con, date: eventDate };
-          }
-        });
-      }
-    });
+    if (upcomingExposures.length > 0) {
+      document.getElementById('upcoming-title').style.display = 'block';
+      const filmstripContainer = document.getElementById('upcoming-filmstrip');
+      const filmstripTrack = document.getElementById('filmstrip-track');
+      filmstripContainer.style.display = 'block';
 
-    if (nextEvent) {
-      const daysUntil = Math.ceil(minDiff / (1000 * 60 * 60 * 24));
-      document.getElementById('widget-con-name').textContent = nextEvent.name;
+      let lastSeason = '';
+      let trackHtml = '';
+
+      upcomingExposures.forEach((exp, index) => {
+        const seasonObj = getSeason(exp.dateObj);
+        const seasonId = `${seasonObj.name} ${exp.year}`;
+
+        if (seasonId !== lastSeason) {
+          trackHtml += `
+            <div class="season-divider ${seasonObj.class}">
+              ${seasonId}
+            </div>
+          `
+          lastSeason = seasonId;
+        }
+
+        let companionsHtml = '';
+        if (exp.withHyper) {
+          companionsHtml = `<div style="font-size: 0.85em; color: var(--muzzle-grey); margin-bottom: 8px;">Traveled with: <a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a></div>`;
+        }
+
+        const roleClass = exp.role ? `role-${exp.role.toLowerCase()}` : 'role-unknown';
+        const roleDisplay = exp.role ? `<span class="${roleClass}" style="margin-left: 6px;">(${exp.role})</span>` : '';
+
+        trackHtml += `
+          <div class="event-card" onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
+            <h3>${exp.eventName}</h3>
+            <div style="color: var(--secondary); font-size: 0.9em; margin-bottom: ${exp.withHyper ? '4px' : '8px'};">📍 ${exp.locationName}${roleDisplay}</div>
+            ${companionsHtml}
+            <div style="font-size: 0.95em;">${exp.dates}</div>
+            <div class="frame-meta">
+              <span>FRM-${String(index + 1).padStart(2, '0')}</span>
+              <span>${exp.roundTripMiles} MILES</span>
+            </div>
+          </div>
+        `;
+      });
+
+      filmstripTrack.innerHTML = trackHtml;
+    }
+
+    // 3. Next Deployment Widget (Weather Integration)
+    // Filter specifically for the next convention (ignoring road trips/NPO business)
+    const upcomingCons = upcomingExposures.filter(exp => exp.type === 'convention');
+    if (upcomingCons.length > 0) {
+      const nextEvent = upcomingCons[0];
+      const daysUntil = Math.ceil((nextEvent.dateObj - now) / (1000 * 60 * 60 * 24));
+
+      document.getElementById('widget-con-name').textContent = nextEvent.eventName;
       document.getElementById('widget-days').textContent = daysUntil;
-      document.getElementById('widget-location').textContent = nextEvent.location;
+      document.getElementById('widget-location').textContent = nextEvent.locationName;
       document.getElementById('next-con-widget').style.display = 'block';
 
       // Map WMO weather codes to emojis and a complementary HEX outline color
@@ -197,8 +299,8 @@ ShowBreadCrumbs: false
       }
 
       // Fetch current weather for the convention location
-      const [lat, lon] = nextEvent.coords;
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit`)
+      const [lat, lng] = nextEvent.coords;
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&temperature_unit=fahrenheit`)
         .then(response => response.json())
         .then(data => {
           if (data.current_weather) {
@@ -216,42 +318,5 @@ ShowBreadCrumbs: false
         });
     }
 
-    // Sort the cards chronologically by their earliest upcoming year
-    if (upcomingCardsData.length > 0) {
-      upcomingCardsData.sort((a, b) => a.year - b.year);
-      cardsHtml = upcomingCardsData.map(card => card.html).join('');
-    }
-
-    // Insert cards into the page if we found any
-    if (cardsHtml) {
-      upcomingGrid.innerHTML = cardsHtml;
-      upcomingTitle.style.display = 'block';
-
-      // Attach hover events to cards to highlight map markers
-      const cards = upcomingGrid.querySelectorAll('.con-card');
-      cards.forEach(card => {
-        card.addEventListener('mouseenter', () => {
-          const index = card.getAttribute('data-index');
-          const marker = allMarkers[index];
-          if (marker && marker._icon) {
-            marker._icon.classList.add('highlight');
-            marker.setZIndexOffset(1000); // Bring marker to the front
-          }
-        });
-        card.addEventListener('mouseleave', () => {
-          const index = card.getAttribute('data-index');
-          const marker = allMarkers[index];
-          if (marker && marker._icon) {
-            marker._icon.classList.remove('highlight');
-            marker.setZIndexOffset(0); // Reset z-index
-          }
-        });
-      });
-    }
-
-    // Automatically zoom the map to fit all markers with some padding
-    if (markerBounds.length > 0) {
-      map.fitBounds(markerBounds, { padding: [50, 50] });
-    }
   });
 </script>
