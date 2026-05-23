@@ -11,77 +11,26 @@ menu:
 ---
 
 <style>
-  .discord-card {
-    display: inline-flex;
-    align-items: center;
-    gap: 1.2rem;
-    background: color-mix(in srgb, var(--fur-secondary) 80%, transparent);
-    padding: 0.8rem 1.8rem 0.8rem 1rem;
-    border-radius: 50px;
-    border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
-    box-shadow: 0 4px 15px rgb(0 0 0 / 20%);
-    transition: all 0.3s ease;
-    text-align: left;
-  }
-  .discord-card.active {
-    border-color: color-mix(in srgb, #00E5FF 60%, transparent);
-    box-shadow: 0 0 20px rgb(0 229 255 / 15%);
-  }
-  .discord-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgb(0 229 255 / 25%);
-    border-color: #00E5FF;
-  }
   .discord-avatar-wrapper {
     position: relative;
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
+    border: 1px solid color-mix(in srgb, #00E5FF 50%, transparent);
+    padding: 2px;
+    background: color-mix(in srgb, #00E5FF 10%, transparent);
   }
   .discord-avatar {
     width: 100%;
     height: 100%;
-    border-radius: 50% !important;
     object-fit: cover;
-    border: 2px solid color-mix(in srgb, var(--fur-secondary) 80%, transparent);
+    filter: grayscale(20%) contrast(120%);
   }
-  .discord-status-dot {
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    border: 3px solid var(--fur-secondary);
-    z-index: 2;
-  }
-  .discord-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .discord-username {
-    font-weight: 800;
-    color: var(--primary);
-    font-size: 1.15rem;
-    letter-spacing: 0.02em;
-  }
-  .discord-details {
-    font-size: 0.9rem;
-    color: var(--secondary);
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    margin-top: 0.1rem;
-  }
-  .voice-indicator { display: inline-flex; align-items: center; gap: 0.4rem; color: #00E5FF; font-weight: 600; }
   .eq-bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
   .eq-bar { width: 3px; background-color: #00E5FF; border-radius: 2px; animation: eq-bounce 0.8s infinite ease-in-out alternate; }
   .eq-bar:nth-child(1) { height: 60%; animation-delay: 0.1s; }
   .eq-bar:nth-child(2) { height: 100%; animation-delay: 0.3s; }
   .eq-bar:nth-child(3) { height: 80%; animation-delay: 0.2s; }
   @keyframes eq-bounce { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); } }
-  .activity-indicator { display: inline-flex; align-items: center; gap: 0.4rem; }
-  .activity-indicator strong { color: var(--eye-highlight); }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -89,74 +38,120 @@ menu:
   .fade-in {
     animation: fadeIn 0.6s ease-out forwards;
   }
-  .weather-card {
-    display: inline-flex;
-    align-items: center;
-    gap: 1.5rem;
-    background: color-mix(in srgb, var(--fur-secondary) 80%, transparent);
-    padding: 1.2rem 2rem 1.2rem 1.5rem;
-    border-radius: 30px;
-    border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
-    box-shadow: 0 4px 15px rgb(0 0 0 / 20%);
-    transition: all 0.3s ease;
+
+  /* SCADA Dashboard Panel Styles */
+  .scada-panel {
+    background: color-mix(in srgb, var(--background) 40%, #051217);
+    border: 1px solid color-mix(in srgb, #00E5FF 50%, transparent);
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgb(0 229 255 / 15%), inset 0 0 15px rgb(0 229 255 / 10%);
+    overflow: hidden;
+    width: 100%;
     text-align: left;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    position: relative;
   }
-  .weather-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgb(0 0 0 / 25%);
-    border-color: color-mix(in srgb, var(--throat-teal) 60%, transparent);
+  /* CRT Scanline Overlay */
+  .scada-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      color-mix(in srgb, #00E5FF 4%, transparent) 2px,
+      color-mix(in srgb, #00E5FF 4%, transparent) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
   }
-  .weather-avatar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-width: 110px;
-    border-right: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
-    padding-right: 1.5rem;
-  }
-  .weather-info-col {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .weather-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    column-gap: 2rem;
-    row-gap: 0.4rem;
-    font-size: 0.85rem;
-    color: var(--secondary);
-  }
-  .weather-grid > span {
+  .scada-header {
+    background: color-mix(in srgb, #00E5FF 20%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, #00E5FF 50%, transparent);
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #00E5FF;
+    font-weight: 700;
     display: flex;
     justify-content: space-between;
-    gap: 1.5rem;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 0 5px color-mix(in srgb, #00E5FF 50%, transparent);
   }
-  .weather-grid strong {
-    color: var(--primary);
-    font-weight: 600;
+  .scada-body {
+    display: flex;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+  .scada-primary {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+    background: color-mix(in srgb, #00E5FF 5%, transparent);
+  }
+  .scada-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px; /* Creates clean 1px grid lines */
+    background: color-mix(in srgb, #00E5FF 30%, transparent);
+    width: 100%;
+    border-left: 1px solid color-mix(in srgb, #00E5FF 30%, transparent);
+  }
+  .scada-metric {
+    background: color-mix(in srgb, var(--background) 40%, #051217);
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+  .scada-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: color-mix(in srgb, #00E5FF 70%, #fff);
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+  }
+  .scada-value {
+    font-size: 1.25rem;
+    color: #00E5FF;
+    font-weight: 700;
+    text-shadow: 0 0 8px color-mix(in srgb, #00E5FF 60%, transparent);
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+  }
+  .scada-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+  }
+  .scada-status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #00FF00;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #00FF00;
+    animation: scada-pulse 2s infinite;
+  }
+  @keyframes scada-pulse {
+    0% { opacity: 1; box-shadow: 0 0 8px #00FF00; }
+    50% { opacity: 0.4; box-shadow: 0 0 2px #00FF00; }
+    100% { opacity: 1; box-shadow: 0 0 8px #00FF00; }
   }
   @media (max-width: 600px) {
-    .weather-card {
-      flex-direction: column;
-      gap: 1rem;
-      padding: 1.5rem;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .weather-avatar {
-      border-right: none;
-      border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
-      padding-right: 0;
-      padding-bottom: 1rem;
-      min-width: auto;
-      width: 100%;
-    }
-    .weather-grid {
-      grid-template-columns: 1fr;
-      width: 100%;
-    }
+    .scada-body { flex-direction: column; }
+    .scada-grid { border-left: none; border-top: 1px solid color-mix(in srgb, #00E5FF 30%, transparent); }
   }
 </style>
 
@@ -168,24 +163,53 @@ menu:
   <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin: 0 auto;">
     <div id="system-status-weather" style="margin: 0; text-align: center;">
       <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem;">Gathering atmospheric data...</div>
-      <div id="weather-data" style="display: none;">
-        <div class="weather-card">
-          <div class="weather-avatar">
-            <div style="font-size: 3.5rem; line-height: 1.1;" id="ww-icon">☁️</div>
-            <div style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 0.2rem; letter-spacing: -0.02em;"><span id="ww-temp">--</span><span style="font-size: 1.1rem; color: var(--secondary); font-weight: 600;">°F</span></div>
-            <div id="ww-desc" style="font-size: 0.9rem; color: var(--throat-teal); font-weight: 600; text-align: center; margin-top: 0.2rem; line-height: 1.2;">--</div>
-          </div>
-          <div class="weather-info-col">
-            <div class="discord-username" style="margin-bottom: 0.5rem; border-bottom: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent); padding-bottom: 0.4rem;">Atmospheric Conditions</div>
-            <div class="weather-grid">
-              <span><strong>Heat Index:</strong> <span id="ww-feels">--</span></span>
-              <span><strong>Humidity:</strong> <span id="ww-humidity">--</span></span>
-              <span><strong>Precipitation:</strong> <span id="ww-precip">--</span></span>
-              <span><strong>Wind:</strong> <span><span id="ww-wind">--</span> <span id="ww-wind-dir" style="font-size: 0.85em; opacity: 0.8; margin-left: 2px;">--</span></span></span>
-              <span><strong>Pressure:</strong> <span id="ww-pressure">--</span></span>
-              <span><strong>Cloud Cover:</strong> <span id="ww-cloud">--</span></span>
-              <span><strong>Sunrise:</strong> <span id="ww-sunrise">--</span></span>
-              <span><strong>Sunset:</strong> <span id="ww-sunset">--</span></span>
+      <div id="weather-data" style="display: none; width: 100%; max-width: 700px; margin: 0 auto;">
+        <div class="scada-panel">
+          <div style="width: 100%;">
+            <div class="scada-header">
+              <span>[ ATMOSPHERIC SENSOR TELEMETRY ]</span>
+              <span class="scada-status"><div class="scada-status-dot"></div> ACTIVE</span>
+            </div>
+            <div class="scada-body">
+              <div class="scada-primary">
+                <div style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 0.5rem;" id="ww-icon">☁️</div>
+                <div class="scada-value" style="font-size: 2.2rem; justify-content: center;"><span id="ww-temp">--</span><span style="font-size: 1.1rem; opacity: 0.8;">°F</span></div>
+                <div id="ww-desc" style="font-size: 0.85rem; color: #00E5FF; text-transform: uppercase; margin-top: 0.5rem; text-align: center; letter-spacing: 0.05em; opacity: 0.9;">--</div>
+              </div>
+              <div class="scada-grid">
+                <div class="scada-metric">
+                  <span class="scada-label">Heat Index</span>
+                  <span class="scada-value" id="ww-feels">--</span>
+                </div>
+                <div class="scada-metric">
+                  <span class="scada-label">Rel. Humidity</span>
+                  <span class="scada-value" id="ww-humidity">--</span>
+                </div>
+                <div class="scada-metric">
+                  <span class="scada-label">Precipitation</span>
+                  <span class="scada-value" id="ww-precip">--</span>
+                </div>
+                <div class="scada-metric">
+                  <span class="scada-label">Wind Velocity</span>
+                  <span class="scada-value"><span id="ww-wind">--</span> <span id="ww-wind-dir" style="font-size: 0.7em; opacity: 0.7;">--</span></span>
+                </div>
+                <div class="scada-metric">
+                  <span class="scada-label">Atm. Pressure</span>
+                  <span class="scada-value" id="ww-pressure">--</span>
+                </div>
+                <div class="scada-metric">
+                  <span class="scada-label">Cloud Cover</span>
+                  <span class="scada-value" id="ww-cloud">--</span>
+                </div>
+                <div class="scada-metric">
+                  <span class="scada-label">Sunrise</span>
+                  <span class="scada-value" id="ww-sunrise">--</span>
+                </div>
+                <div class="scada-metric">
+                  <span class="scada-label">Sunset</span>
+                  <span class="scada-value" id="ww-sunset">--</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -224,11 +248,12 @@ menu:
           const username = user.global_name || user.username;
 
           let statusColor = 'var(--muzzle-grey)';
-          if (status === 'online') statusColor = '#43b581';
-          else if (status === 'idle') statusColor = '#faa61a';
-          else if (status === 'dnd') statusColor = '#f04747';
+          let statusText = 'OFFLINE';
+          if (status === 'online') { statusColor = '#43b581'; statusText = 'ONLINE'; }
+          else if (status === 'idle') { statusColor = '#faa61a'; statusText = 'IDLE'; }
+          else if (status === 'dnd') { statusColor = '#f04747'; statusText = 'DND'; }
 
-          let detailsHtml = '';
+          let activitiesHtml = '';
 
           if (customStatus) {
             let emoji = '';
@@ -242,53 +267,60 @@ menu:
             }
             const text = customStatus.state || '';
             if (emoji || text) {
-              detailsHtml += `<div style="display: flex; align-items: center; margin-bottom: 4px;">${emoji} <span>${text}</span></div>`;
+              activitiesHtml += `<div class="scada-metric" style="grid-column: 1 / -1;"><span class="scada-label">Status Log</span><span class="scada-value" style="font-size: 1rem; color: #fff; text-shadow: none;">${emoji} <span>${text}</span></span></div>`;
             }
           }
 
           if (spotify) {
-            detailsHtml += `<div class="activity-indicator" style="color: #1DB954;">🎵 <span>Listening to <strong>${spotify.song}</strong></span></div>`;
+            activitiesHtml += `<div class="scada-metric"><span class="scada-label">Audio Stream</span><span class="scada-value" style="font-size: 1rem; color: #1DB954; text-shadow: 0 0 8px rgb(29 185 84 / 60%);">🎵 <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; display: inline-block; vertical-align: bottom;">${spotify.song}</span></span></div>`;
           } else if (playingActivity) {
-            detailsHtml += `<div class="activity-indicator">🎮 <span>Playing <strong>${playingActivity.name}</strong></span></div>`;
+            activitiesHtml += `<div class="scada-metric"><span class="scada-label">Active Process</span><span class="scada-value" style="font-size: 1rem; color: var(--eye-highlight); text-shadow: 0 0 8px color-mix(in srgb, var(--eye-highlight) 60%, transparent);">🎮 <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; display: inline-block; vertical-align: bottom;">${playingActivity.name}</span></span></div>`;
           }
 
           if (isVoice) {
-            detailsHtml += `
-              <div class="voice-indicator" style="margin-top: 4px;">
-                <div class="eq-bars">
-                  <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-                </div>
-                In Voice Chat
-              </div>`;
+            activitiesHtml += `<div class="scada-metric"><span class="scada-label">Comms Channel</span><span class="scada-value" style="font-size: 1rem;"><div class="eq-bars" style="margin-right: 6px; margin-bottom: 2px;"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div> ACTIVE</span></div>`;
           }
 
-          if (!isOnline && !detailsHtml) {
-            detailsHtml = '<div>Currently Offline</div>';
-          } else if (isOnline && !detailsHtml) {
-            detailsHtml = '<div>Online</div>';
-          }
-
+          let clientHtml = '';
           if (isOnline) {
             let activeClients = [];
-            if (data.active_on_discord_desktop) activeClients.push('💻 Desktop');
-            if (data.active_on_discord_mobile) activeClients.push('📱 Mobile');
-            if (data.active_on_discord_web) activeClients.push('🌐 Web');
+            if (data.active_on_discord_desktop) activeClients.push('DSK');
+            if (data.active_on_discord_mobile) activeClients.push('MOB');
+            if (data.active_on_discord_web) activeClients.push('WEB');
 
             if (activeClients.length > 0) {
-              detailsHtml += `<div style="font-size: 0.8rem; color: var(--muzzle-grey); margin-top: 6px; display: flex; gap: 0.5rem; align-items: center; font-weight: 500;">${activeClients.join('<span style="opacity: 0.4; font-size: 0.5rem;">⚫</span>')}</div>`;
+              clientHtml = `<div class="scada-metric"><span class="scada-label">Active Nodes</span><span class="scada-value" style="font-size: 1rem;">[ ${activeClients.join(' / ')} ]</span></div>`;
             }
           }
 
+          if (!activitiesHtml && !clientHtml) {
+            activitiesHtml = `<div class="scada-metric" style="grid-column: 1 / -1;"><span class="scada-label">System State</span><span class="scada-value" style="font-size: 1rem; color: var(--muzzle-grey); text-shadow: none;">Awaiting telemetry...</span></div>`;
+          }
+
           discordContainer.innerHTML = `
-            <div class="discord-card ${isOnline ? 'active' : ''}">
-              <div class="discord-avatar-wrapper">
-                <img src="${avatarUrl}" alt="${username}" class="discord-avatar">
-                <div class="discord-status-dot" style="background-color: ${statusColor};"></div>
-              </div>
-              <div class="discord-info">
-                <div class="discord-username">${username}</div>
-                <div class="discord-details">
-                  ${detailsHtml}
+            <div class="scada-panel fade-in" style="max-width: 700px; margin: 0 auto;">
+              <div style="width: 100%;">
+                <div class="scada-header">
+                  <span>[ COMM-LINK TELEMETRY ]</span>
+                  <span class="scada-status" style="color: ${statusColor}; text-shadow: 0 0 5px ${statusColor};">
+                    <div class="scada-status-dot" style="background-color: ${statusColor}; box-shadow: 0 0 8px ${statusColor}; ${isOnline ? '' : 'animation: none; opacity: 0.5;'}"></div>
+                    ${statusText}
+                  </span>
+                </div>
+                <div class="scada-body">
+                  <div class="scada-primary" style="flex-direction: row; gap: 1.2rem; justify-content: center; padding: 1.2rem; min-width: 200px;">
+                    <div class="discord-avatar-wrapper">
+                      <img src="${avatarUrl}" alt="${username}" class="discord-avatar">
+                    </div>
+                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start;">
+                      <div class="scada-label" style="margin-bottom: 0.2rem;">OPERATOR ID</div>
+                      <div class="scada-value" style="font-size: 1.4rem;">${username}</div>
+                    </div>
+                  </div>
+                  <div class="scada-grid" style="flex: 1; ${activitiesHtml || clientHtml ? '' : 'display: none;'}">
+                    ${activitiesHtml}
+                    ${clientHtml}
+                  </div>
                 </div>
               </div>
             </div>
@@ -475,34 +507,38 @@ menu:
         const daily = data.daily;
 
         const weatherCodes = {
-          0: { icon: '☀️', desc: 'Clear sky' },
-          1: { icon: '🌤️', desc: 'Mainly clear' },
-          2: { icon: '⛅', desc: 'Partly cloudy' },
-          3: { icon: '☁️', desc: 'Overcast' },
-          45: { icon: '🌫️', desc: 'Fog' },
-          48: { icon: '🌫️', desc: 'Depositing rime fog' },
-          51: { icon: '🌧️', desc: 'Light drizzle' },
-          53: { icon: '🌧️', desc: 'Moderate drizzle' },
-          55: { icon: '🌧️', desc: 'Dense drizzle' },
-          61: { icon: '🌧️', desc: 'Light rain' },
-          63: { icon: '🌧️', desc: 'Moderate rain' },
-          65: { icon: '🌧️', desc: 'Heavy rain' },
-          71: { icon: '❄️', desc: 'Light snow' },
-          73: { icon: '❄️', desc: 'Moderate snow' },
-          75: { icon: '❄️', desc: 'Heavy snow' },
-          77: { icon: '❄️', desc: 'Snow grains' },
-          80: { icon: '🌧️', desc: 'Light showers' },
-          81: { icon: '🌧️', desc: 'Moderate showers' },
-          82: { icon: '⛈️', desc: 'Violent showers' },
-          95: { icon: '⛈️', desc: 'Thunderstorm' },
-          96: { icon: '⛈️', desc: 'Thunderstorm w/ hail' },
-          99: { icon: '⛈️', desc: 'Heavy thunderstorm w/ hail' }
+          0: { icon: '☀️', desc: 'Clear sky', color: '#FFD700' },
+          1: { icon: '🌤️', desc: 'Mainly clear', color: '#90CAF9' },
+          2: { icon: '⛅', desc: 'Partly cloudy', color: '#90CAF9' },
+          3: { icon: '☁️', desc: 'Overcast', color: '#90CAF9' },
+          45: { icon: '🌫️', desc: 'Fog', color: '#B0BEC5' },
+          48: { icon: '🌫️', desc: 'Depositing rime fog', color: '#B0BEC5' },
+          51: { icon: '🌧️', desc: 'Light drizzle', color: '#26C6DA' },
+          53: { icon: '🌧️', desc: 'Moderate drizzle', color: '#26C6DA' },
+          55: { icon: '🌧️', desc: 'Dense drizzle', color: '#26C6DA' },
+          61: { icon: '🌧️', desc: 'Light rain', color: '#26C6DA' },
+          63: { icon: '🌧️', desc: 'Moderate rain', color: '#26C6DA' },
+          65: { icon: '🌧️', desc: 'Heavy rain', color: '#26C6DA' },
+          71: { icon: '❄️', desc: 'Light snow', color: '#E1F5FE' },
+          73: { icon: '❄️', desc: 'Moderate snow', color: '#E1F5FE' },
+          75: { icon: '❄️', desc: 'Heavy snow', color: '#E1F5FE' },
+          77: { icon: '❄️', desc: 'Snow grains', color: '#E1F5FE' },
+          80: { icon: '🌧️', desc: 'Light showers', color: '#26C6DA' },
+          81: { icon: '🌧️', desc: 'Moderate showers', color: '#26C6DA' },
+          82: { icon: '⛈️', desc: 'Violent showers', color: '#26C6DA' },
+          95: { icon: '⛈️', desc: 'Thunderstorm', color: '#B39DDB' },
+          96: { icon: '⛈️', desc: 'Thunderstorm w/ hail', color: '#B39DDB' },
+          99: { icon: '⛈️', desc: 'Heavy thunderstorm w/ hail', color: '#B39DDB' }
         };
 
-        const codeInfo = weatherCodes[current.weather_code] || { icon: '☁️', desc: 'Unknown' };
+        const codeInfo = weatherCodes[current.weather_code] || { icon: '☁️', desc: 'Unknown', color: '#9E9E9E' };
         const formatTime = (isoString) => new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        document.getElementById('ww-icon').textContent = codeInfo.icon;
+        const iconEl = document.getElementById('ww-icon');
+        iconEl.textContent = codeInfo.icon;
+        // Apply drop-shadow for outline effect. A slightly larger radius (8px) is used here due to the 3.5rem font size.
+        iconEl.style.filter = `drop-shadow(0 0 8px ${codeInfo.color})`;
+
         document.getElementById('ww-desc').textContent = codeInfo.desc;
         document.getElementById('ww-temp').textContent = Math.round(current.temperature_2m);
         document.getElementById('ww-feels').textContent = Math.round(current.apparent_temperature) + '°F';
