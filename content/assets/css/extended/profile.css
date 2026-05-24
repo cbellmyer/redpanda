@@ -980,3 +980,181 @@ a:hover {
   color: var(--muzzle-grey);
   margin-top: auto;
 }
+
+/* ===== Tracks Page: Enhanced Styles ===== */
+
+/* Glassmorphism intro block */
+.tracks-intro {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--throat-teal) 40%, transparent);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 20%), inset 0 1px 0 color-mix(in srgb, #fff 8%, transparent);
+}
+
+.tracks-intro-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.tracks-intro-body strong {
+  display: block;
+  font-size: 1.1rem;
+  color: var(--primary);
+  margin-bottom: 0.3rem;
+}
+
+.tracks-intro-body p {
+  margin: 0;
+  color: var(--secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Widgets side-by-side on desktop */
+.widgets-row {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 1rem 0 1rem;
+}
+
+.widgets-row .next-con-widget,
+.widgets-row .odometer-widget {
+  margin: 0;
+  flex: 1 1 280px;
+  max-width: 420px;
+}
+
+/* Stats line */
+.map-stats {
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: var(--muzzle-grey);
+  margin: 0 auto 1.5rem;
+}
+
+.stats-dot {
+  opacity: 0.35;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* Fullscreen map mode */
+.tracks-map.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  z-index: 9999;
+  margin-top: 0;
+}
+
+/* Streak badge in map popups */
+.streak-badge {
+  background: color-mix(in srgb, #FF6700 18%, transparent);
+  border: 1px solid color-mix(in srgb, #FF6700 55%, transparent);
+  color: #FF6700;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  display: inline-block;
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+
+/* Filmstrip controls: toggle + filter chips */
+.filmstrip-controls {
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filmstrip-toggles {
+  display: flex;
+  background: color-mix(in srgb, var(--nose-dark) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
+  border-radius: 20px;
+  padding: 4px;
+}
+
+.filmstrip-toggle {
+  background: transparent;
+  border: none;
+  color: var(--secondary);
+  padding: 6px 20px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.filmstrip-toggle:hover {
+  color: var(--primary);
+}
+
+.filmstrip-toggle.active {
+  background: var(--throat-teal);
+  color: var(--fur-base);
+  font-weight: 700;
+}
+
+.filmstrip-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-chip {
+  background: color-mix(in srgb, var(--nose-dark) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--muzzle-grey) 40%, transparent);
+  color: var(--secondary);
+  padding: 5px 14px;
+  border-radius: 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.filter-chip:hover {
+  border-color: color-mix(in srgb, var(--throat-teal) 60%, transparent);
+  color: var(--primary);
+}
+
+.filter-chip.active {
+  background: color-mix(in srgb, var(--throat-teal) 22%, transparent);
+  border-color: var(--throat-teal);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Fix photoshoot type (same color group as roadtrip) */
+.paw-marker.type-photoshoot .paw-icon {
+  filter: drop-shadow(0 0 4px #FFB300);
+}
+
+.paw-marker.type-photoshoot::after {
+  background: radial-gradient(circle, #FFB300 0%, #FFB30000 70%);
+}
+
+/* Subtle warm tint on map tiles to complement the orange/teal palette */
+.leaflet-tile-pane {
+  filter: hue-rotate(355deg) saturate(1.08) brightness(0.96);
+}
