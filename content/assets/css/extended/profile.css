@@ -1033,7 +1033,7 @@ a:hover {
   gap: 1.5rem;
   justify-content: center;
   flex-wrap: wrap;
-  margin: 1rem 0 1rem;
+  margin: 1rem 0;
 }
 
 .widgets-row .next-con-widget,
