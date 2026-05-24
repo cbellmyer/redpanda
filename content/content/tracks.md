@@ -167,9 +167,11 @@ ShowBreadCrumbs: false
     }
 
     function parseStartDate(dateStr, yearStr) {
+      const yearInDate = dateStr.match(/\b(20\d{2})\b/);
+      const resolvedYear = yearInDate ? yearInDate[1] : yearStr;
       const match = dateStr.match(/([a-zA-Z]+)\s+(\d+)/);
-      if (match) return new Date(`${match[1]} ${match[2]}, ${yearStr}`);
-      return new Date(yearStr, 0, 1);
+      if (match) return new Date(`${match[1]} ${match[2]}, ${resolvedYear}`);
+      return new Date(resolvedYear, 0, 1);
     }
 
     function getSeason(date) {
@@ -356,7 +358,7 @@ ShowBreadCrumbs: false
 
       exposures.forEach((exp, index) => {
         const seasonObj = getSeason(exp.dateObj);
-        const seasonId = `${seasonObj.name} ${exp.year}`;
+        const seasonId = `${seasonObj.name} ${exp.dateObj.getFullYear()}`;
 
         if (seasonId !== lastSeason) {
           trackHtml += `<div class="season-divider ${seasonObj.class}">${seasonId}</div>`;
