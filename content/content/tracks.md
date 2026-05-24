@@ -7,41 +7,62 @@ ShowPostMeta: false
 ShowBreadCrumbs: false
 ---
 
-> **Welcome to my travel map!** 🗺️✨
->
-> This is where I keep track of all the conventions, furmeets, and fun places I've visited around the world. Click on any of the bouncing paw prints below to see the details!
-
-<div id="next-con-widget" class="next-con-widget" style="display: none;">
-  <div class="widget-header">Next Convention</div>
-  <div class="widget-body">
-    <div class="con-name" id="widget-con-name">Loading...</div>
-    <div class="countdown"><span id="widget-days">0</span> Days</div>
-    <div class="weather">
-      <span class="weather-icon" id="widget-weather-icon">☁️</span>
-      <span id="widget-temp">--</span>°F in <span id="widget-location">City</span>
-    </div>
+<div class="tracks-intro">
+  <span class="tracks-intro-icon">🗺️</span>
+  <div class="tracks-intro-body">
+    <strong>Welcome to my travel map!</strong>
+    <p>This is where I keep track of all the conventions, furmeets, and fun places I've visited. Click any bouncing paw print to see the details, or scroll the filmstrip below to explore upcoming and past adventures.</p>
   </div>
 </div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-<div id="map-container" class="tracks-map"></div>
-
-<div id="odometer-widget" class="odometer-widget">
-  <div class="odometer-header">Total Deployment Mileage</div>
-  <div class="odometer-value">
-    <span id="odometer-miles">0</span> Miles
+<div class="widgets-row">
+  <div id="next-con-widget" class="next-con-widget" style="display: none;">
+    <div class="widget-header">Next Convention</div>
+    <div class="widget-body">
+      <div class="con-name" id="widget-con-name">Loading...</div>
+      <div class="countdown"><span id="widget-days">0</span> Days</div>
+      <div class="weather">
+        <span class="weather-icon" id="widget-weather-icon">☁️</span>
+        <span id="widget-temp">--</span>°F in <span id="widget-location">City</span>
+      </div>
+    </div>
+  </div>
+  <div id="odometer-widget" class="odometer-widget">
+    <div class="odometer-header">Total Deployment Mileage</div>
+    <div class="odometer-value">
+      <span id="odometer-miles">0</span> Miles
+    </div>
   </div>
 </div>
 
+<div id="map-stats" class="map-stats" style="display: none;"></div>
+
+<div id="map-container" class="tracks-map"></div>
+
 <h2 class="upcoming-section-title" id="upcoming-title" style="display: none;">Upcoming Adventures</h2>
+
+<div id="filmstrip-controls" class="filmstrip-controls" style="display: none;">
+  <div class="filmstrip-toggles">
+    <button class="filmstrip-toggle active" id="toggle-upcoming">Upcoming</button>
+    <button class="filmstrip-toggle" id="toggle-past">Past</button>
+  </div>
+  <div class="filmstrip-filters">
+    <button class="filter-chip active" data-type="all">All</button>
+    <button class="filter-chip" data-type="convention">🎪 Convention</button>
+    <button class="filter-chip" data-type="shutterpaws">🐾 Shutterpaws</button>
+    <button class="filter-chip" data-type="event">✨ Event</button>
+    <button class="filter-chip" data-type="roadtrip">🚗 Trip / Photo</button>
+  </div>
+</div>
+
 <div id="upcoming-filmstrip" class="filmstrip-scroll" style="display: none;">
   <div id="filmstrip-track" class="filmstrip-track"></div>
 </div>
 
 <script>
-  // Tab Switcher for Tooltips
   window.switchTab = function(btn, targetId, parentClass) {
     const container = btn.closest('.' + parentClass);
     container.querySelectorAll('.tooltip-tab-btn').forEach(b => b.classList.remove('active'));
@@ -50,22 +71,14 @@ ShowBreadCrumbs: false
     container.querySelector('#' + targetId).classList.add('active');
   };
 
-  // Auto-Pan & Open Popup from Filmstrip Timeline
   window.focusMapEvent = function(locIndex, tabId, lat, lng) {
-    // Smooth scroll the user back up to the map
     document.getElementById('map-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    // Slight delay to allow the scroll to begin before triggering the map fly animation
     setTimeout(() => {
       window.tracksMap.flyTo([lat, lng], 9, { duration: 1.2 });
-
-      // Wait for map to finish "flying" before opening popup
       setTimeout(() => {
         const marker = window.tracksMapMarkers[locIndex];
         if (marker) {
           marker.openPopup();
-
-          // Wait a fraction of a second for the DOM popup to render, then select the right year tab
           setTimeout(() => {
             const tabBtn = document.querySelector(`.tooltip-tab-btn[onclick*="${tabId}"]`);
             if (tabBtn) tabBtn.click();
@@ -76,7 +89,6 @@ ShowBreadCrumbs: false
   };
 
   document.addEventListener('DOMContentLoaded', async function() {
-    // Initialize map focused on the Northeast US
     var map = L.map('map-container').setView([41.5, -73.5], 6);
     window.tracksMap = map;
     window.tracksMapMarkers = {};
@@ -86,9 +98,38 @@ ShowBreadCrumbs: false
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(map);
 
-    // Map Legend Control
+    // Fullscreen toggle control
+    var fsControl = L.control({ position: 'topleft' });
+    fsControl.onAdd = function() {
+      var div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+      var a = L.DomUtil.create('a', '', div);
+      a.href = '#';
+      a.title = 'Toggle fullscreen';
+      a.innerHTML = '&#x26F6;';
+      a.style.cssText = 'font-size:15px;display:flex;align-items:center;justify-content:center;width:34px;height:34px;text-decoration:none;';
+      L.DomEvent.on(a, 'click', function(e) {
+        L.DomEvent.preventDefault(e);
+        const mapEl = document.getElementById('map-container');
+        mapEl.classList.toggle('fullscreen');
+        a.innerHTML = mapEl.classList.contains('fullscreen') ? '&#x2715;' : '&#x26F6;';
+        map.invalidateSize();
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          const mapEl = document.getElementById('map-container');
+          if (mapEl.classList.contains('fullscreen')) {
+            mapEl.classList.remove('fullscreen');
+            a.innerHTML = '&#x26F6;';
+            map.invalidateSize();
+          }
+        }
+      });
+      return div;
+    };
+    fsControl.addTo(map);
+
     var legend = L.control({position: 'bottomright'});
-    legend.onAdd = function (map) {
+    legend.onAdd = function(map) {
       var div = L.DomUtil.create('div', 'map-legend');
       div.innerHTML = `
         <div><span style="background: #FF6700"></span> Convention</div>
@@ -100,7 +141,6 @@ ShowBreadCrumbs: false
     };
     legend.addTo(map);
 
-    // Fetch Unified Data Schema
     let eventsData = [];
     try {
       const response = await fetch('/data/events.json');
@@ -111,7 +151,7 @@ ShowBreadCrumbs: false
     } catch (error) {
       console.error("Error loading events data:", error);
       document.getElementById('map-container').insertAdjacentHTML('afterbegin', `<div style="position: absolute; z-index: 1000; top: 10px; left: 50%; transform: translateX(-50%); background: var(--color-con); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); text-align: center;">⚠️ Error: Could not load map locations (${error.message}).<br><br>Please make sure <b>events.json</b> is saved inside the <b>content/static/data/</b> directory, NOT the <b>content/content/</b> directory!</div>`);
-      return; // Stop execution if data fails to load
+      return;
     }
 
     const markerBounds = [];
@@ -119,7 +159,6 @@ ShowBreadCrumbs: false
     const now = new Date();
     const allExposures = [];
 
-    // Emoji helper for pills
     function getAlbumEmoji(name) {
       const n = name.toLowerCase();
       if (n.includes('parade')) return '🐾';
@@ -127,11 +166,12 @@ ShowBreadCrumbs: false
       return '📸';
     }
 
-    // Date Parser helper for sorting/seasons
     function parseStartDate(dateStr, yearStr) {
+      const yearInDate = dateStr.match(/\b(20\d{2})\b/);
+      const resolvedYear = yearInDate ? yearInDate[1] : yearStr;
       const match = dateStr.match(/([a-zA-Z]+)\s+(\d+)/);
-      if (match) return new Date(`${match[1]} ${match[2]}, ${yearStr}`);
-      return new Date(yearStr, 0, 1);
+      if (match) return new Date(`${match[1]} ${match[2]}, ${resolvedYear}`);
+      return new Date(resolvedYear, 0, 1);
     }
 
     function getSeason(date) {
@@ -142,30 +182,43 @@ ShowBreadCrumbs: false
       return { name: 'Autumn', class: 'season-autumn' };
     }
 
-    // 1. Process Data & Map Markers
+    function computeStreak(history) {
+      if (history.length < 2) return 0;
+      const years = history.map(h => parseInt(h.year)).sort((a, b) => b - a);
+      let streak = 1;
+      for (let i = 0; i < years.length - 1; i++) {
+        if (years[i] - years[i + 1] === 1) streak++;
+        else break;
+      }
+      return streak >= 2 ? streak : 0;
+    }
+
+    // Process markers
     eventsData.forEach((loc, locIndex) => {
       const latLng = [loc.coordinates[1], loc.coordinates[0]];
       markerBounds.push(latLng);
 
+      const streak = computeStreak(loc.history);
+      const streakHtml = streak >= 2
+        ? `<div class="streak-badge">🔥 ${streak}-Year Streak</div>`
+        : '';
+
       let tabsHtml = '';
       let contentHtml = '';
       const popupId = `popup-wrap-${locIndex}`;
+      const hasUpcoming = loc.history.some(h => parseStartDate(h.dates, h.year) >= now);
 
       loc.history.forEach((hist, histIdx) => {
         const isActive = histIdx === 0 ? 'active' : '';
         const tabId = `tab-${locIndex}-${hist.year}`;
 
-        // Tab Button
         tabsHtml += `<button class="tooltip-tab-btn ${isActive}" onclick="window.switchTab(this, '${tabId}', '${popupId}')">'${hist.year.slice(2)}</button>`;
 
-        // Distance Odometer Aggregation
         if (hist.roundTripMiles) totalMiles += hist.roundTripMiles;
 
-        // Collect for timeline
         const parsedDate = parseStartDate(hist.dates, hist.year);
-        allExposures.push({ ...hist, locationName: loc.locationName, type: loc.type, dateObj: parsedDate, coords: latLng, locIndex: locIndex, tabId: tabId });
+        allExposures.push({ ...hist, locationName: loc.locationName, type: loc.type, dateObj: parsedDate, coords: latLng, locIndex, tabId });
 
-        // Album Pills
         let pillsHtml = '';
         if (hist.albums && Object.keys(hist.albums).length > 0) {
           pillsHtml = '<div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;">';
@@ -175,7 +228,6 @@ ShowBreadCrumbs: false
           pillsHtml += '</div>';
         }
 
-        // Tooltip Content Frame
         let companionsHtml = '';
         if (hist.withHyper) {
           companionsHtml = `<div style="margin-top: 10px; font-size: 0.9em; color: var(--muzzle-grey);">Traveled with: <a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a></div>`;
@@ -202,59 +254,114 @@ ShowBreadCrumbs: false
         `;
       });
 
+      const iconSize = hasUpcoming ? 30 : 24;
+      const iconAnchor = hasUpcoming ? 15 : 12;
       var pawIcon = L.divIcon({
-        html: '<div class="paw-icon" style="font-size: 24px; line-height: 1; cursor: pointer;">🐾</div>',
-        className: `paw-marker type-${loc.type}`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
-        popupAnchor: [0, -12]
+        html: `<div class="paw-icon" style="font-size: ${iconSize}px; line-height: 1; cursor: pointer;">🐾</div>`,
+        className: `paw-marker type-${loc.type}${hasUpcoming ? ' upcoming' : ''}`,
+        iconSize: [iconSize, iconSize],
+        iconAnchor: [iconAnchor, iconAnchor],
+        popupAnchor: [0, -iconAnchor]
       });
 
       const finalPopupHtml = `
         <div class="${popupId}">
+          ${streakHtml}
           <div class="tooltip-tabs">${tabsHtml}</div>
           ${contentHtml}
         </div>
       `;
 
-      const marker = L.marker(latLng, {icon: pawIcon}).addTo(map).bindPopup(finalPopupHtml);
+      const marker = L.marker(latLng, { icon: pawIcon }).addTo(map).bindPopup(finalPopupHtml);
       window.tracksMapMarkers[locIndex] = marker;
     });
 
-    // Populate Odometer
-    document.getElementById('odometer-miles').textContent = Math.round(totalMiles).toLocaleString();
+    // Odometer with count-up animation via IntersectionObserver
+    const totalMilesRounded = Math.round(totalMiles);
+    const odometerEl = document.getElementById('odometer-miles');
 
-    // 2. Filmstrip Timeline Generation (Upcoming)
+    function animateCountUp(element, target) {
+      const start = performance.now();
+      function step(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / 1800, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        element.textContent = Math.round(target * eased).toLocaleString();
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    const odometerObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCountUp(odometerEl, totalMilesRounded);
+          odometerObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    odometerObserver.observe(document.getElementById('odometer-widget'));
+
+    // Stats line
+    const conventionCount = allExposures.filter(e => e.type === 'convention').length;
+    const staffCount = allExposures.filter(e => e.role === 'Staff').length;
+    const uniqueYears = [...new Set(allExposures.map(e => e.year))].length;
+    const statsEl = document.getElementById('map-stats');
+    statsEl.innerHTML = `
+      <span>${conventionCount} Convention Appearances</span>
+      <span class="stats-dot">·</span>
+      <span>${staffCount}× Staff</span>
+      <span class="stats-dot">·</span>
+      <span>${uniqueYears} Active Years</span>
+    `;
+    statsEl.style.display = 'flex';
+
+    // Split into upcoming / past
     const upcomingExposures = allExposures.filter(exp => exp.dateObj >= now);
     upcomingExposures.sort((a, b) => a.dateObj - b.dateObj);
+    const pastExposures = allExposures.filter(exp => exp.dateObj < now);
+    pastExposures.sort((a, b) => b.dateObj - a.dateObj);
 
-    if (upcomingExposures.length > 0) {
-      document.getElementById('upcoming-title').style.display = 'block';
-      const filmstripContainer = document.getElementById('upcoming-filmstrip');
+    let activeTypeFilter = 'all';
+    let showingUpcoming = true;
+
+    const typeIcons = {
+      convention: '🎪',
+      roadtrip: '🚗',
+      photoshoot: '📸',
+      photography: '📸',
+      shutterpaws: '🐾',
+      event: '✨'
+    };
+
+    function applyFilters() {
+      document.querySelectorAll('#filmstrip-track .event-card').forEach(card => {
+        const t = card.dataset.type;
+        const matches = activeTypeFilter === 'all'
+          || t === activeTypeFilter
+          || (activeTypeFilter === 'roadtrip' && t === 'photoshoot');
+        card.style.display = matches ? '' : 'none';
+      });
+    }
+
+    function renderFilmstrip(exposures) {
       const filmstripTrack = document.getElementById('filmstrip-track');
-      filmstripContainer.style.display = 'block';
+      const filmstripScroll = document.getElementById('upcoming-filmstrip');
 
-      const typeIcons = {
-        convention: '🎪',
-        roadtrip: '🚗',
-        photography: '📸',
-        shutterpaws: '🐾',
-        event: '✨'
-      };
+      if (exposures.length === 0) {
+        filmstripTrack.innerHTML = '<div style="color: var(--muzzle-grey); padding: 2rem 3rem; font-style: italic;">Nothing to show here yet.</div>';
+        return;
+      }
 
       let lastSeason = '';
       let trackHtml = '';
 
-      upcomingExposures.forEach((exp, index) => {
+      exposures.forEach((exp, index) => {
         const seasonObj = getSeason(exp.dateObj);
-        const seasonId = `${seasonObj.name} ${exp.year}`;
+        const seasonId = `${seasonObj.name} ${exp.dateObj.getFullYear()}`;
 
         if (seasonId !== lastSeason) {
-          trackHtml += `
-            <div class="season-divider ${seasonObj.class}">
-              ${seasonId}
-            </div>
-          `
+          trackHtml += `<div class="season-divider ${seasonObj.class}">${seasonId}</div>`;
           lastSeason = seasonId;
         }
 
@@ -267,7 +374,7 @@ ShowBreadCrumbs: false
         const roleDisplay = exp.role ? `<span class="${roleClass}" style="margin-left: 6px;">(${exp.role})</span>` : '';
 
         trackHtml += `
-          <div class="event-card type-${exp.type}" onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
+          <div class="event-card type-${exp.type}" data-type="${exp.type}" onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
             <h3><span style="opacity: 0.8; font-size: 0.9em; margin-right: 4px;">${typeIcons[exp.type] || '📅'}</span> ${exp.eventName}</h3>
             <div style="color: var(--secondary); font-size: 0.9em; margin-bottom: ${exp.withHyper ? '4px' : '8px'};">📍 ${exp.locationName}${roleDisplay}</div>
             ${companionsHtml}
@@ -281,10 +388,60 @@ ShowBreadCrumbs: false
       });
 
       filmstripTrack.innerHTML = trackHtml;
+      filmstripScroll.scrollLeft = 0;
+      applyFilters();
+
+      // Scroll hint nudge
+      setTimeout(() => {
+        filmstripScroll.scrollTo({ left: 50, behavior: 'smooth' });
+        setTimeout(() => filmstripScroll.scrollTo({ left: 0, behavior: 'smooth' }), 500);
+      }, 700);
     }
 
-    // 3. Next Deployment Widget (Weather Integration)
-    // Filter specifically for the next convention (ignoring road trips/NPO business)
+    if (allExposures.length > 0) {
+      document.getElementById('upcoming-title').style.display = 'block';
+      document.getElementById('upcoming-filmstrip').style.display = 'block';
+      document.getElementById('filmstrip-controls').style.display = 'flex';
+
+      if (upcomingExposures.length > 0) {
+        renderFilmstrip(upcomingExposures);
+      } else {
+        showingUpcoming = false;
+        document.getElementById('upcoming-title').textContent = 'Past Adventures';
+        document.getElementById('toggle-upcoming').classList.remove('active');
+        document.getElementById('toggle-past').classList.add('active');
+        renderFilmstrip(pastExposures);
+      }
+
+      document.getElementById('toggle-upcoming').addEventListener('click', function() {
+        if (showingUpcoming) return;
+        showingUpcoming = true;
+        this.classList.add('active');
+        document.getElementById('toggle-past').classList.remove('active');
+        document.getElementById('upcoming-title').textContent = 'Upcoming Adventures';
+        renderFilmstrip(upcomingExposures);
+      });
+
+      document.getElementById('toggle-past').addEventListener('click', function() {
+        if (!showingUpcoming) return;
+        showingUpcoming = false;
+        this.classList.add('active');
+        document.getElementById('toggle-upcoming').classList.remove('active');
+        document.getElementById('upcoming-title').textContent = 'Past Adventures';
+        renderFilmstrip(pastExposures);
+      });
+
+      document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+          document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+          this.classList.add('active');
+          activeTypeFilter = this.dataset.type;
+          applyFilters();
+        });
+      });
+    }
+
+    // Next Convention Widget with weather
     const upcomingCons = upcomingExposures.filter(exp => exp.type === 'convention');
     if (upcomingCons.length > 0) {
       const nextEvent = upcomingCons[0];
@@ -295,19 +452,17 @@ ShowBreadCrumbs: false
       document.getElementById('widget-location').textContent = nextEvent.locationName;
       document.getElementById('next-con-widget').style.display = 'block';
 
-      // Map WMO weather codes to emojis and a complementary HEX outline color
       function getWeatherInfo(code) {
-        if (code === 0) return { icon: '☀️', color: '#FFD700' }; // Clear (Gold)
-        if (code === 1 || code === 2 || code === 3) return { icon: '⛅', color: '#90CAF9' }; // Partly cloudy (Light Blue)
-        if (code >= 45 && code <= 48) return { icon: '🌫️', color: '#B0BEC5' }; // Fog (Blue Grey)
-        if (code >= 51 && code <= 67) return { icon: '🌧️', color: '#26C6DA' }; // Rain/Drizzle (Cyan)
-        if (code >= 71 && code <= 77) return { icon: '❄️', color: '#E1F5FE' }; // Snow (Icy Blue)
-        if (code >= 80 && code <= 82) return { icon: '🌧️', color: '#26C6DA' }; // Showers (Cyan)
-        if (code >= 95) return { icon: '⛈️', color: '#B39DDB' }; // Thunderstorm (Violet)
-        return { icon: '☁️', color: '#9E9E9E' }; // Default/Overcast (Grey)
+        if (code === 0) return { icon: '☀️', color: '#FFD700' };
+        if (code === 1 || code === 2 || code === 3) return { icon: '⛅', color: '#90CAF9' };
+        if (code >= 45 && code <= 48) return { icon: '🌫️', color: '#B0BEC5' };
+        if (code >= 51 && code <= 67) return { icon: '🌧️', color: '#26C6DA' };
+        if (code >= 71 && code <= 77) return { icon: '❄️', color: '#E1F5FE' };
+        if (code >= 80 && code <= 82) return { icon: '🌧️', color: '#26C6DA' };
+        if (code >= 95) return { icon: '⛈️', color: '#B39DDB' };
+        return { icon: '☁️', color: '#9E9E9E' };
       }
 
-      // Fetch current weather for the convention location
       const [lat, lng] = nextEvent.coords;
       fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&temperature_unit=fahrenheit`)
         .then(response => response.json())
@@ -317,13 +472,12 @@ ShowBreadCrumbs: false
             const weather = getWeatherInfo(data.current_weather.weathercode);
             const iconEl = document.getElementById('widget-weather-icon');
             iconEl.textContent = weather.icon;
-            // Apply a drop-shadow for the outline/glow effect using the non-RGB hex color
             iconEl.style.filter = `drop-shadow(0 0 4px ${weather.color})`;
           }
         })
         .catch(err => {
           console.error("Failed to fetch weather data", err);
-          document.querySelector('.weather').style.display = 'none'; // Hide weather on failure
+          document.querySelector('.weather').style.display = 'none';
         });
     }
 
