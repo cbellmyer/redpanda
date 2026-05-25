@@ -246,6 +246,14 @@ menu:
                   <span class="scada-value" id="ww-sunset">--</span>
                 </div>
                 <div class="scada-metric">
+                  <span class="scada-label">Dawn Golden Hour</span>
+                  <span class="scada-value" id="ww-golden-dawn" style="font-size: 0.9rem; color: #FFB300; text-shadow: 0 0 8px color-mix(in srgb, #FFB300 60%, transparent);">--</span>
+                </div>
+                <div class="scada-metric">
+                  <span class="scada-label">Dusk Golden Hour</span>
+                  <span class="scada-value" id="ww-golden-dusk" style="font-size: 0.9rem; color: #FF8F00; text-shadow: 0 0 8px color-mix(in srgb, #FF8F00 60%, transparent);">--</span>
+                </div>
+                <div class="scada-metric">
                   <span class="scada-label">UV Index</span>
                   <span class="scada-value" id="ww-uv">--</span>
                 </div>
@@ -728,6 +736,16 @@ menu:
         document.getElementById('ww-cloud').textContent = current.cloud_cover + '%';
         document.getElementById('ww-sunrise').textContent = formatTime(daily.sunrise[0]);
         document.getElementById('ww-sunset').textContent = formatTime(daily.sunset[0]);
+
+        // Golden hour windows (±1 hour from sunrise/sunset)
+        const fmt = t => t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const sunriseDate = new Date(daily.sunrise[0]);
+        const sunsetDate = new Date(daily.sunset[0]);
+        const oneHour = 60 * 60 * 1000;
+        document.getElementById('ww-golden-dawn').textContent =
+          fmt(sunriseDate) + '–' + fmt(new Date(sunriseDate.getTime() + oneHour));
+        document.getElementById('ww-golden-dusk').textContent =
+          fmt(new Date(sunsetDate.getTime() - oneHour)) + '–' + fmt(sunsetDate);
 
         // UV Index
         if (uvi !== null) {
