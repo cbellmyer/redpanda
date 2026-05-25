@@ -1,6 +1,6 @@
 ---
 title: "Pulse"
-description: "Live signals and recent dashboard activity."
+description: "Live ecosystem vitals and field observations from the furry frontier."
 type: "page"
 ShowToc: false
 ShowBreadCrumbs: false
@@ -56,18 +56,16 @@ menu:
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
     position: relative;
   }
-  /* CRT Scanline Overlay */
+  /* Hex-lattice dot grid — naturalist field transect pattern */
   .scada-panel::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      color-mix(in srgb, #00E5FF 4%, transparent) 2px,
-      color-mix(in srgb, #00E5FF 4%, transparent) 4px
-    );
+    background-image:
+      radial-gradient(circle, color-mix(in srgb, #00E5FF 18%, transparent) 1px, transparent 1px),
+      radial-gradient(circle, color-mix(in srgb, #00E5FF 18%, transparent) 1px, transparent 1px);
+    background-size: 18px 31px;
+    background-position: 0 0, 9px 15.5px;
     pointer-events: none;
     z-index: 1;
   }
@@ -110,7 +108,7 @@ menu:
   .scada-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1px; /* Creates clean 1px grid lines */
+    gap: 1px;
     background: color-mix(in srgb, #00E5FF 30%, transparent);
     width: 100%;
     border-left: 1px solid color-mix(in srgb, #00E5FF 30%, transparent);
@@ -146,18 +144,19 @@ menu:
     font-size: 0.75rem;
     letter-spacing: 0.1em;
   }
+  /* Mossy green — living system, not neon circuit */
   .scada-status-dot {
     width: 8px;
     height: 8px;
-    background-color: #00FF00;
+    background-color: #7DC26B;
     border-radius: 50%;
-    box-shadow: 0 0 8px #00FF00;
+    box-shadow: 0 0 8px #7DC26B;
     animation: scada-pulse 2s infinite;
   }
   @keyframes scada-pulse {
-    0% { opacity: 1; box-shadow: 0 0 8px #00FF00; }
-    50% { opacity: 0.4; box-shadow: 0 0 2px #00FF00; }
-    100% { opacity: 1; box-shadow: 0 0 8px #00FF00; }
+    0% { opacity: 1; box-shadow: 0 0 8px #7DC26B; }
+    50% { opacity: 0.4; box-shadow: 0 0 2px #7DC26B; }
+    100% { opacity: 1; box-shadow: 0 0 8px #7DC26B; }
   }
   @keyframes scada-warn-blink {
     0%, 100% { opacity: 1; }
@@ -191,19 +190,19 @@ menu:
   }
 </style>
 
-<div class="bio-container" style="text-align: center; margin-bottom: 3rem;">
+<div class="bio-container" style="text-align: center; margin-bottom: 2rem;">
   <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--primary);">Field Conditions</h2>
   <div id="discord-widget" style="font-size: 1.1rem; margin-bottom: 1.5rem;">
-    <span style="opacity: 0.7;">Checking connection...</span>
+    <span style="opacity: 0.7;">Establishing field radio link...</span>
   </div>
   <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin: 0 auto;">
     <div id="system-status-weather" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
-      <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem;">Gathering atmospheric data...</div>
+      <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem;">Sampling habitat conditions...</div>
       <div id="weather-data" style="display: none; width: 100%; max-width: 700px; margin: 0 auto;">
         <div class="scada-panel">
           <div style="width: 100%;">
             <div class="scada-header">
-              <span>[ ATMOSPHERIC SENSOR TELEMETRY ]</span>
+              <span>[ HABITAT CONDITIONS MONITOR ]</span>
               <span class="scada-time">--:--:--</span>
               <span class="scada-status"><div class="scada-status-dot"></div> ACTIVE</span>
             </div>
@@ -246,6 +245,26 @@ menu:
                   <span class="scada-label">Sunset</span>
                   <span class="scada-value" id="ww-sunset">--</span>
                 </div>
+                <div class="scada-metric">
+                  <span class="scada-label">Dawn Golden Hour</span>
+                  <span class="scada-value" id="ww-golden-dawn" style="font-size: 0.9rem; color: #FFB300; text-shadow: 0 0 8px color-mix(in srgb, #FFB300 60%, transparent);">--</span>
+                </div>
+                <div class="scada-metric">
+                  <span class="scada-label">Dusk Golden Hour</span>
+                  <span class="scada-value" id="ww-golden-dusk" style="font-size: 0.9rem; color: #FF8F00; text-shadow: 0 0 8px color-mix(in srgb, #FF8F00 60%, transparent);">--</span>
+                </div>
+                <div class="scada-metric">
+                  <span class="scada-label">UV Index</span>
+                  <span class="scada-value" id="ww-uv">--</span>
+                </div>
+                <div class="scada-metric">
+                  <span class="scada-label">Air Quality (AQI)</span>
+                  <span class="scada-value" id="ww-aqi">--</span>
+                </div>
+                <div class="scada-metric" style="grid-column: 1 / -1;">
+                  <span class="scada-label">Fursuit Field Index</span>
+                  <span class="scada-value" id="ww-field-rating" style="font-size: 1.3rem; letter-spacing: 0.08em;">--</span>
+                </div>
               </div>
             </div>
           </div>
@@ -253,20 +272,84 @@ menu:
       </div>
     </div>
     <div id="github-widget" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
-      <div style="opacity: 0.7; font-size: 1.1rem;">Querying source control telemetry...</div>
+      <div style="opacity: 0.7; font-size: 1.1rem;">Pulling expedition records...</div>
     </div>
   </div>
+</div>
+
+<div id="con-season-widget" style="max-width: 700px; margin: 0 auto 2rem;">
+  <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Consulting expedition dossier...</div>
 </div>
 
 <h2 class="upcoming-section-title" style="margin-top: 1rem;">Field Notes</h2>
 
 <div id="social-feed-grid" class="feed-scroll">
-  <div class="loading-feed">Establishing connection to signals...</div>
+  <div class="loading-feed">Tuning to field frequencies...</div>
 </div>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // Global SCADA Timer
+
+    // ── Helper functions ─────────────────────────────────────────────────
+
+    function getSeasonLabel() {
+      const month = new Date().getMonth(); // 0 = Jan
+      if (month >= 2 && month <= 4) return { season: 'SPRING', activity: 'ACTIVITY RISING' };
+      if (month >= 5 && month <= 7) return { season: 'SUMMER', activity: 'PEAK CON SEASON' };
+      if (month >= 8 && month <= 10) return { season: 'FALL', activity: 'CON SEASON CLOSING' };
+      return { season: 'WINTER', activity: 'LOW ACTIVITY SEASON' };
+    }
+
+    function computeFieldRating(feelsTemp, windSpeed, precip, aqi) {
+      let score = 100;
+      // Heat — fursuit wearers overheat easily
+      if (feelsTemp >= 103) score -= 60;
+      else if (feelsTemp >= 95) score -= 40;
+      else if (feelsTemp >= 88) score -= 25;
+      else if (feelsTemp >= 80) score -= 10;
+      else if (feelsTemp <= 15) score -= 40;
+      else if (feelsTemp <= 25) score -= 25;
+      else if (feelsTemp <= 35) score -= 10;
+      // Precipitation — bad for fur and cameras
+      if (precip >= 0.5) score -= 50;
+      else if (precip >= 0.1) score -= 30;
+      else if (precip > 0) score -= 15;
+      // Wind — light breeze helps with cooling
+      if (windSpeed >= 40) score -= 30;
+      else if (windSpeed >= 25) score -= 15;
+      else if (windSpeed >= 10) score += 5;
+      // Air quality
+      if (aqi !== null) {
+        if (aqi >= 151) score -= 30;
+        else if (aqi >= 101) score -= 20;
+        else if (aqi >= 51) score -= 10;
+      }
+      score = Math.max(0, Math.min(100, score));
+      if (score >= 85) return { label: 'EXCELLENT', color: '#7DC26B' };
+      if (score >= 65) return { label: 'FAVORABLE', color: '#00E5FF' };
+      if (score >= 45) return { label: 'FAIR', color: '#FFB300' };
+      if (score >= 25) return { label: 'POOR', color: '#FF6700' };
+      return { label: 'HAZARDOUS', color: '#f04747' };
+    }
+
+    function getUvCategory(uvi) {
+      if (uvi <= 2) return { label: uvi.toFixed(1) + ' · LOW', color: '#7DC26B' };
+      if (uvi <= 5) return { label: uvi.toFixed(1) + ' · MODERATE', color: '#FFD700' };
+      if (uvi <= 7) return { label: uvi.toFixed(1) + ' · HIGH', color: '#FF6700' };
+      if (uvi <= 10) return { label: uvi.toFixed(1) + ' · V.HIGH', color: '#f04747' };
+      return { label: uvi.toFixed(1) + ' · EXTREME', color: '#B39DDB' };
+    }
+
+    function getAqiCategory(aqi) {
+      if (aqi <= 50) return { label: aqi + ' · GOOD', color: '#7DC26B' };
+      if (aqi <= 100) return { label: aqi + ' · MODERATE', color: '#FFD700' };
+      if (aqi <= 150) return { label: aqi + ' · USG', color: '#FF6700' };
+      if (aqi <= 200) return { label: aqi + ' · UNHEALTHY', color: '#f04747' };
+      if (aqi <= 300) return { label: aqi + ' · V.UNHEALTHY', color: '#B39DDB' };
+      return { label: aqi + ' · HAZARDOUS', color: '#8B0000' };
+    }
+
+    // ── Global SCADA Timer ───────────────────────────────────────────────
     function updateScadaClocks() {
       const now = new Date();
       const timeString = now.getFullYear() + '-' +
@@ -283,7 +366,7 @@ menu:
     setInterval(updateScadaClocks, 1000);
     updateScadaClocks();
 
-    // 1. Discord Lanyard Widget (Client-Side)
+    // ── 1. Field Radio Widget (Discord / Lanyard) ────────────────────────
     const discordContainer = document.getElementById('discord-widget');
     const DISCORD_ID = '104330735866884096';
 
@@ -324,18 +407,18 @@ menu:
             }
             const text = customStatus.state || '';
             if (emoji || text) {
-              activitiesHtml += `<div class="scada-metric" style="grid-column: 1 / -1;"><span class="scada-label">Status Log</span><span class="scada-value" style="font-size: 1rem; color: #fff; text-shadow: none;">${emoji} <span>${text}</span></span></div>`;
+              activitiesHtml += `<div class="scada-metric" style="grid-column: 1 / -1;"><span class="scada-label">Field Log</span><span class="scada-value" style="font-size: 1rem; color: #fff; text-shadow: none;">${emoji} <span>${text}</span></span></div>`;
             }
           }
 
           if (spotify) {
-            activitiesHtml += `<div class="scada-metric"><span class="scada-label">Audio Stream</span><span class="scada-value" style="font-size: 1rem; color: #1DB954; text-shadow: 0 0 8px rgb(29 185 84 / 60%);">🎵 <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; display: inline-block; vertical-align: bottom;">${spotify.song}</span></span></div>`;
+            activitiesHtml += `<div class="scada-metric"><span class="scada-label">Audio Signal</span><span class="scada-value" style="font-size: 1rem; color: #1DB954; text-shadow: 0 0 8px rgb(29 185 84 / 60%);">🎵 <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; display: inline-block; vertical-align: bottom;">${spotify.song}</span></span></div>`;
           } else if (playingActivity) {
             activitiesHtml += `<div class="scada-metric"><span class="scada-label">Active Process</span><span class="scada-value" style="font-size: 1rem; color: var(--eye-highlight); text-shadow: 0 0 8px color-mix(in srgb, var(--eye-highlight) 60%, transparent);">🎮 <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; display: inline-block; vertical-align: bottom;">${playingActivity.name}</span></span></div>`;
           }
 
           if (isVoice) {
-            activitiesHtml += `<div class="scada-metric"><span class="scada-label">Comms Channel</span><span class="scada-value" style="font-size: 1rem;"><div class="eq-bars" style="margin-right: 6px; margin-bottom: 2px;"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div> ACTIVE</span></div>`;
+            activitiesHtml += `<div class="scada-metric"><span class="scada-label">Active Channel</span><span class="scada-value" style="font-size: 1rem;"><div class="eq-bars" style="margin-right: 6px; margin-bottom: 2px;"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div> LIVE</span></div>`;
           }
 
           let clientHtml = '';
@@ -346,19 +429,19 @@ menu:
             if (data.active_on_discord_web) activeClients.push('WEB');
 
             if (activeClients.length > 0) {
-              clientHtml = `<div class="scada-metric"><span class="scada-label">Active Nodes</span><span class="scada-value" style="font-size: 1rem;">[ ${activeClients.join(' / ')} ]</span></div>`;
+              clientHtml = `<div class="scada-metric"><span class="scada-label">Signal Points</span><span class="scada-value" style="font-size: 1rem;">[ ${activeClients.join(' / ')} ]</span></div>`;
             }
           }
 
           if (!activitiesHtml && !clientHtml) {
-            activitiesHtml = `<div class="scada-metric" style="grid-column: 1 / -1;"><span class="scada-label">System State</span><span class="scada-value" style="font-size: 1rem; color: var(--muzzle-grey); text-shadow: none;">Awaiting telemetry...</span></div>`;
+            activitiesHtml = `<div class="scada-metric" style="grid-column: 1 / -1;"><span class="scada-label">Field State</span><span class="scada-value" style="font-size: 1rem; color: var(--muzzle-grey); text-shadow: none;">Awaiting field signal...</span></div>`;
           }
 
           discordContainer.innerHTML = `
             <div class="scada-panel fade-in" style="max-width: 700px; margin: 0 auto;">
               <div style="width: 100%;">
                 <div class="scada-header">
-                  <span>[ COMM-LINK TELEMETRY ]</span>
+                  <span>[ FIELD RADIO — BASE CAMP LINK ]</span>
                   <span class="scada-time">--:--:--</span>
                   <span class="scada-status" style="color: ${statusColor}; text-shadow: 0 0 5px ${statusColor};">
                     <div class="scada-status-dot" style="background-color: ${statusColor}; box-shadow: 0 0 8px ${statusColor}; ${isOnline ? '' : 'animation: none; opacity: 0.5;'}"></div>
@@ -371,9 +454,9 @@ menu:
                       <img src="${avatarUrl}" alt="${username}" class="discord-avatar">
                     </div>
                     <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start;">
-                      <div class="scada-label" style="margin-bottom: 0.2rem;">OPERATOR ID</div>
+                      <div class="scada-label" style="margin-bottom: 0.2rem;">RESEARCHER</div>
                       <div class="scada-value" style="font-size: 1.4rem; margin-bottom: 0.8rem;">${username}</div>
-                      <div class="scada-label" style="margin-bottom: 0.2rem;">SQUAD LINK</div>
+                      <div class="scada-label" style="margin-bottom: 0.2rem;">FIELD PARTNER</div>
                       <div class="scada-value" style="font-size: 1rem;"><a href="https://hypercat.me/" target="_blank" rel="noopener" style="color: #FF6700; text-shadow: 0 0 8px rgb(255 103 0 / 60%); text-decoration: none; border-bottom: 1px dashed #FF6700;">HYPER</a></div>
                     </div>
                   </div>
@@ -388,20 +471,19 @@ menu:
         }
       } catch (e) {
         console.error("Discord fetch failed:", e);
-        discordContainer.innerHTML = '<span style="color: var(--muzzle-grey);">Signal lost</span>';
+        discordContainer.innerHTML = '<span style="color: var(--muzzle-grey);">Field radio lost</span>';
       }
     }
 
     fetchDiscord();
-    setInterval(fetchDiscord, 60000); // Check discord every 60 seconds
+    setInterval(fetchDiscord, 60000);
 
-    // 2. Social Feeds (Bluesky + Pixelfed Grid)
+    // ── 2. Social Feeds (Bluesky + Pixelfed + Mastodon) ──────────────────
     const feedContainer = document.getElementById('social-feed-grid');
 
-    // Fetch latest 10 from Bluesky
     async function fetchBluesky() {
       try {
-        const BSKY_HANDLE = 'redpanda.pet'; // <-- Change to your actual Bluesky handle if you haven't linked the new domain!
+        const BSKY_HANDLE = 'redpanda.pet';
         const res = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${BSKY_HANDLE}&filter=posts_no_replies&limit=20`);
         const data = await res.json();
 
@@ -426,7 +508,6 @@ menu:
       }
     }
 
-    // Fetch latest 10 from Pixelfed
     async function fetchPixelfed() {
       try {
         const targetUrl = 'https://pixelfed.social/users/roryredpanda.atom';
@@ -465,10 +546,8 @@ menu:
       }
     }
 
-    // Fetch latest 10 from Mastodon
     async function fetchMastodon() {
       try {
-        // exclude_replies=true filters out thread spam, just like we do for Bluesky
         const res = await fetch('https://furry.engineer/api/v1/accounts/110373887192663991/statuses?limit=10&exclude_replies=true');
 
         if (!res.ok) {
@@ -499,7 +578,6 @@ menu:
             image = actualStatus.media_attachments[0].preview_url || actualStatus.media_attachments[0].url;
           }
 
-          // Strip HTML tags for clean text preview
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = actualStatus.content || "";
           const text = tempDiv.textContent || tempDiv.innerText || "";
@@ -519,15 +597,14 @@ menu:
       }
     }
 
-    // Load, combine, and render the feeds into the grid
     Promise.all([fetchBluesky(), fetchPixelfed(), fetchMastodon()]).then(([bsky, pxfed, mstdn]) => {
       let combined = [...bsky, ...pxfed, ...mstdn]
         .filter(post => post.date && !isNaN(post.date.getTime()))
         .sort((a, b) => b.date.getTime() - a.date.getTime())
-        .slice(0, 20); // Show latest 20 items combined
+        .slice(0, 20);
 
       if (combined.length === 0) {
-        feedContainer.innerHTML = '<div class="loading-feed">Could not retrieve signals at this time.</div>';
+        feedContainer.innerHTML = '<div class="loading-feed">Field signals unavailable at this time.</div>';
         return;
       }
 
@@ -545,13 +622,14 @@ menu:
         </a>
       `).join('');
 
-    feedContainer.classList.add('fade-in');
+      feedContainer.classList.add('fade-in');
     });
 
-    // 3. Weather Widget (Open-Meteo)
+    // ── 3. Habitat Conditions Monitor (Open-Meteo + AQI) ─────────────────
     const lat = 39.2904; // Baltimore, MD
     const lon = -76.6122;
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,surface_pressure,wind_direction_10m,cloud_cover&daily=sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FNew_York`;
+    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,uv_index&timezone=America%2FNew_York`;
 
     function getWindDirection(degrees) {
       const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
@@ -559,15 +637,14 @@ menu:
       return directions[index];
     }
 
-    fetch(weatherUrl)
-      .then(async response => {
-        const data = await response.json();
-        if (!response.ok || data.error) throw new Error(data.reason || `HTTP ${response.status}`);
-        return data;
-      })
-      .then(data => {
+    Promise.all([
+      fetch(weatherUrl).then(async r => { const d = await r.json(); if (!r.ok || d.error) throw new Error(d.reason || `HTTP ${r.status}`); return d; }),
+      fetch(aqiUrl).then(r => r.json()).catch(() => null)
+    ]).then(([data, aqiData]) => {
         const current = data.current;
         const daily = data.daily;
+        const aqi = aqiData?.current?.us_aqi ?? null;
+        const uvi = aqiData?.current?.uv_index ?? null;
 
         const weatherCodes = {
           0: { icon: '☀️', desc: 'Clear sky', color: '#FFD700' },
@@ -599,7 +676,6 @@ menu:
 
         const iconEl = document.getElementById('ww-icon');
         iconEl.textContent = codeInfo.icon;
-        // Apply drop-shadow for outline effect. A slightly larger radius (8px) is used here due to the 3.5rem font size.
         iconEl.style.filter = `drop-shadow(0 0 8px ${codeInfo.color})`;
 
         document.getElementById('ww-desc').textContent = codeInfo.desc;
@@ -607,7 +683,6 @@ menu:
 
         let isCritical = false;
 
-        // Heat Index Logic
         const feelsTemp = Math.round(current.apparent_temperature);
         let feelsColor = '#00E5FF';
         let feelsWarning = '';
@@ -635,7 +710,6 @@ menu:
         document.getElementById('ww-humidity').textContent = current.relative_humidity_2m + '%';
         document.getElementById('ww-precip').textContent = current.precipitation.toFixed(2) + '"';
 
-        // Wind Velocity Logic
         const windSpeed = current.wind_speed_10m;
         let windColor = '#00E5FF';
         let windWarning = '';
@@ -663,11 +737,55 @@ menu:
         document.getElementById('ww-sunrise').textContent = formatTime(daily.sunrise[0]);
         document.getElementById('ww-sunset').textContent = formatTime(daily.sunset[0]);
 
-        // Trigger Global Weather Alert on Panel
+        // Golden hour windows (±1 hour from sunrise/sunset)
+        const fmt = t => t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const sunriseDate = new Date(daily.sunrise[0]);
+        const sunsetDate = new Date(daily.sunset[0]);
+        const oneHour = 60 * 60 * 1000;
+        document.getElementById('ww-golden-dawn').textContent =
+          fmt(sunriseDate) + '–' + fmt(new Date(sunriseDate.getTime() + oneHour));
+        document.getElementById('ww-golden-dusk').textContent =
+          fmt(new Date(sunsetDate.getTime() - oneHour)) + '–' + fmt(sunsetDate);
+
+        // UV Index
+        if (uvi !== null) {
+          const uvCat = getUvCategory(uvi);
+          const uvEl = document.getElementById('ww-uv');
+          uvEl.textContent = uvCat.label;
+          uvEl.style.color = uvCat.color;
+          uvEl.style.textShadow = `0 0 8px color-mix(in srgb, ${uvCat.color} 60%, transparent)`;
+        } else {
+          document.getElementById('ww-uv').textContent = 'N/A';
+        }
+
+        // Air Quality Index
+        if (aqi !== null) {
+          const aqiCat = getAqiCategory(aqi);
+          const aqiEl = document.getElementById('ww-aqi');
+          aqiEl.textContent = aqiCat.label;
+          aqiEl.style.color = aqiCat.color;
+          aqiEl.style.textShadow = `0 0 8px color-mix(in srgb, ${aqiCat.color} 60%, transparent)`;
+          if (aqi > 150) isCritical = true;
+        } else {
+          document.getElementById('ww-aqi').textContent = 'N/A';
+        }
+
+        // Fursuit Field Index
+        const rating = computeFieldRating(feelsTemp, windSpeed, current.precipitation, aqi);
+        const ratingEl = document.getElementById('ww-field-rating');
+        ratingEl.textContent = rating.label;
+        ratingEl.style.color = rating.color;
+        ratingEl.style.textShadow = `0 0 8px color-mix(in srgb, ${rating.color} 60%, transparent)`;
+
+        // Season label in panel header
+        const seasonInfo = getSeasonLabel();
+        document.querySelector('#weather-data .scada-header span:first-child').textContent =
+          `[ HABITAT CONDITIONS — ${seasonInfo.season} ]`;
+
         if (isCritical) {
           const weatherPanel = document.querySelector('#weather-data .scada-panel');
           weatherPanel.classList.add('critical-alert');
-          document.querySelector('#weather-data .scada-header span:first-child').textContent = '[ CRITICAL WEATHER ALERT ]';
+          document.querySelector('#weather-data .scada-header span:first-child').textContent = '[ CRITICAL HABITAT ALERT ]';
           document.querySelector('#weather-data .scada-status').innerHTML = '<div class="scada-status-dot"></div> WARNING';
         }
 
@@ -677,13 +795,13 @@ menu:
         weatherData.classList.add('fade-in');
       })
       .catch(err => {
-        console.error('Failed to fetch weather data:', err);
-        document.getElementById('weather-loading').textContent = 'Weather telemetry offline.';
+        console.error('Failed to fetch habitat data:', err);
+        document.getElementById('weather-loading').textContent = 'Habitat sensors offline.';
       });
 
-    // 4. GitHub Telemetry Widget
+    // ── 4. Expedition Log (GitHub) ───────────────────────────────────────
     const githubContainer = document.getElementById('github-widget');
-    const GITHUB_USERNAME = 'cbellmyer'; // <-- Change to your GitHub username!
+    const GITHUB_USERNAME = 'cbellmyer';
 
     async function fetchGitHub() {
       try {
@@ -699,9 +817,9 @@ menu:
         if (recentEvent) {
           const repoName = recentEvent.repo.name;
           const isPush = recentEvent.type === 'PushEvent';
-          const actionType = isPush ? 'CODE PUSH' : recentEvent.type.replace('Event', '').toUpperCase();
+          const actionType = isPush ? 'FIELD REPORT' : recentEvent.type.replace('Event', '').toUpperCase();
 
-          let commitMessage = 'No commit details available.';
+          let commitMessage = 'No entry details available.';
           if (isPush && recentEvent.payload.commits && recentEvent.payload.commits.length > 0) {
             commitMessage = recentEvent.payload.commits[0].message;
           } else if (recentEvent.type === 'CreateEvent') {
@@ -716,7 +834,7 @@ menu:
             <div class="scada-panel fade-in" style="max-width: 700px; margin: 0 auto;">
               <div style="width: 100%;">
                 <div class="scada-header">
-                  <span>[ SOURCE CONTROL LOG ]</span>
+                  <span>[ EXPEDITION LOG ]</span>
                   <span class="scada-time">--:--:--</span>
                   <span class="scada-status"><div class="scada-status-dot"></div> ACTIVE</span>
                 </div>
@@ -724,21 +842,21 @@ menu:
                   <div class="scada-primary" style="flex-direction: row; gap: 1.2rem; justify-content: center; padding: 1.2rem; min-width: 200px;">
                     <div style="font-size: 3.5rem; line-height: 1;" id="gh-icon">📦</div>
                     <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start; text-align: left;">
-                      <div class="scada-label" style="margin-bottom: 0.2rem;">TARGET REPO</div>
+                      <div class="scada-label" style="margin-bottom: 0.2rem;">RESEARCH FILE</div>
                       <div class="scada-value" style="font-size: 1.1rem; word-break: break-all; text-shadow: none;">${repoName.split('/').pop()}</div>
                     </div>
                   </div>
                   <div class="scada-grid" style="flex: 1;">
                     <div class="scada-metric">
-                      <span class="scada-label">Last Operation</span>
+                      <span class="scada-label">Last Entry</span>
                       <span class="scada-value" style="font-size: 1rem; color: #E1F5FE;">${actionType}</span>
                     </div>
                     <div class="scada-metric">
-                      <span class="scada-label">Timestamp</span>
+                      <span class="scada-label">Field Date</span>
                       <span class="scada-value" style="font-size: 0.9rem; color: #B0BEC5; text-shadow: none;">${timeAgo}</span>
                     </div>
                     <div class="scada-metric" style="grid-column: 1 / -1;">
-                      <span class="scada-label">Commit Data</span>
+                      <span class="scada-label">Entry Notes</span>
                       <span class="scada-value" style="font-size: 0.95rem; color: var(--eye-highlight); text-shadow: none; font-family: monospace;">> ${commitMessage}</span>
                     </div>
                   </div>
@@ -746,9 +864,9 @@ menu:
               </div>
             </div>
           `;
-          updateScadaClocks(); // Immediately update newly injected clock
+          updateScadaClocks();
         } else {
-           throw new Error("No recent events found.");
+          throw new Error("No recent events found.");
         }
       } catch (e) {
         console.error("GitHub fetch failed:", e);
@@ -756,13 +874,13 @@ menu:
         let errorText = "Unable to establish link...";
         if (e.message.includes("recent events")) errorText = "No recent public activity.";
         else if (e.message.includes("rate limit")) errorText = "API rate limit exceeded.";
-        else errorText = "Connection to GitHub failed.";
+        else errorText = "Connection to expedition log failed.";
 
         githubContainer.innerHTML = `
           <div class="scada-panel fade-in" style="max-width: 700px; margin: 0 auto;">
             <div style="width: 100%;">
               <div class="scada-header">
-                <span>[ SOURCE CONTROL LOG ]</span>
+                <span>[ EXPEDITION LOG ]</span>
                 <span class="scada-time">--:--:--</span>
                 <span class="scada-status" style="color: #f04747; text-shadow: 0 0 5px #f04747;"><div class="scada-status-dot" style="background-color: #f04747; box-shadow: 0 0 8px #f04747; animation: none;"></div> OFFLINE</span>
               </div>
@@ -772,7 +890,7 @@ menu:
                 </div>
                 <div class="scada-grid" style="flex: 1;">
                   <div class="scada-metric" style="grid-column: 1 / -1;">
-                    <span class="scada-label">System State</span>
+                    <span class="scada-label">Field State</span>
                   <span class="scada-value" style="font-size: 1rem; color: var(--muzzle-grey); text-shadow: none;">${errorText}</span>
                   </div>
                 </div>
@@ -785,5 +903,84 @@ menu:
     }
 
     fetchGitHub();
+
+    // ── 5. Expedition Briefing (Con Season from events.json) ─────────────
+    async function fetchConSeason() {
+      const container = document.getElementById('con-season-widget');
+      try {
+        const res = await fetch('/data/events.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const events = await res.json();
+
+        const now = new Date();
+        const future90 = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+
+        let upcoming = [];
+        events.forEach(location => {
+          location.history.forEach(entry => {
+            const yearMatch = entry.dates.match(/\b(20\d{2})\b/);
+            const monthDayMatch = entry.dates.match(/([A-Za-z]+)\s+(\d+)/);
+            if (yearMatch && monthDayMatch) {
+              const d = new Date(`${monthDayMatch[1]} ${monthDayMatch[2]}, ${yearMatch[1]}`);
+              if (d >= now && d <= future90) {
+                upcoming.push({ ...entry, locationName: location.locationName, dateObj: d });
+              }
+            }
+          });
+        });
+
+        upcoming.sort((a, b) => a.dateObj - b.dateObj);
+
+        const season = getSeasonLabel();
+        const count = upcoming.length;
+        const next = upcoming[0];
+        const daysUntil = next ? Math.ceil((next.dateObj - now) / (1000 * 60 * 60 * 24)) : null;
+        const activityColor = count >= 3 ? '#7DC26B' : count >= 1 ? '#FFB300' : '#00E5FF';
+
+        container.innerHTML = `
+          <div class="scada-panel fade-in">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ EXPEDITION BRIEFING ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status"><div class="scada-status-dot" ${count === 0 ? 'style="animation: none; opacity: 0.5;"' : ''}></div> ${count > 0 ? 'ACTIVE' : 'STANDBY'}</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 140px;">
+                  <div style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 0.5rem;">${count > 0 ? '🗺️' : '🏕️'}</div>
+                  <div class="scada-value" style="font-size: 2.2rem; justify-content: center;">${count}</div>
+                  <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: color-mix(in srgb, #00E5FF 70%, #fff); opacity: 0.7; text-align: center; margin-top: 0.3rem;">Events<br>Next 90 Days</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  <div class="scada-metric">
+                    <span class="scada-label">Field Season</span>
+                    <span class="scada-value" style="font-size: 0.95rem;">${season.season}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Activity Level</span>
+                    <span class="scada-value" style="font-size: 0.85rem; color: ${activityColor}; text-shadow: 0 0 8px color-mix(in srgb, ${activityColor} 60%, transparent);">${season.activity}</span>
+                  </div>
+                  ${next ? `
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">Next Expedition</span>
+                    <span class="scada-value" style="font-size: 1rem; color: #FF6700; text-shadow: 0 0 8px rgb(255 103 0 / 60%);">${next.eventName} — ${next.locationName} <span style="font-size: 0.7em; color: var(--muzzle-grey); text-shadow: none;">(in ${daysUntil} day${daysUntil !== 1 ? 's' : ''})</span></span>
+                  </div>` : `
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">Next Expedition</span>
+                    <span class="scada-value" style="font-size: 1rem; color: var(--muzzle-grey); text-shadow: none;">No expeditions in next 90 days</span>
+                  </div>`}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      } catch (e) {
+        console.error('Con season fetch failed:', e);
+        container.remove();
+      }
+    }
+
+    fetchConSeason();
   });
 </script>
