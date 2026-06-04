@@ -274,17 +274,20 @@ menu:
     <div id="github-widget" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
       <div style="opacity: 0.7; font-size: 1.1rem;">Pulling expedition records...</div>
     </div>
+    <div id="con-season-widget" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Consulting expedition dossier...</div>
+    </div>
+    <div id="field-metrics-widget" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Computing field metrics...</div>
+    </div>
   </div>
 </div>
 
-<div id="con-season-widget" style="max-width: 700px; margin: 0 auto 2rem;">
-  <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Consulting expedition dossier...</div>
-</div>
-
-<h2 class="upcoming-section-title" style="margin-top: 1rem;">Field Notes</h2>
-
-<div id="social-feed-grid" class="feed-scroll">
-  <div class="loading-feed">Tuning to field frequencies...</div>
+<div class="bio-container">
+  <h2>Field Notes</h2>
+  <div id="social-feed-grid" class="feed-scroll">
+    <div class="loading-feed">Tuning to field frequencies...</div>
+  </div>
 </div>
 
 <script>
@@ -347,6 +350,56 @@ menu:
       if (aqi <= 200) return { label: aqi + ' · UNHEALTHY', color: '#f04747' };
       if (aqi <= 300) return { label: aqi + ' · V.UNHEALTHY', color: '#B39DDB' };
       return { label: aqi + ' · HAZARDOUS', color: '#8B0000' };
+    }
+
+    function fetchWithTimeout(url, timeoutMs = 8000) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(id));
+    }
+
+    function windPointToDeg(point) {
+      const dirs = { N:0, NNE:22, NE:45, ENE:67, E:90, ESE:112, SE:135, SSE:157, S:180, SSW:202, SW:225, WSW:247, W:270, WNW:292, NW:315, NNW:337 };
+      return dirs[point] ?? 0;
+    }
+
+    function normalizeWttrData(raw) {
+      const cc = raw.current_condition[0];
+      const astro = raw.weather[0].astronomy[0];
+      const parseAstroTime = (str) => {
+        const [time, meridiem] = str.trim().split(' ');
+        let [h, m] = time.split(':').map(Number);
+        if (meridiem === 'PM' && h !== 12) h += 12;
+        if (meridiem === 'AM' && h === 12) h = 0;
+        const d = new Date(); d.setHours(h, m, 0, 0);
+        return d.toISOString();
+      };
+      const wttrToWmo = {
+        113:0, 116:2, 119:3, 122:3, 143:45, 248:45, 260:48,
+        176:61, 263:51, 266:51, 281:51, 293:61, 296:61, 284:55,
+        299:63, 302:65, 305:65, 308:65, 179:71, 317:71, 320:71,
+        323:73, 326:75, 329:75, 332:75, 335:75, 338:75, 350:77,
+        182:61, 185:51, 311:51, 314:55, 353:80, 356:81, 359:82,
+        362:80, 365:80, 368:71, 371:73, 374:80, 377:77,
+        200:95, 386:95, 389:95, 392:95, 227:75, 230:75, 395:99
+      };
+      return {
+        current: {
+          temperature_2m: parseFloat(cc.temp_F),
+          apparent_temperature: parseFloat(cc.FeelsLikeF),
+          relative_humidity_2m: parseInt(cc.humidity),
+          precipitation: parseFloat(cc.precipMM) / 25.4,
+          weather_code: wttrToWmo[parseInt(cc.weatherCode)] ?? 3,
+          wind_speed_10m: parseFloat(cc.windspeedMiles),
+          surface_pressure: parseFloat(cc.pressure),
+          wind_direction_10m: windPointToDeg(cc.winddir16Point),
+          cloud_cover: parseInt(cc.cloudcover)
+        },
+        daily: {
+          sunrise: [parseAstroTime(astro.sunrise)],
+          sunset: [parseAstroTime(astro.sunset)]
+        }
+      };
     }
 
     // ── Global SCADA Timer ───────────────────────────────────────────────
@@ -423,13 +476,24 @@ menu:
 
           let clientHtml = '';
           if (isOnline) {
-            let activeClients = [];
-            if (data.active_on_discord_desktop) activeClients.push('DSK');
-            if (data.active_on_discord_mobile) activeClients.push('MOB');
-            if (data.active_on_discord_web) activeClients.push('WEB');
-
-            if (activeClients.length > 0) {
-              clientHtml = `<div class="scada-metric"><span class="scada-label">Signal Points</span><span class="scada-value" style="font-size: 1rem;">[ ${activeClients.join(' / ')} ]</span></div>`;
+            const allClients = [
+              { code: 'DSK', label: 'Desktop', active: data.active_on_discord_desktop },
+              { code: 'MOB', label: 'Mobile', active: data.active_on_discord_mobile },
+              { code: 'WEB', label: 'Web', active: data.active_on_discord_web },
+            ];
+            const anyActive = allClients.some(c => c.active);
+            if (anyActive) {
+              clientHtml = `<div class="scada-metric">
+                <span class="scada-label">Signal Points</span>
+                <span class="scada-value" style="font-size: 0.85rem; gap: 1rem; flex-wrap: wrap;">
+                  ${allClients.map(c => `
+                    <span style="display: inline-flex; align-items: center; gap: 5px; color: ${c.active ? '#43b581' : 'rgba(127,127,127,0.35)'}; text-shadow: ${c.active ? '0 0 6px rgb(67 181 129 / 50%)' : 'none'};">
+                      <span style="width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; ${c.active ? 'box-shadow: 0 0 5px currentColor;' : ''}"></span>
+                      ${c.code}
+                    </span>
+                  `).join('')}
+                </span>
+              </div>`;
             }
           }
 
@@ -548,47 +612,32 @@ menu:
 
     async function fetchMastodon() {
       try {
-        const res = await fetch('https://furry.engineer/api/v1/accounts/110373887192663991/statuses?limit=10&exclude_replies=true');
+        const targetUrl = 'https://furry.engineer/@rory.rss';
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(targetUrl)}`);
+        if (!res.ok) throw new Error("rss2json API failed");
 
-        if (!res.ok) {
-          console.warn(`Mastodon API returned HTTP ${res.status}`);
-          return [];
-        }
+        const data = await res.json();
+        if (data.status !== 'ok' || !data.items) throw new Error("Invalid data from rss2json");
 
-        const text = await res.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (err) {
-          console.warn("Mastodon fetch error: API returned non-JSON payload");
-          return [];
-        }
-
-        if (!Array.isArray(data)) {
-          console.warn("Mastodon fetch error: API returned non-array", data);
-          return [];
-        }
-
-        return data.map(status => {
-          const isRepost = !!status.reblog;
-          const actualStatus = isRepost ? status.reblog : status;
-
-          let image = null;
-          if (actualStatus.media_attachments && actualStatus.media_attachments.length > 0) {
-            image = actualStatus.media_attachments[0].preview_url || actualStatus.media_attachments[0].url;
+        return data.items.slice(0, 10).map(item => {
+          let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
+          if (!image) {
+            const content = item.content || item.description || "";
+            const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+            if (imgMatch) image = imgMatch[1];
           }
 
           const tempDiv = document.createElement("div");
-          tempDiv.innerHTML = actualStatus.content || "";
+          tempDiv.innerHTML = item.content || item.description || "";
           const text = tempDiv.textContent || tempDiv.innerText || "";
 
           return {
             source: 'Mastodon',
-            date: new Date(actualStatus.created_at),
+            date: new Date(item.pubDate),
             text: text.trim(),
             image: image,
-            url: actualStatus.url,
-            isRepost: isRepost
+            url: item.link,
+            isRepost: false
           };
         });
       } catch (e) {
@@ -609,7 +658,7 @@ menu:
       }
 
       feedContainer.innerHTML = combined.map(post => `
-        <a href="${post.url}" target="_blank" rel="noopener" class="feed-card">
+        <a href="${post.url}" target="_blank" rel="noopener" class="feed-card ${post.source.toLowerCase()}">
           <div class="meta">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <span class="feed-source ${post.source.toLowerCase()}">${post.source}</span>
@@ -637,14 +686,66 @@ menu:
       return directions[index];
     }
 
-    Promise.all([
-      fetch(weatherUrl).then(async r => { const d = await r.json(); if (!r.ok || d.error) throw new Error(d.reason || `HTTP ${r.status}`); return d; }),
-      fetch(aqiUrl).then(r => r.json()).catch(() => null)
-    ]).then(([data, aqiData]) => {
+    // Shared state so AQI can recalculate Field Index once it arrives
+    let _wx = { feelsTemp: null, windSpeed: null, precip: null };
+
+    function applyAqiData(aqiData) {
+      const aqi = aqiData?.current?.us_aqi ?? null;
+      const uvi = aqiData?.current?.uv_index ?? null;
+
+      if (uvi !== null) {
+        const uvCat = getUvCategory(uvi);
+        const uvEl = document.getElementById('ww-uv');
+        uvEl.textContent = uvCat.label;
+        uvEl.style.color = uvCat.color;
+        uvEl.style.textShadow = `0 0 8px color-mix(in srgb, ${uvCat.color} 60%, transparent)`;
+      } else {
+        document.getElementById('ww-uv').textContent = 'N/A';
+      }
+
+      if (aqi !== null) {
+        const aqiCat = getAqiCategory(aqi);
+        const aqiEl = document.getElementById('ww-aqi');
+        aqiEl.textContent = aqiCat.label;
+        aqiEl.style.color = aqiCat.color;
+        aqiEl.style.textShadow = `0 0 8px color-mix(in srgb, ${aqiCat.color} 60%, transparent)`;
+        if (_wx.feelsTemp !== null) {
+          const rating = computeFieldRating(_wx.feelsTemp, _wx.windSpeed, _wx.precip, aqi);
+          const ratingEl = document.getElementById('ww-field-rating');
+          ratingEl.textContent = rating.label;
+          ratingEl.style.color = rating.color;
+          ratingEl.style.textShadow = `0 0 8px color-mix(in srgb, ${rating.color} 60%, transparent)`;
+        }
+        if (aqi > 150) {
+          document.querySelector('#weather-data .scada-panel').classList.add('critical-alert');
+          document.querySelector('#weather-data .scada-header span:first-child').textContent = '[ CRITICAL HABITAT ALERT ]';
+          document.querySelector('#weather-data .scada-status').innerHTML = '<div class="scada-status-dot"></div> WARNING';
+        }
+      } else {
+        document.getElementById('ww-aqi').textContent = 'N/A';
+      }
+    }
+
+    async function fetchWeatherWithFallback() {
+      try {
+        const r = await fetchWithTimeout(weatherUrl);
+        const d = await r.json();
+        if (!r.ok || d.error) throw new Error(d.reason || `HTTP ${r.status}`);
+        return d;
+      } catch (e) {
+        console.warn('Open-Meteo unavailable, falling back to wttr.in:', e.message);
+        const wttrUrl = `https://wttr.in/${lat},${lon}?format=j1`;
+        const r = await fetchWithTimeout(wttrUrl);
+        if (!r.ok) throw new Error(`wttr.in HTTP ${r.status}`);
+        return normalizeWttrData(await r.json());
+      }
+    }
+
+    // Weather fetch — renders the panel immediately; falls back to wttr.in if Open-Meteo fails
+    fetchWeatherWithFallback()
+      .then(data => {
         const current = data.current;
         const daily = data.daily;
-        const aqi = aqiData?.current?.us_aqi ?? null;
-        const uvi = aqiData?.current?.uv_index ?? null;
 
         const weatherCodes = {
           0: { icon: '☀️', desc: 'Clear sky', color: '#FFD700' },
@@ -737,7 +838,6 @@ menu:
         document.getElementById('ww-sunrise').textContent = formatTime(daily.sunrise[0]);
         document.getElementById('ww-sunset').textContent = formatTime(daily.sunset[0]);
 
-        // Golden hour windows (±1 hour from sunrise/sunset)
         const fmt = t => t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const sunriseDate = new Date(daily.sunrise[0]);
         const sunsetDate = new Date(daily.sunset[0]);
@@ -747,44 +847,20 @@ menu:
         document.getElementById('ww-golden-dusk').textContent =
           fmt(new Date(sunsetDate.getTime() - oneHour)) + '–' + fmt(sunsetDate);
 
-        // UV Index
-        if (uvi !== null) {
-          const uvCat = getUvCategory(uvi);
-          const uvEl = document.getElementById('ww-uv');
-          uvEl.textContent = uvCat.label;
-          uvEl.style.color = uvCat.color;
-          uvEl.style.textShadow = `0 0 8px color-mix(in srgb, ${uvCat.color} 60%, transparent)`;
-        } else {
-          document.getElementById('ww-uv').textContent = 'N/A';
-        }
-
-        // Air Quality Index
-        if (aqi !== null) {
-          const aqiCat = getAqiCategory(aqi);
-          const aqiEl = document.getElementById('ww-aqi');
-          aqiEl.textContent = aqiCat.label;
-          aqiEl.style.color = aqiCat.color;
-          aqiEl.style.textShadow = `0 0 8px color-mix(in srgb, ${aqiCat.color} 60%, transparent)`;
-          if (aqi > 150) isCritical = true;
-        } else {
-          document.getElementById('ww-aqi').textContent = 'N/A';
-        }
-
-        // Fursuit Field Index
-        const rating = computeFieldRating(feelsTemp, windSpeed, current.precipitation, aqi);
+        // Initial field rating — AQI unknown until second fetch resolves
+        _wx = { feelsTemp, windSpeed, precip: current.precipitation };
+        const rating = computeFieldRating(feelsTemp, windSpeed, current.precipitation, null);
         const ratingEl = document.getElementById('ww-field-rating');
         ratingEl.textContent = rating.label;
         ratingEl.style.color = rating.color;
         ratingEl.style.textShadow = `0 0 8px color-mix(in srgb, ${rating.color} 60%, transparent)`;
 
-        // Season label in panel header
         const seasonInfo = getSeasonLabel();
         document.querySelector('#weather-data .scada-header span:first-child').textContent =
           `[ HABITAT CONDITIONS — ${seasonInfo.season} ]`;
 
         if (isCritical) {
-          const weatherPanel = document.querySelector('#weather-data .scada-panel');
-          weatherPanel.classList.add('critical-alert');
+          document.querySelector('#weather-data .scada-panel').classList.add('critical-alert');
           document.querySelector('#weather-data .scada-header span:first-child').textContent = '[ CRITICAL HABITAT ALERT ]';
           document.querySelector('#weather-data .scada-status').innerHTML = '<div class="scada-status-dot"></div> WARNING';
         }
@@ -795,8 +871,30 @@ menu:
         weatherData.classList.add('fade-in');
       })
       .catch(err => {
-        console.error('Failed to fetch habitat data:', err);
-        document.getElementById('weather-loading').textContent = 'Habitat sensors offline.';
+        console.error('Weather fetch failed:', err);
+        const isTimeout = err.name === 'AbortError';
+        document.getElementById('weather-loading').style.display = 'none';
+        const iconEl = document.getElementById('ww-icon');
+        iconEl.textContent = '📡';
+        iconEl.style.filter = 'drop-shadow(0 0 8px #f04747)';
+        document.getElementById('ww-desc').textContent = isTimeout ? 'REQUEST TIMEOUT' : 'API UNAVAILABLE';
+        document.querySelector('#weather-data .scada-header span:first-child').textContent = '[ HABITAT CONDITIONS — OFFLINE ]';
+        const statusEl = document.querySelector('#weather-data .scada-status');
+        statusEl.innerHTML = '<div class="scada-status-dot" style="background-color: #f04747; box-shadow: 0 0 8px #f04747; animation: none;"></div> OFFLINE';
+        statusEl.style.color = '#f04747';
+        statusEl.style.textShadow = '0 0 5px #f04747';
+        const weatherData = document.getElementById('weather-data');
+        weatherData.style.display = 'block';
+        weatherData.classList.add('fade-in');
+      });
+
+    // AQI fetch — independent; fills UV + AQI cells and refines Field Index when ready
+    fetchWithTimeout(aqiUrl)
+      .then(r => r.json())
+      .then(aqiData => applyAqiData(aqiData))
+      .catch(() => {
+        document.getElementById('ww-uv').textContent = 'N/A';
+        document.getElementById('ww-aqi').textContent = 'N/A';
       });
 
     // ── 4. Expedition Log (GitHub) ───────────────────────────────────────
@@ -982,5 +1080,102 @@ menu:
     }
 
     fetchConSeason();
+
+    // ── 6. Field Metrics (events.json — miles + gallery) ─────────────────
+    async function fetchFieldMetrics() {
+      const container = document.getElementById('field-metrics-widget');
+      try {
+        const res = await fetch('/data/events.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const events = await res.json();
+
+        const currentYear = new Date().getFullYear().toString();
+        let totalMiles = 0, ytdMiles = 0, totalEvents = 0, ytdEvents = 0, galleriesPublished = 0;
+        let latestEntry = null, latestDate = null, latestAlbumName = null, latestAlbumUrl = null;
+
+        events.forEach(loc => {
+          loc.history.forEach(entry => {
+            totalMiles += entry.roundTripMiles || 0;
+            totalEvents++;
+            if (entry.year === currentYear) {
+              ytdMiles += entry.roundTripMiles || 0;
+              ytdEvents++;
+            }
+            if (entry.albums) {
+              Object.entries(entry.albums).forEach(([name, url]) => {
+                if (url && url !== '#') {
+                  galleriesPublished++;
+                  const yearMatch = entry.dates.match(/\b(20\d{2})\b/);
+                  const mdMatch = entry.dates.match(/([A-Za-z]+)\s+(\d+)/);
+                  const dateObj = yearMatch && mdMatch
+                    ? new Date(`${mdMatch[1]} ${mdMatch[2]}, ${yearMatch[1]}`)
+                    : yearMatch ? new Date(`${yearMatch[1]}-01-01`) : null;
+                  if (!latestDate || (dateObj && dateObj > latestDate)) {
+                    latestDate = dateObj;
+                    latestEntry = { ...entry, locationName: loc.locationName };
+                    latestAlbumName = name;
+                    latestAlbumUrl = url;
+                  }
+                }
+              });
+            }
+          });
+        });
+
+        const latestHtml = latestAlbumUrl ? `
+          <div class="scada-metric" style="grid-column: 1 / -1;">
+            <span class="scada-label">Latest Transmission</span>
+            <a href="${latestAlbumUrl}" target="_blank" rel="noopener" style="text-decoration: none; display: block;">
+              <span class="scada-value" style="font-size: 1rem; color: #FF6700; text-shadow: 0 0 8px rgb(255 103 0 / 60%);">
+                📷 ${latestAlbumName} — ${latestEntry.locationName}
+                <span style="font-size: 0.7em; color: var(--muzzle-grey); text-shadow: none; margin-left: 6px;">[→ OPEN GALLERY]</span>
+              </span>
+            </a>
+          </div>` : '';
+
+        container.innerHTML = `
+          <div class="scada-panel fade-in">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ FIELD METRICS ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status"><div class="scada-status-dot"></div> LOGGED</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 140px;">
+                  <div style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 0.5rem;">🛣️</div>
+                  <div class="scada-value" style="font-size: 2rem; justify-content: center;">${totalMiles.toLocaleString()}</div>
+                  <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: color-mix(in srgb, #00E5FF 70%, #fff); opacity: 0.7; text-align: center; margin-top: 0.3rem;">Total<br>Miles Logged</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  <div class="scada-metric">
+                    <span class="scada-label">YTD Miles</span>
+                    <span class="scada-value">${ytdMiles.toLocaleString()} <span style="font-size: 0.65em; opacity: 0.6;">mi</span></span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Events — All Time</span>
+                    <span class="scada-value">${totalEvents}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">YTD Events</span>
+                    <span class="scada-value">${ytdEvents}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Galleries Published</span>
+                    <span class="scada-value">${galleriesPublished}</span>
+                  </div>
+                  ${latestHtml}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      } catch (e) {
+        console.error('Field metrics fetch failed:', e);
+        container.remove();
+      }
+    }
+    fetchFieldMetrics();
   });
 </script>

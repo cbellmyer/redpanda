@@ -18,27 +18,24 @@ ShowBreadCrumbs: false
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-<div class="widgets-row">
-  <div id="next-con-widget" class="next-con-widget" style="display: none;">
-    <div class="widget-header">Next Convention</div>
-    <div class="widget-body">
-      <div class="con-name" id="widget-con-name">Loading...</div>
-      <div class="countdown"><span id="widget-days">0</span> Days</div>
-      <div class="weather">
-        <span class="weather-icon" id="widget-weather-icon">☁️</span>
-        <span id="widget-temp">--</span>°F in <span id="widget-location">City</span>
-      </div>
-    </div>
+<!-- Next 3 upcoming events -->
+<div id="next-events-box" class="dashboard-box" style="display:none;">
+  <div class="dashboard-box-header">
+    <span class="dashboard-box-title">🗓️ Upcoming Deployments</span>
   </div>
-  <div id="odometer-widget" class="odometer-widget">
-    <div class="odometer-header">Total Deployment Mileage</div>
-    <div class="odometer-value">
-      <span id="odometer-miles">0</span> Miles
-    </div>
-  </div>
+  <div id="next-events-strip" class="next-events-strip"></div>
 </div>
 
-<div id="map-stats" class="map-stats" style="display: none;"></div>
+<!-- SCADA stats tiles -->
+<div id="stats-box" class="dashboard-box" style="display:none;">
+  <div class="dashboard-box-header">
+    <span class="dashboard-box-title">📊 Expedition Stats</span>
+  </div>
+  <div id="stats-tiles-row" class="stats-tiles-row"></div>
+</div>
+
+<!-- Year filter row -->
+<div id="year-filter-row" class="year-filter-row" style="display:none;"></div>
 
 <div id="map-container" class="tracks-map"></div>
 
@@ -60,6 +57,18 @@ ShowBreadCrumbs: false
 
 <div id="upcoming-filmstrip" class="filmstrip-scroll" style="display: none;">
   <div id="filmstrip-track" class="filmstrip-track"></div>
+</div>
+
+<!-- Con Passport panel -->
+<div id="passport-panel" class="passport-panel" style="display:none;">
+  <div class="passport-header">
+    <span class="passport-icon">🛂</span>
+    <div>
+      <h2>Con Passport</h2>
+      <p>Achievements unlocked through expeditions, service, and miles on the road.</p>
+    </div>
+  </div>
+  <div id="passport-badges" class="passport-badges"></div>
 </div>
 
 <script>
@@ -89,9 +98,53 @@ ShowBreadCrumbs: false
   };
 
   document.addEventListener('DOMContentLoaded', async function() {
+    const HOME_BASE = [39.2904, -76.6122]; // Baltimore, MD
+
     var map = L.map('map-container').setView([41.5, -73.5], 6);
     window.tracksMap = map;
     window.tracksMapMarkers = {};
+
+    const arcLayer = L.layerGroup().addTo(map);
+
+    function arcPoints(from, to) {
+      var steps = 40, curvature = 0.25;
+      var midLat = (from[0] + to[0]) / 2;
+      var midLng = (from[1] + to[1]) / 2;
+      var dLat = to[0] - from[0];
+      var dLng = to[1] - from[1];
+      var ctrl = [midLat - dLng * curvature, midLng + dLat * curvature];
+      var pts = [];
+      for (var i = 0; i <= steps; i++) {
+        var t = i / steps;
+        pts.push([
+          (1-t)*(1-t)*from[0] + 2*(1-t)*t*ctrl[0] + t*t*to[0],
+          (1-t)*(1-t)*from[1] + 2*(1-t)*t*ctrl[1] + t*t*to[1]
+        ]);
+      }
+      return pts;
+    }
+
+    function drawArc(from, to, color, opacity, weight, dashed) {
+      return L.polyline(arcPoints(from, to), {
+        color: color || '#FF6700',
+        weight: weight || 2,
+        opacity: opacity != null ? opacity : 0.6,
+        dashArray: dashed ? '5 8' : null,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(arcLayer);
+    }
+
+    function getWeatherInfo(code) {
+      if (code === 0) return { icon: '☀️', color: '#FFD700' };
+      if (code <= 3) return { icon: '⛅', color: '#90CAF9' };
+      if (code <= 48) return { icon: '🌫️', color: '#B0BEC5' };
+      if (code <= 67) return { icon: '🌧️', color: '#26C6DA' };
+      if (code <= 77) return { icon: '❄️', color: '#E1F5FE' };
+      if (code <= 82) return { icon: '🌧️', color: '#26C6DA' };
+      if (code >= 95) return { icon: '⛈️', color: '#B39DDB' };
+      return { icon: '☁️', color: '#9E9E9E' };
+    }
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
@@ -134,8 +187,8 @@ ShowBreadCrumbs: false
       div.innerHTML = `
         <div><span style="background: #FF6700"></span> Convention</div>
         <div><span style="background: #FFB300"></span> Trip / Photo</div>
-        <div><span style="background: #00E5FF"></span> Shutterpaws</div>
-        <div><span style="background: #E040FB"></span> Special Event</div>
+        <div><span style="background: #9333EA"></span> Shutterpaws</div>
+        <div><span style="background: #EF4444"></span> Special Event</div>
       `;
       return div;
     };
@@ -158,6 +211,7 @@ ShowBreadCrumbs: false
     let totalMiles = 0;
     const now = new Date();
     const allExposures = [];
+    const markerYears = {};
 
     function getAlbumEmoji(name) {
       const n = name.toLowerCase();
@@ -197,6 +251,7 @@ ShowBreadCrumbs: false
     eventsData.forEach((loc, locIndex) => {
       const latLng = [loc.coordinates[1], loc.coordinates[0]];
       markerBounds.push(latLng);
+      markerYears[locIndex] = loc.history.map(h => h.year);
 
       const streak = computeStreak(loc.history);
       const streakHtml = streak >= 2
@@ -276,10 +331,63 @@ ShowBreadCrumbs: false
       window.tracksMapMarkers[locIndex] = marker;
     });
 
-    // Odometer with count-up animation via IntersectionObserver
-    const totalMilesRounded = Math.round(totalMiles);
-    const odometerEl = document.getElementById('odometer-miles');
+    // Draw permanent faint arcs from home base to each non-local location
+    eventsData.forEach(function(loc) {
+      var locLat = loc.coordinates[1];
+      var locLng = loc.coordinates[0];
+      var dist = Math.hypot(locLat - HOME_BASE[0], locLng - HOME_BASE[1]);
+      if (dist > 0.4) {
+        drawArc(HOME_BASE, [locLat, locLng], '#FFF8F0', 0.07, 1, true);
+      }
+    });
 
+    // Compute stats
+    const totalMilesRounded = Math.round(totalMiles);
+    const conventionCount = allExposures.filter(e => e.type === 'convention').length;
+    const staffCount = allExposures.filter(e => e.role === 'Staff').length;
+    const uniqueYears = [...new Set(allExposures.map(e => e.year))].sort((a, b) => b - a);
+    const uniqueCities = [...new Set(eventsData.map(loc => loc.locationName.split(',')[0].trim()))].length;
+    const isInternational = eventsData.some(loc => loc.locationName.includes(', ON'));
+    const countries = isInternational ? 2 : 1;
+
+    // Render SCADA stats tiles
+    const statsTilesEl = document.getElementById('stats-tiles-row');
+    statsTilesEl.innerHTML = `
+      <div class="stat-tile">
+        <div class="stat-tile-icon">🛣️</div>
+        <div class="stat-tile-value" id="odometer-miles">0</div>
+        <div class="stat-tile-label">Total Miles</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-icon">🎪</div>
+        <div class="stat-tile-value">${conventionCount}</div>
+        <div class="stat-tile-label">Con Appearances</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-icon">📍</div>
+        <div class="stat-tile-value">${uniqueCities}</div>
+        <div class="stat-tile-label">Unique Cities</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-icon">🌍</div>
+        <div class="stat-tile-value">${countries}</div>
+        <div class="stat-tile-label">Countries${isInternational ? ' 🇺🇸🇨🇦' : ' 🇺🇸'}</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-icon">⭐</div>
+        <div class="stat-tile-value">${staffCount}×</div>
+        <div class="stat-tile-label">Staff Credits</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-icon">📅</div>
+        <div class="stat-tile-value">${uniqueYears.length}</div>
+        <div class="stat-tile-label">Active Years</div>
+      </div>
+    `;
+    document.getElementById('stats-box').style.display = 'block';
+
+    // Odometer count-up on the Total Miles tile
+    const odometerEl = document.getElementById('odometer-miles');
     function animateCountUp(element, target) {
       const start = performance.now();
       function step(now) {
@@ -291,7 +399,6 @@ ShowBreadCrumbs: false
       }
       requestAnimationFrame(step);
     }
-
     const odometerObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -300,46 +407,92 @@ ShowBreadCrumbs: false
         }
       });
     }, { threshold: 0.5 });
-    odometerObserver.observe(document.getElementById('odometer-widget'));
+    odometerObserver.observe(statsTilesEl);
 
-    // Stats line
-    const conventionCount = allExposures.filter(e => e.type === 'convention').length;
-    const staffCount = allExposures.filter(e => e.role === 'Staff').length;
-    const uniqueYears = [...new Set(allExposures.map(e => e.year))].length;
-    const statsEl = document.getElementById('map-stats');
-    statsEl.innerHTML = `
-      <span>${conventionCount} Convention Appearances</span>
-      <span class="stats-dot">·</span>
-      <span>${staffCount}× Staff</span>
-      <span class="stats-dot">·</span>
-      <span>${uniqueYears} Active Years</span>
+    // Year filter row
+    const yearFilterEl = document.getElementById('year-filter-row');
+    yearFilterEl.innerHTML = `
+      <span class="year-filter-label">Filter by Year:</span>
+      <button class="year-chip active" data-year="all">All</button>
+      ${uniqueYears.map(y => `<button class="year-chip" data-year="${y}">${y}</button>`).join('')}
     `;
-    statsEl.style.display = 'flex';
+    yearFilterEl.style.display = 'flex';
 
-    // Split into upcoming / past
+    yearFilterEl.querySelectorAll('.year-chip').forEach(chip => {
+      chip.addEventListener('click', function() {
+        yearFilterEl.querySelectorAll('.year-chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        const activeYear = this.dataset.year;
+        Object.entries(window.tracksMapMarkers).forEach(([idx, marker]) => {
+          const years = markerYears[parseInt(idx)] || [];
+          const show = activeYear === 'all' || years.includes(activeYear);
+          if (show) { if (!map.hasLayer(marker)) marker.addTo(map); }
+          else { map.removeLayer(marker); }
+        });
+      });
+    });
+
+    // Split upcoming / past
     const upcomingExposures = allExposures.filter(exp => exp.dateObj >= now);
     upcomingExposures.sort((a, b) => a.dateObj - b.dateObj);
     const pastExposures = allExposures.filter(exp => exp.dateObj < now);
     pastExposures.sort((a, b) => b.dateObj - a.dateObj);
 
+    // Next 3 upcoming events strip
+    const next3 = upcomingExposures.slice(0, 3);
+    if (next3.length > 0) {
+      const typeAccents = { convention: '#FF6700', shutterpaws: '#9333EA', event: '#EF4444', roadtrip: '#FFB300', photoshoot: '#FFB300' };
+      const stripEl = document.getElementById('next-events-strip');
+      stripEl.innerHTML = next3.map((exp, i) => {
+        const daysUntil = Math.ceil((exp.dateObj - now) / (1000 * 60 * 60 * 24));
+        const accent = typeAccents[exp.type] || '#FF6700';
+        return `
+          <div class="next-event-card type-${exp.type}${i === 0 ? ' primary' : ''}" id="next-card-${i}"
+               style="--accent: ${accent};"
+               onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
+            ${i === 0 ? '<div class="next-event-label">NEXT DEPLOYMENT</div>' : ''}
+            <div class="next-event-name">${exp.eventName}</div>
+            <div class="next-event-countdown"><span>${daysUntil}</span> days</div>
+            <div class="next-event-location">📍 ${exp.locationName}</div>
+            <div class="next-event-dates">${exp.dates}</div>
+            <div class="next-event-weather" id="next-weather-${i}">
+              <span class="next-weather-icon">☁️</span>
+              <span class="next-weather-temp">--°F</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('next-events-box').style.display = 'block';
+
+      next3.forEach((exp, i) => {
+        const [lat, lng] = exp.coords;
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&temperature_unit=fahrenheit`)
+          .then(r => r.json())
+          .then(data => {
+            if (data.current_weather) {
+              const wInfo = getWeatherInfo(data.current_weather.weathercode);
+              const iconEl = document.querySelector(`#next-card-${i} .next-weather-icon`);
+              const tempEl = document.querySelector(`#next-card-${i} .next-weather-temp`);
+              if (iconEl) { iconEl.textContent = wInfo.icon; iconEl.style.filter = `drop-shadow(0 0 4px ${wInfo.color})`; }
+              if (tempEl) tempEl.textContent = `${Math.round(data.current_weather.temperature)}°F`;
+            }
+          })
+          .catch(() => {
+            const el = document.getElementById(`next-weather-${i}`);
+            if (el) el.style.display = 'none';
+          });
+      });
+    }
+
     let activeTypeFilter = 'all';
     let showingUpcoming = true;
 
-    const typeIcons = {
-      convention: '🎪',
-      roadtrip: '🚗',
-      photoshoot: '📸',
-      photography: '📸',
-      shutterpaws: '🐾',
-      event: '✨'
-    };
+    const typeIcons = { convention: '🎪', roadtrip: '🚗', photoshoot: '📸', photography: '📸', shutterpaws: '🐾', event: '✨' };
 
     function applyFilters() {
       document.querySelectorAll('#filmstrip-track .event-card').forEach(card => {
         const t = card.dataset.type;
-        const matches = activeTypeFilter === 'all'
-          || t === activeTypeFilter
-          || (activeTypeFilter === 'roadtrip' && t === 'photoshoot');
+        const matches = activeTypeFilter === 'all' || t === activeTypeFilter || (activeTypeFilter === 'roadtrip' && t === 'photoshoot');
         card.style.display = matches ? '' : 'none';
       });
     }
@@ -374,7 +527,7 @@ ShowBreadCrumbs: false
         const roleDisplay = exp.role ? `<span class="${roleClass}" style="margin-left: 6px;">(${exp.role})</span>` : '';
 
         trackHtml += `
-          <div class="event-card type-${exp.type}" data-type="${exp.type}" onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
+          <div class="event-card type-${exp.type}" data-type="${exp.type}" data-lat="${exp.coords[0]}" data-lng="${exp.coords[1]}" data-loc-index="${exp.locIndex}" onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
             <h3><span style="opacity: 0.8; font-size: 0.9em; margin-right: 4px;">${typeIcons[exp.type] || '📅'}</span> ${exp.eventName}</h3>
             <div style="color: var(--secondary); font-size: 0.9em; margin-bottom: ${exp.withHyper ? '4px' : '8px'};">📍 ${exp.locationName}${roleDisplay}</div>
             ${companionsHtml}
@@ -390,6 +543,25 @@ ShowBreadCrumbs: false
       filmstripTrack.innerHTML = trackHtml;
       filmstripScroll.scrollLeft = 0;
       applyFilters();
+
+      // Route arc hover listeners
+      filmstripTrack.querySelectorAll('.event-card').forEach(card => {
+        const lat = parseFloat(card.dataset.lat);
+        const lng = parseFloat(card.dataset.lng);
+        let hoverArc = null;
+        card.addEventListener('mouseenter', function() {
+          const dist = Math.hypot(lat - HOME_BASE[0], lng - HOME_BASE[1]);
+          if (dist < 0.4) return;
+          hoverArc = drawArc(HOME_BASE, [lat, lng], '#FF6700', 0.85, 3, false);
+          const m = window.tracksMapMarkers[parseInt(card.dataset.locIndex)];
+          if (m && m._icon) m._icon.classList.add('highlight');
+        });
+        card.addEventListener('mouseleave', function() {
+          if (hoverArc) { arcLayer.removeLayer(hoverArc); hoverArc = null; }
+          const m = window.tracksMapMarkers[parseInt(card.dataset.locIndex)];
+          if (m && m._icon) m._icon.classList.remove('highlight');
+        });
+      });
 
       // Scroll hint nudge
       setTimeout(() => {
@@ -441,45 +613,37 @@ ShowBreadCrumbs: false
       });
     }
 
-    // Next Convention Widget with weather
-    const upcomingCons = upcomingExposures.filter(exp => exp.type === 'convention');
-    if (upcomingCons.length > 0) {
-      const nextEvent = upcomingCons[0];
-      const daysUntil = Math.ceil((nextEvent.dateObj - now) / (1000 * 60 * 60 * 24));
+    // Con Passport badges
+    const allRoles = allExposures.map(e => (e.role || '').toLowerCase());
+    const hasRole = r => allRoles.includes(r);
+    const badges = [
+      { icon: '🐾', name: 'First Steps',        desc: 'Attended your first convention',      unlocked: conventionCount >= 1 },
+      { icon: '🎪', name: 'Convention Regular',  desc: '10+ convention appearances',          unlocked: conventionCount >= 10 },
+      { icon: '🎭', name: 'Con Veteran',         desc: '25+ total appearances',               unlocked: allExposures.length >= 25 },
+      { icon: '🛣️', name: 'Road Warrior',        desc: '5,000+ miles logged',                 unlocked: totalMilesRounded >= 5000 },
+      { icon: '🚀', name: 'Megamiler',           desc: '10,000+ miles logged',                unlocked: totalMilesRounded >= 10000 },
+      { icon: '🛸', name: 'Hyperdrive',          desc: '20,000+ miles logged',                unlocked: totalMilesRounded >= 20000 },
+      { icon: '⭐', name: 'Staff Material',      desc: 'Earned a Staff credit',               unlocked: hasRole('staff') },
+      { icon: '🤝', name: 'Volunteer Corps',     desc: 'Volunteered at an event',             unlocked: hasRole('volunteer') },
+      { icon: '📋', name: 'Board Member',        desc: 'Shutterpaws board member',            unlocked: hasRole('board member') },
+      { icon: '📸', name: 'Through the Lens',    desc: 'Attended as a photographer',          unlocked: hasRole('photographer') },
+      { icon: '🌍', name: 'Border Hopper',       desc: 'Attended an event abroad',            unlocked: isInternational },
+      { icon: '🌐', name: 'World Tour',          desc: 'Attended events in 3+ countries',     unlocked: countries >= 3 },
+      { icon: '🔥', name: 'Streak Runner',       desc: '3+ year streak at one event',         unlocked: eventsData.some(l => computeStreak(l.history) >= 3) },
+      { icon: '🏅', name: 'Veteran Paws',        desc: '4+ active years',                     unlocked: uniqueYears.length >= 4 },
+      { icon: '🏙️', name: 'City Hopper',         desc: '10+ unique cities visited',           unlocked: uniqueCities >= 10 },
+    ];
 
-      document.getElementById('widget-con-name').textContent = nextEvent.eventName;
-      document.getElementById('widget-days').textContent = daysUntil;
-      document.getElementById('widget-location').textContent = nextEvent.locationName;
-      document.getElementById('next-con-widget').style.display = 'block';
-
-      function getWeatherInfo(code) {
-        if (code === 0) return { icon: '☀️', color: '#FFD700' };
-        if (code === 1 || code === 2 || code === 3) return { icon: '⛅', color: '#90CAF9' };
-        if (code >= 45 && code <= 48) return { icon: '🌫️', color: '#B0BEC5' };
-        if (code >= 51 && code <= 67) return { icon: '🌧️', color: '#26C6DA' };
-        if (code >= 71 && code <= 77) return { icon: '❄️', color: '#E1F5FE' };
-        if (code >= 80 && code <= 82) return { icon: '🌧️', color: '#26C6DA' };
-        if (code >= 95) return { icon: '⛈️', color: '#B39DDB' };
-        return { icon: '☁️', color: '#9E9E9E' };
-      }
-
-      const [lat, lng] = nextEvent.coords;
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&temperature_unit=fahrenheit`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.current_weather) {
-            document.getElementById('widget-temp').textContent = Math.round(data.current_weather.temperature);
-            const weather = getWeatherInfo(data.current_weather.weathercode);
-            const iconEl = document.getElementById('widget-weather-icon');
-            iconEl.textContent = weather.icon;
-            iconEl.style.filter = `drop-shadow(0 0 4px ${weather.color})`;
-          }
-        })
-        .catch(err => {
-          console.error("Failed to fetch weather data", err);
-          document.querySelector('.weather').style.display = 'none';
-        });
-    }
+    const unlocked = badges.filter(b => b.unlocked);
+    const locked = badges.filter(b => !b.unlocked);
+    document.getElementById('passport-badges').innerHTML = [...unlocked, ...locked].map(b => `
+      <div class="passport-badge ${b.unlocked ? 'unlocked' : 'locked'}" title="${b.desc}">
+        <div class="badge-icon">${b.icon}</div>
+        <div class="badge-name">${b.name}</div>
+        <div class="badge-desc">${b.desc}</div>
+      </div>
+    `).join('');
+    document.getElementById('passport-panel').style.display = 'block';
 
   });
 </script>
