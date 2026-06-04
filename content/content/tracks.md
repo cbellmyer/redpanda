@@ -135,6 +135,19 @@ ShowBreadCrumbs: false
       }).addTo(arcLayer);
     }
 
+    function buildCompanionsHtml(hist, small) {
+      var parts = [];
+      if (hist.withHyper) parts.push('<a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a>');
+      if (hist.companions && hist.companions.length > 0) {
+        hist.companions.forEach(function(name) { parts.push('<span class="companion-tag">' + name + '</span>'); });
+      }
+      if (parts.length === 0) return '';
+      var style = small
+        ? 'font-size: 0.85em; color: var(--muzzle-grey); margin-bottom: 8px;'
+        : 'margin-top: 10px; font-size: 0.9em; color: var(--muzzle-grey);';
+      return '<div style="' + style + '">Traveled with: ' + parts.join(' ') + '</div>';
+    }
+
     function getWeatherInfo(code) {
       if (code === 0) return { icon: '☀️', color: '#FFD700' };
       if (code <= 3) return { icon: '⛅', color: '#90CAF9' };
@@ -283,10 +296,7 @@ ShowBreadCrumbs: false
           pillsHtml += '</div>';
         }
 
-        let companionsHtml = '';
-        if (hist.withHyper) {
-          companionsHtml = `<div style="margin-top: 10px; font-size: 0.9em; color: var(--muzzle-grey);">Traveled with: <a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a></div>`;
-        }
+        const companionsHtml = buildCompanionsHtml(hist, false);
 
         const roleClass = hist.role ? `role-${hist.role.toLowerCase()}` : 'role-unknown';
         const roleDisplay = hist.role ? `<span class="${roleClass}" style="font-size: 0.85em; vertical-align: middle; margin-left: 4px;">(${hist.role})</span>` : '';
@@ -518,10 +528,7 @@ ShowBreadCrumbs: false
           lastSeason = seasonId;
         }
 
-        let companionsHtml = '';
-        if (exp.withHyper) {
-          companionsHtml = `<div style="font-size: 0.85em; color: var(--muzzle-grey); margin-bottom: 8px;">Traveled with: <a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a></div>`;
-        }
+        const companionsHtml = buildCompanionsHtml(exp, true);
 
         const roleClass = exp.role ? `role-${exp.role.toLowerCase()}` : 'role-unknown';
         const roleDisplay = exp.role ? `<span class="${roleClass}" style="margin-left: 6px;">(${exp.role})</span>` : '';

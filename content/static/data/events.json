@@ -546,5 +546,23 @@
         "albums": {}
       }
     ]
+  },
+  {
+    "locationName": "Norfolk, VA",
+    "type": "event",
+    "coordinates": [-76.2905, 36.8474],
+    "history": [
+      {
+        "year": "2026",
+        "eventName": "Story of the Year & Silverstein",
+        "dates": "July 14, 2026",
+        "venue": "The NorVa",
+        "roundTripMiles": 380,
+        "withHyper": false,
+        "companions": ["Xero", "Levi"],
+        "role": "Attendee",
+        "albums": {}
+      }
+    ]
   }
 ]
