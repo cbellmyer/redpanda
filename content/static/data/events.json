@@ -404,9 +404,9 @@
     ]
   },
   {
-    "locationName": "Baltimore, MD",
+    "locationName": "Baltimore, MD (Charles Village)",
     "type": "shutterpaws",
-    "coordinates": [-76.6219, 39.3308],
+    "coordinates": [-76.6182, 39.3271],
     "history": [
       {
         "year": "2026",
@@ -417,16 +417,62 @@
         "withHyper": true,
         "role": "Board Member",
         "albums": {}
-      },
+      }
+    ]
+  },
+  {
+    "locationName": "Baltimore, MD (Hampden)",
+    "type": "shutterpaws",
+    "coordinates": [-76.6344, 39.3338],
+    "history": [
       {
-        "year": "2024",
+        "year": "2025",
         "eventName": "Miracle on 34th Street Lights Walk",
-        "dates": "December 2024",
+        "dates": "December 2025",
         "venue": "Hampden 34th Street",
         "roundTripMiles": 0,
         "withHyper": true,
         "role": "Board Member",
         "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Baltimore, MD (Streetcar Museum)",
+    "address": "1901 Falls Rd, Baltimore, MD 21211",
+    "type": "shutterpaws",
+    "coordinates": [-76.6272, 39.3245],
+    "history": [
+      {
+        "year": "2026",
+        "eventName": "Rails and Tails",
+        "dates": "April 19, 2026",
+        "venue": "Baltimore Streetcar Museum",
+        "roundTripMiles": 0,
+        "withHyper": true,
+        "role": "Board Member",
+        "albums": {
+          "Rails and Tails": "https://photo.redpanda.pet/FurMeets/2026/Rails-and-Tails"
+        }
+      }
+    ]
+  },
+  {
+    "locationName": "Baltimore, MD (Inner Harbor)",
+    "type": "shutterpaws",
+    "coordinates": [-76.6122, 39.2862],
+    "history": [
+      {
+        "year": "2026",
+        "eventName": "The Rolling Shutter - Baltimore FurRide",
+        "dates": "February 28, 2026",
+        "venue": "Inner Harbor",
+        "roundTripMiles": 0,
+        "withHyper": true,
+        "role": "Board Member",
+        "albums": {
+          "Rolling Shutter": "https://photo.redpanda.pet/FurMeets/2026/Rolling-Shutter"
+        }
       }
     ]
   },
@@ -443,7 +489,9 @@
         "roundTripMiles": 0,
         "withHyper": true,
         "role": "Board Member",
-        "albums": {}
+        "albums": {
+          "Paws + Petals": "https://photo.redpanda.pet/FurMeets/2026/Paws-Petals"
+        }
       }
     ]
   },
