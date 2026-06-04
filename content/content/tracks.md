@@ -135,6 +135,19 @@ ShowBreadCrumbs: false
       }).addTo(arcLayer);
     }
 
+    function buildCompanionsHtml(hist, small) {
+      var parts = [];
+      if (hist.withHyper) parts.push('<a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a>');
+      if (hist.companions && hist.companions.length > 0) {
+        hist.companions.forEach(function(name) { parts.push('<span class="companion-tag">' + name + '</span>'); });
+      }
+      if (parts.length === 0) return '';
+      var style = small
+        ? 'font-size: 0.85em; color: var(--muzzle-grey); margin-bottom: 8px;'
+        : 'margin-top: 10px; font-size: 0.9em; color: var(--muzzle-grey);';
+      return '<div style="' + style + '">Traveled with: ' + parts.join(' ') + '</div>';
+    }
+
     function getWeatherInfo(code) {
       if (code === 0) return { icon: '☀️', color: '#FFD700' };
       if (code <= 3) return { icon: '⛅', color: '#90CAF9' };
@@ -283,10 +296,7 @@ ShowBreadCrumbs: false
           pillsHtml += '</div>';
         }
 
-        let companionsHtml = '';
-        if (hist.withHyper) {
-          companionsHtml = `<div style="margin-top: 10px; font-size: 0.9em; color: var(--muzzle-grey);">Traveled with: <a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a></div>`;
-        }
+        const companionsHtml = buildCompanionsHtml(hist, false);
 
         const roleClass = hist.role ? `role-${hist.role.toLowerCase()}` : 'role-unknown';
         const roleDisplay = hist.role ? `<span class="${roleClass}" style="font-size: 0.85em; vertical-align: middle; margin-left: 4px;">(${hist.role})</span>` : '';
@@ -518,10 +528,7 @@ ShowBreadCrumbs: false
           lastSeason = seasonId;
         }
 
-        let companionsHtml = '';
-        if (exp.withHyper) {
-          companionsHtml = `<div style="font-size: 0.85em; color: var(--muzzle-grey); margin-bottom: 8px;">Traveled with: <a href="https://hypercat.me/" target="_blank" rel="noopener" class="hypercat-tag" onclick="event.stopPropagation()">Hyper</a></div>`;
-        }
+        const companionsHtml = buildCompanionsHtml(exp, true);
 
         const roleClass = exp.role ? `role-${exp.role.toLowerCase()}` : 'role-unknown';
         const roleDisplay = exp.role ? `<span class="${roleClass}" style="margin-left: 6px;">(${exp.role})</span>` : '';
@@ -616,6 +623,16 @@ ShowBreadCrumbs: false
     // Con Passport badges
     const allRoles = allExposures.map(e => (e.role || '').toLowerCase());
     const hasRole = r => allRoles.includes(r);
+    const distinctRoleCount = [...new Set(allRoles.filter(r => r && r !== 'unknown'))].length;
+    const hasNonFurryEvent = allExposures.some(e => e.furry === false);
+    const hasPrideEvent = allExposures.some(e => e.eventName.toLowerCase().includes('pride'));
+    const seasonNames = new Set(allExposures.map(e => getSeason(e.dateObj).name));
+    const allSeasonsUnlocked = ['Winter', 'Spring', 'Summer', 'Autumn'].every(s => seasonNames.has(s));
+    const eventTypesSet = new Set(allExposures.map(e => e.type));
+    const wellRounded = ['convention', 'shutterpaws', 'event'].every(t => eventTypesSet.has(t)) && (eventTypesSet.has('roadtrip') || eventTypesSet.has('photoshoot'));
+    const eventsWithCompanions = allExposures.filter(e => e.withHyper || (e.companions && e.companions.length > 0)).length;
+    const photographerCount = allRoles.filter(r => r === 'photographer').length;
+    const boardMemberCount = allRoles.filter(r => r === 'board member').length;
     const badges = [
       { icon: '🐾', name: 'First Steps',        desc: 'Attended your first convention',      unlocked: conventionCount >= 1 },
       { icon: '🎪', name: 'Convention Regular',  desc: '10+ convention appearances',          unlocked: conventionCount >= 10 },
@@ -632,6 +649,14 @@ ShowBreadCrumbs: false
       { icon: '🔥', name: 'Streak Runner',       desc: '3+ year streak at one event',         unlocked: eventsData.some(l => computeStreak(l.history) >= 3) },
       { icon: '🏅', name: 'Veteran Paws',        desc: '4+ active years',                     unlocked: uniqueYears.length >= 4 },
       { icon: '🏙️', name: 'City Hopper',         desc: '10+ unique cities visited',           unlocked: uniqueCities >= 10 },
+      { icon: '🎭', name: 'Multi-Role',           desc: 'Held 3+ distinct roles',              unlocked: distinctRoleCount >= 3 },
+      { icon: '🎸', name: 'Off the Beaten Path',  desc: 'Attended a non-furry event',          unlocked: hasNonFurryEvent },
+      { icon: '🏳️‍🌈', name: 'Pride Paw',           desc: 'Attended a Pride event',              unlocked: hasPrideEvent },
+      { icon: '🌿', name: 'All Seasons',           desc: 'Attended events in all 4 seasons',   unlocked: allSeasonsUnlocked },
+      { icon: '🧩', name: 'Well-Rounded',          desc: 'Attended all 4 event types',         unlocked: wellRounded },
+      { icon: '🐺', name: 'Pack Leader',           desc: 'Traveled with companions to 5+ events', unlocked: eventsWithCompanions >= 5 },
+      { icon: '📷', name: 'Serial Shooter',        desc: 'Attended as photographer 3+ times',  unlocked: photographerCount >= 3 },
+      { icon: '🏛️', name: 'Founding Paws',         desc: 'Shutterpaws board member at 5+ events', unlocked: boardMemberCount >= 5 },
     ];
 
     const unlocked = badges.filter(b => b.unlocked);

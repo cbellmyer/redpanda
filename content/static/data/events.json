@@ -11,6 +11,7 @@
         "venue": "DLCC",
         "roundTripMiles": 440,
         "withHyper": true,
+        "companions": ["Yuki", "Xero"],
         "role": "Attendee",
         "albums": {
           "Roaming": "#"
@@ -23,6 +24,7 @@
         "venue": "DLCC",
         "roundTripMiles": 440,
         "withHyper": true,
+        "companions": ["Rex", "Xero", "Yuki"],
         "role": "Attendee",
         "albums": {
           "Parade": "#"
@@ -124,10 +126,11 @@
       {
         "year": "2025",
         "eventName": "New Year's Fur Ball",
-        "dates": "December 31, 2025",
+        "dates": "December 31, 2024",
         "venue": "Embassy Suites",
         "roundTripMiles": 120,
         "withHyper": true,
+        "companions": ["Xero"],
         "role": "Attendee",
         "albums": {}
       }
@@ -347,6 +350,7 @@
         "venue": "Sheraton Philadelphia",
         "roundTripMiles": 200,
         "withHyper": true,
+        "companions": ["Yuki"],
         "role": "Attendee",
         "albums": {}
       }
@@ -364,6 +368,7 @@
         "venue": "Downtown",
         "roundTripMiles": 790,
         "withHyper": false,
+        "companions": ["Laze"],
         "role": "Photographer",
         "albums": {}
       }
@@ -488,6 +493,7 @@
         "venue": "National Mall & Tidal Basin",
         "roundTripMiles": 0,
         "withHyper": true,
+        "companions": ["Xero"],
         "role": "Board Member",
         "albums": {
           "Paws + Petals": "https://photo.redpanda.pet/FurMeets/2026/Paws-Petals"
@@ -525,6 +531,7 @@
         "venue": "Downtown Pittsburgh",
         "roundTripMiles": 440,
         "withHyper": true,
+        "companions": ["Xero"],
         "role": "Photographer",
         "albums": {}
       }
@@ -542,7 +549,27 @@
         "venue": "Pittsburgh, PA",
         "roundTripMiles": 0,
         "withHyper": true,
+        "companions": ["Xero"],
         "role": "Photographer",
+        "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Norfolk, VA",
+    "type": "event",
+    "coordinates": [-76.2905, 36.8474],
+    "history": [
+      {
+        "year": "2026",
+        "eventName": "Story of the Year & Silverstein",
+        "dates": "July 14, 2026",
+        "venue": "The NorVa",
+        "roundTripMiles": 380,
+        "withHyper": false,
+        "companions": ["Xero", "Levi"],
+        "role": "Attendee",
+        "furry": false,
         "albums": {}
       }
     ]
