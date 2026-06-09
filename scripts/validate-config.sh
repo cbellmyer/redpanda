@@ -164,8 +164,6 @@ validate_yaml ".pre-commit-config.yaml" || true
 
 # Check for required directories
 required_dirs=(
-    "content/content/cons"
-    "content/content/sona"
     "content/layouts"
     "content/assets"
 )
