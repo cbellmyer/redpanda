@@ -15,8 +15,8 @@ ShowBreadCrumbs: false
   </div>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous"/>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
 
 <!-- Next 3 upcoming events -->
 <div id="next-events-box" class="dashboard-box" style="display:none;">
@@ -356,7 +356,7 @@ ShowBreadCrumbs: false
     const conventionCount = allExposures.filter(e => e.type === 'convention').length;
     const staffCount = allExposures.filter(e => e.role === 'Staff').length;
     const uniqueYears = [...new Set(allExposures.map(e => e.year))].sort((a, b) => b - a);
-    const uniqueCities = [...new Set(eventsData.map(loc => loc.locationName.split(',')[0].trim()))].length;
+    const uniqueCities = [...new Set(eventsData.map(loc => (loc.locationName.split(',').at(0) ?? '').trim()))].length;
     const isInternational = eventsData.some(loc => loc.locationName.includes(', ON'));
     const countries = isInternational ? 2 : 1;
 
