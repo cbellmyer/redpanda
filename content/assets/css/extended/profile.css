@@ -1280,10 +1280,13 @@ a:hover {
   background: color-mix(in srgb, var(--fur-secondary) 60%, transparent);
   backdrop-filter: blur(10px);
   border: 1px solid color-mix(in srgb, var(--muzzle-grey) 30%, transparent);
-  border-left: 3px solid var(--accent, #FF6700);
+  border-top: 3px solid var(--accent, #FF6700);
   border-radius: var(--radius);
   padding: 1.25rem;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   box-shadow: 0 4px 15px rgb(0 0 0 / 20%), inset 0 1px 0 color-mix(in srgb, #fff 8%, transparent);
@@ -1314,6 +1317,7 @@ a:hover {
   color: var(--primary);
   margin-bottom: 0.3rem;
   line-height: 1.2;
+  width: 100%;
 }
 
 .next-event-countdown {
@@ -1321,6 +1325,7 @@ a:hover {
   color: var(--muzzle-grey);
   margin-bottom: 0.5rem;
   line-height: 1;
+  width: 100%;
 }
 
 .next-event-countdown span {
@@ -1342,12 +1347,14 @@ a:hover {
   font-size: 0.85rem;
   color: var(--secondary);
   margin-bottom: 0.25rem;
+  width: 100%;
 }
 
 .next-event-dates {
   font-size: 0.78rem;
   color: var(--muzzle-grey);
   margin-bottom: 0.6rem;
+  width: 100%;
 }
 
 .next-event-weather {
@@ -1357,6 +1364,7 @@ a:hover {
   gap: 0.4rem;
   font-size: 0.9rem;
   color: var(--secondary);
+  width: 100%;
 }
 
 /* ===== Year Filter Row ===== */

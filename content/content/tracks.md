@@ -223,6 +223,7 @@ ShowBreadCrumbs: false
     const markerBounds = [];
     let totalMiles = 0;
     const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const allExposures = [];
     const markerYears = {};
 
@@ -274,7 +275,7 @@ ShowBreadCrumbs: false
       let tabsHtml = '';
       let contentHtml = '';
       const popupId = `popup-wrap-${locIndex}`;
-      const hasUpcoming = loc.history.some(h => parseStartDate(h.dates, h.year) >= now);
+      const hasUpcoming = loc.history.some(h => parseStartDate(h.dates, h.year) >= todayStart);
 
       loc.history.forEach((hist, histIdx) => {
         const isActive = histIdx === 0 ? 'active' : '';
@@ -443,9 +444,9 @@ ShowBreadCrumbs: false
     });
 
     // Split upcoming / past
-    const upcomingExposures = allExposures.filter(exp => exp.dateObj >= now);
+    const upcomingExposures = allExposures.filter(exp => exp.dateObj >= todayStart);
     upcomingExposures.sort((a, b) => a.dateObj - b.dateObj);
-    const pastExposures = allExposures.filter(exp => exp.dateObj < now);
+    const pastExposures = allExposures.filter(exp => exp.dateObj < todayStart);
     pastExposures.sort((a, b) => b.dateObj - a.dateObj);
 
     // Next 3 upcoming events strip
@@ -454,7 +455,7 @@ ShowBreadCrumbs: false
       const typeAccents = { convention: '#FF6700', shutterpaws: '#9333EA', event: '#EF4444', roadtrip: '#FFB300', photoshoot: '#FFB300' };
       const stripEl = document.getElementById('next-events-strip');
       stripEl.innerHTML = next3.map((exp, i) => {
-        const daysUntil = Math.ceil((exp.dateObj - now) / (1000 * 60 * 60 * 24));
+        const daysUntil = Math.ceil((exp.dateObj - todayStart) / (1000 * 60 * 60 * 24));
         const accent = typeAccents[exp.type] || '#FF6700';
         return `
           <div class="next-event-card type-${exp.type}${i === 0 ? ' primary' : ''}" id="next-card-${i}"
@@ -462,7 +463,7 @@ ShowBreadCrumbs: false
                onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
             ${i === 0 ? '<div class="next-event-label">NEXT DEPLOYMENT</div>' : ''}
             <div class="next-event-name">${exp.eventName}</div>
-            <div class="next-event-countdown"><span>${daysUntil}</span> days</div>
+            <div class="next-event-countdown">${daysUntil === 0 ? '<span>TODAY</span>' : `<span>${daysUntil}</span> days`}</div>
             <div class="next-event-location">📍 ${exp.locationName}</div>
             <div class="next-event-dates">${exp.dates}</div>
             <div class="next-event-weather" id="next-weather-${i}">
