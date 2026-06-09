@@ -11,14 +11,8 @@ var RUNTIME_CACHE = 'hypercat-runtime-' + CACHE_VERSION;
 var IMAGE_PATTERN = /\.(webp|jpg|jpeg|png|gif|svg)(\?.*)?$/;
 var ASSET_PATTERN = /\.(css|js)(\?.*)?$/;
 
-// CDN libraries required by the poses page - pre-cache on install
-var PRECACHE_URLS = [
-    'https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.1/css/glightbox.min.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.1/js/glightbox.min.js'
-];
+// CDN libraries are loaded on-demand by the poses page; no eager pre-caching needed.
+var PRECACHE_URLS = [];
 
 self.addEventListener('install', function (event) {
     event.waitUntil(

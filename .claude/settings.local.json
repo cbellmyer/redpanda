@@ -1,5 +1,11 @@
 {
   "permissions": {
-    "allow": ["WebSearch", "WebFetch(domain:redpanda.pet)"]
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:redpanda.pet)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\chris\\\\Github\\\\redpanda\\\\content\\\\\" -Force | Select-Object -Property Name, PSIsContainer | Format-Table -AutoSize)",
+      "Bash(xargs ls -lh)",
+      "Bash(xargs wc -l)"
+    ]
   }
 }

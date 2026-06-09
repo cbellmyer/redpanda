@@ -1,3 +1,7 @@
+{{- if eq .RelPermalink "/tracks/" }}
+<link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" as="style" crossorigin="anonymous">
+<link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" as="script" crossorigin="anonymous">
+{{- end }}
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
