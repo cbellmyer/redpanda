@@ -218,7 +218,7 @@ jobs:
         if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
         run: |
           pip install codespell
-          codespell
+          codespell --ignore-words-list="caf,doth,formater,nd,sav,ser,rime"
 
       - name: Build Hugo site
         if: >-

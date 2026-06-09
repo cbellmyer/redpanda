@@ -82,6 +82,7 @@ repos:
       - id: codespell
         name: Check spelling
         exclude: ^(content/resources/|content/public/|content/themes/|\.git/)
+        args: ['--ignore-words-list', 'caf,doth,formater,nd,sav,ser,rime']
 
   # GitHub Actions workflow validation
   - repo: https://github.com/rhysd/actionlint
