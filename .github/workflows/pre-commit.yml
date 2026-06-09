@@ -214,6 +214,12 @@ jobs:
             exit 1
           fi
 
+      - name: Spell check
+        if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
+        run: |
+          pip install codespell
+          codespell
+
       - name: Build Hugo site
         if: >-
           steps.changes.outputs.site == 'true' &&
@@ -230,6 +236,14 @@ jobs:
           fi
           cd ..
           echo "Build successful"
+
+      - name: Validate events.json structure
+        if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
+        run: bash scripts/validate-events-json.sh
+
+      - name: Validate photo.redpanda.pet links
+        if: steps.changes.outputs.site == 'true' && steps.pre-commit.outcome != 'failure'
+        run: bash scripts/validate-redpanda-links.sh
 
       - name: Validate photo links
         if: >-
