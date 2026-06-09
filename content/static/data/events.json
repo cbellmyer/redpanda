@@ -370,7 +370,9 @@
         "withHyper": false,
         "companions": ["Laze"],
         "role": "Photographer",
-        "albums": {}
+        "albums": {
+          "Boston": "https://photo.redpanda.pet/Adventures/2025/Boston"
+        }
       }
     ]
   },
@@ -422,6 +424,18 @@
         "withHyper": true,
         "role": "Board Member",
         "albums": {}
+      },
+      {
+        "year": "2025",
+        "eventName": "Baltimore Pride 🏳️‍🌈🏳️‍⚧️",
+        "dates": "June 14, 2025",
+        "venue": "Charles Village / Station North",
+        "roundTripMiles": 30,
+        "withHyper": true,
+        "role": "Photographer",
+        "albums": {
+          "Baltimore Pride": "https://photo.redpanda.pet/Adventures/2025/Baltimore-Pride"
+        }
       }
     ]
   },
@@ -533,7 +547,9 @@
         "withHyper": true,
         "companions": ["Xero"],
         "role": "Photographer",
-        "albums": {}
+        "albums": {
+          "Pittsburgh Pride": "https://photo.redpanda.pet/Adventures/2026/Pittsburgh-Pride"
+        }
       }
     ]
   },
@@ -571,6 +587,46 @@
         "role": "Attendee",
         "furry": false,
         "albums": {}
+      }
+    ]
+  },
+  {
+    "locationName": "Middletown, CT",
+    "type": "event",
+    "coordinates": [-72.6506, 41.5623],
+    "history": [
+      {
+        "year": "2025",
+        "eventName": "Middletown Pride",
+        "dates": "June 7, 2025",
+        "venue": "Middletown, CT",
+        "roundTripMiles": 700,
+        "withHyper": false,
+        "companions": ["Laze"],
+        "role": "Photographer",
+        "albums": {
+          "Middletown Pride": "https://photo.redpanda.pet/Adventures/2025/Middletown-Pride"
+        }
+      }
+    ]
+  },
+  {
+    "locationName": "Mystic, CT",
+    "type": "roadtrip",
+    "coordinates": [-71.9673, 41.3543],
+    "history": [
+      {
+        "year": "2025",
+        "eventName": "Fall 2025 Road Trip",
+        "dates": "September 23–25, 2025",
+        "venue": "Mystic, CT",
+        "roundTripMiles": 700,
+        "withHyper": false,
+        "companions": ["Laze"],
+        "role": "Photographer",
+        "albums": {
+          "Fall Road Trip": "https://photo.redpanda.pet/Adventures/2025/Fall-Road-Trip"
+        }
       }
     ]
   }
