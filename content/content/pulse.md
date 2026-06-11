@@ -10,6 +10,8 @@ menu:
     weight: 30
 ---
 
+<!-- markdownlint-disable MD011 -- inline JavaScript `(...)[...]` is not a reversed markdown link -->
+
 <style>
   .discord-avatar-wrapper {
     position: relative;
@@ -919,12 +921,20 @@ menu:
 
           let commitMessage = 'No entry details available.';
           if (isPush && recentEvent.payload.commits && recentEvent.payload.commits.length > 0) {
-            commitMessage = recentEvent.payload.commits[0].message;
+            // commits are ordered oldest-first; show the head commit's subject line
+            const commits = recentEvent.payload.commits;
+            const head = commits.find(c => c.sha === recentEvent.payload.head) || commits[commits.length - 1];
+            commitMessage = head.message.split('\n')[0];
           } else if (recentEvent.type === 'CreateEvent') {
             commitMessage = `Created ${recentEvent.payload.ref_type || 'repository'} ${recentEvent.payload.ref || ''}`;
+          } else if (recentEvent.type === 'PullRequestEvent' && recentEvent.payload.pull_request) {
+            commitMessage = `PR #${recentEvent.payload.pull_request.number}: ${recentEvent.payload.pull_request.title}`;
           }
 
           if (commitMessage.length > 60) commitMessage = commitMessage.substring(0, 60) + '...';
+
+          const esc = s => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+          commitMessage = esc(commitMessage);
 
           const timeAgo = new Date(recentEvent.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 

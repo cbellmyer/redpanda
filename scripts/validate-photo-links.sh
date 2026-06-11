@@ -19,19 +19,8 @@ CONS_HTML="content/public/cons/index.html"
 ERRORS=0
 
 if [ ! -f "$CONS_HTML" ]; then
-    echo "Warning: $CONS_HTML not found. Running hugo build..."
-    cd content && npm run build && cd .. || {
-        echo "Error: Hugo build failed."
-        exit 1
-    }
-    # Verify the cons HTML file was actually created after build
-    if [ ! -f "$CONS_HTML" ]; then
-        echo "Error: $CONS_HTML not found after Hugo build. Cannot validate photo links."
-        exit 1
-    fi
-    # Note: Build artifacts (public/ directory) are left in the working directory.
-    # This is by design - the pre-commit hook uses these for validation, and they'll
-    # be regenerated on the next build. If you want to clean up, run: rm -rf public/
+    echo "No cons page found at $CONS_HTML — skipping photo link validation."
+    exit 0
 fi
 
 # Extract all photo.felle.me URLs

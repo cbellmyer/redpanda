@@ -15,7 +15,7 @@ mainsections: ["posts", "papermod"]
 
 minify:
   disableXML: true
-  # minifyOutput: true
+  minifyOutput: true
 
 pagination:
   disableAliases: false
@@ -81,7 +81,7 @@ params:
     imageUrl: "images/profile/rory-torn.png"
     imageTitle: Rory
     imageWidth: 400
-    imageHeight: 509
+    imageHeight: 519  # must match the 1422x1845 source aspect ratio
     buttons:
       - name: Photography
         url: https://photo.redpanda.pet/

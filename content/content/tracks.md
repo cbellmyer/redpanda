@@ -15,8 +15,8 @@ ShowBreadCrumbs: false
   </div>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb" crossorigin="anonymous"/>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
 
 <!-- Next 3 upcoming events -->
 <div id="next-events-box" class="dashboard-box" style="display:none;">
@@ -223,6 +223,7 @@ ShowBreadCrumbs: false
     const markerBounds = [];
     let totalMiles = 0;
     const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const allExposures = [];
     const markerYears = {};
 
@@ -274,7 +275,7 @@ ShowBreadCrumbs: false
       let tabsHtml = '';
       let contentHtml = '';
       const popupId = `popup-wrap-${locIndex}`;
-      const hasUpcoming = loc.history.some(h => parseStartDate(h.dates, h.year) >= now);
+      const hasUpcoming = loc.history.some(h => parseStartDate(h.dates, h.year) >= todayStart);
 
       loc.history.forEach((hist, histIdx) => {
         const isActive = histIdx === 0 ? 'active' : '';
@@ -356,7 +357,7 @@ ShowBreadCrumbs: false
     const conventionCount = allExposures.filter(e => e.type === 'convention').length;
     const staffCount = allExposures.filter(e => e.role === 'Staff').length;
     const uniqueYears = [...new Set(allExposures.map(e => e.year))].sort((a, b) => b - a);
-    const uniqueCities = [...new Set(eventsData.map(loc => loc.locationName.split(',')[0].trim()))].length;
+    const uniqueCities = [...new Set(eventsData.map(loc => (loc.locationName.split(',').at(0) ?? '').trim()))].length;
     const isInternational = eventsData.some(loc => loc.locationName.includes(', ON'));
     const countries = isInternational ? 2 : 1;
 
@@ -443,9 +444,9 @@ ShowBreadCrumbs: false
     });
 
     // Split upcoming / past
-    const upcomingExposures = allExposures.filter(exp => exp.dateObj >= now);
+    const upcomingExposures = allExposures.filter(exp => exp.dateObj >= todayStart);
     upcomingExposures.sort((a, b) => a.dateObj - b.dateObj);
-    const pastExposures = allExposures.filter(exp => exp.dateObj < now);
+    const pastExposures = allExposures.filter(exp => exp.dateObj < todayStart);
     pastExposures.sort((a, b) => b.dateObj - a.dateObj);
 
     // Next 3 upcoming events strip
@@ -454,7 +455,7 @@ ShowBreadCrumbs: false
       const typeAccents = { convention: '#FF6700', shutterpaws: '#9333EA', event: '#EF4444', roadtrip: '#FFB300', photoshoot: '#FFB300' };
       const stripEl = document.getElementById('next-events-strip');
       stripEl.innerHTML = next3.map((exp, i) => {
-        const daysUntil = Math.ceil((exp.dateObj - now) / (1000 * 60 * 60 * 24));
+        const daysUntil = Math.ceil((exp.dateObj - todayStart) / (1000 * 60 * 60 * 24));
         const accent = typeAccents[exp.type] || '#FF6700';
         return `
           <div class="next-event-card type-${exp.type}${i === 0 ? ' primary' : ''}" id="next-card-${i}"
@@ -462,7 +463,7 @@ ShowBreadCrumbs: false
                onclick="window.focusMapEvent(${exp.locIndex}, '${exp.tabId}', ${exp.coords[0]}, ${exp.coords[1]})">
             ${i === 0 ? '<div class="next-event-label">NEXT DEPLOYMENT</div>' : ''}
             <div class="next-event-name">${exp.eventName}</div>
-            <div class="next-event-countdown"><span>${daysUntil}</span> days</div>
+            <div class="next-event-countdown">${daysUntil === 0 ? '<span>TODAY</span>' : `<span>${daysUntil}</span> days`}</div>
             <div class="next-event-location">📍 ${exp.locationName}</div>
             <div class="next-event-dates">${exp.dates}</div>
             <div class="next-event-weather" id="next-weather-${i}">

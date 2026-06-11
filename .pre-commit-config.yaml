@@ -82,6 +82,7 @@ repos:
       - id: codespell
         name: Check spelling
         exclude: ^(content/resources/|content/public/|content/themes/|\.git/)
+        args: ['--ignore-words-list', 'caf,doth,formater,nd,sav,ser,rime']
 
   # GitHub Actions workflow validation
   - repo: https://github.com/rhysd/actionlint
@@ -156,6 +157,20 @@ repos:
         files: ^(content/content/cons/|content/themes/.*/cons\.html|content/public/cons)
         stages: [pre-push]
         require_serial: true
+      - id: validate-events-json
+        name: Validate events.json structure
+        entry: bash scripts/validate-events-json.sh
+        language: system
+        pass_filenames: false
+        files: ^content/static/data/events\.json$
+        stages: [pre-push]
+      - id: validate-redpanda-links
+        name: Validate photo.redpanda.pet links
+        entry: bash scripts/validate-redpanda-links.sh
+        language: system
+        pass_filenames: false
+        files: ^content/static/data/events\.json$
+        stages: [pre-push]
       - id: convert-images
         name: Convert poses to WebP and AVIF
         entry: ./scripts/convert-images.sh
