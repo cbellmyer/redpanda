@@ -50,6 +50,7 @@ body {
 
 .profile img {
   border-radius: 0;
+  height: auto; /* keep aspect ratio when max-width shrinks the image */
   -webkit-user-drag: none;
   user-select: none;
   transition: filter 0.3s ease;
@@ -283,7 +284,7 @@ a:hover {
 
 .tooltip-tab-btn.active {
   background: var(--throat-teal);
-  color: var(--fur-base);
+  color: var(--nose-dark); /* dark text for WCAG AA contrast on the teal background */
   border-color: var(--throat-teal);
   font-weight: 700;
 }
@@ -1228,7 +1229,7 @@ a:hover {
 
 .filmstrip-toggle.active {
   background: var(--throat-teal);
-  color: var(--fur-base);
+  color: var(--nose-dark); /* dark text for WCAG AA contrast on the teal background */
   font-weight: 700;
 }
 
@@ -1592,9 +1593,19 @@ a:hover {
   box-shadow: 0 6px 20px rgb(0 0 0 / 25%), 0 0 20px color-mix(in srgb, var(--throat-teal) 15%, transparent);
 }
 
+/* Dim locked badges via the icon and muted text colors instead of a blanket
+   opacity, which dropped the text below WCAG AA contrast */
 .passport-badge.locked {
-  opacity: 0.3;
   filter: grayscale(1);
+}
+
+.passport-badge.locked .badge-icon {
+  opacity: 0.35;
+}
+
+.passport-badge.locked .badge-name,
+.passport-badge.locked .badge-desc {
+  color: var(--secondary);
 }
 
 .badge-icon {

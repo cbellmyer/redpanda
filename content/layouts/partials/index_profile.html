@@ -25,13 +25,25 @@
         {{- end }}
         {{- $imgOrig := $img.Resize $resizeSpec }}
         {{- $imgWebP := $img.Resize (printf "%s webp" $resizeSpec) }}
+        {{- /* 2x variants for high-DPI displays, when the source is large enough */}}
+        {{- $w2x := mul $imgOrig.Width 2 }}
+        {{- $h2x := mul $imgOrig.Height 2 }}
+        {{- $srcsetWebP := printf "%s 1x" $imgWebP.RelPermalink }}
+        {{- $srcsetOrig := printf "%s 1x" $imgOrig.RelPermalink }}
+        {{- if and (ge $img.Width $w2x) (ge $img.Height $h2x) }}
+        {{- $imgOrig2x := $img.Resize (printf "%dx%d" $w2x $h2x) }}
+        {{- $imgWebP2x := $img.Resize (printf "%dx%d webp" $w2x $h2x) }}
+        {{- $srcsetOrig = printf "%s, %s 2x" $srcsetOrig $imgOrig2x.RelPermalink }}
+        {{- $srcsetWebP = printf "%s, %s 2x" $srcsetWebP $imgWebP2x.RelPermalink }}
+        {{- end }}
         <picture>
-            <source srcset="{{ $imgWebP.RelPermalink }}" type="image/webp">
+            <source srcset="{{ $srcsetWebP }}" type="image/webp">
             <img draggable="false" src="{{ $imgOrig.RelPermalink }}"
+                srcset="{{ $srcsetOrig }}"
                 alt="{{ .imageTitle | default "profile image" }}"
                 title="{{ .imageTitle | default "profile image" }}"
-                height="{{ .imageHeight | default 150 }}"
-                width="{{ .imageWidth | default 150 }}"
+                height="{{ $imgOrig.Height }}"
+                width="{{ $imgOrig.Width }}"
                 fetchpriority="high" />
         </picture>
         {{- else }}

@@ -15,7 +15,7 @@
     --muzzle-grey: #889094;
     --nose-dark: #171717;
     --ear-pink: #da9b98;
-    --throat-teal: #3882a1;
+    --throat-teal: #4a9bbd; /* WCAG AA: >=4.5:1 contrast as text on the dark header/body backgrounds */
     --tongue-blue: #85c3dc;
     --eye-shadow: #0d3859;
     --eye-base: #2d719e;
