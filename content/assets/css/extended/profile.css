@@ -284,7 +284,10 @@ a:hover {
 
 .tooltip-tab-btn.active {
   background: var(--throat-teal);
-  color: var(--nose-dark); /* dark text for WCAG AA contrast on the teal background */
+
+  /* dark text for WCAG AA contrast on teal; !important to beat the generic
+     `button { color: ... !important }` rule above */
+  color: var(--nose-dark) !important;
   border-color: var(--throat-teal);
   font-weight: 700;
 }
@@ -1229,7 +1232,10 @@ a:hover {
 
 .filmstrip-toggle.active {
   background: var(--throat-teal);
-  color: var(--nose-dark); /* dark text for WCAG AA contrast on the teal background */
+
+  /* dark text for WCAG AA contrast on teal; !important to beat the generic
+     `button { color: ... !important }` rule above */
+  color: var(--nose-dark) !important;
   font-weight: 700;
 }
 
