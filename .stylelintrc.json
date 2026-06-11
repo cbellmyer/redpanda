@@ -2,6 +2,7 @@
   "extends": ["stylelint-config-standard"],
   "rules": {
     "block-no-empty": true,
+    "no-descending-specificity": null,
     "color-no-invalid-hex": true,
     "declaration-block-no-duplicate-properties": true,
     "font-family-no-missing-generic-family-keyword": [
