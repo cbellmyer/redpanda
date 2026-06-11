@@ -206,7 +206,10 @@
         "roundTripMiles": 30,
         "withHyper": true,
         "role": "Attendee",
-        "albums": {}
+        "albums": {
+          "General": "https://photo.redpanda.pet/Conventions/2025/Fur-the-More/General",
+          "Photoshoot": "https://photo.redpanda.pet/Conventions/2025/Fur-the-More/Photoshoot"
+        }
       }
     ]
   },
@@ -314,7 +317,10 @@
         "roundTripMiles": 600,
         "withHyper": true,
         "role": "Attendee",
-        "albums": {}
+        "albums": {
+          "Capital Clash": "https://photo.redpanda.pet/Conventions/2025/Eufuria/Capital-Clash",
+          "Dance Competition": "https://photo.redpanda.pet/Conventions/2025/Eufuria/Dance-Competition"
+        }
       }
     ]
   },
