@@ -35,7 +35,7 @@
   font-weight: 800;
   margin: 0 0 0.75rem;
   background: linear-gradient(135deg, var(--primary) 0%, var(--eye-highlight) 100%);
-  -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
@@ -219,6 +219,7 @@
 .gallery-card.type-convention  { border-top-color: #FF6700; }
 .gallery-card.type-shutterpaws { border-top-color: #9333EA; }
 .gallery-card.type-event       { border-top-color: #EF4444; }
+
 .gallery-card.type-roadtrip,
 .gallery-card.type-photoshoot  { border-top-color: #FFB300; }
 
@@ -228,14 +229,17 @@
   border-color: color-mix(in srgb, #FF6700 55%, transparent);
   box-shadow: 0 8px 25px color-mix(in srgb, #FF6700 18%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 7%, transparent);
 }
+
 .gallery-card.type-shutterpaws:hover {
   border-color: color-mix(in srgb, #9333EA 55%, transparent);
   box-shadow: 0 8px 25px color-mix(in srgb, #9333EA 18%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 7%, transparent);
 }
+
 .gallery-card.type-event:hover {
   border-color: color-mix(in srgb, #EF4444 55%, transparent);
   box-shadow: 0 8px 25px color-mix(in srgb, #EF4444 18%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 7%, transparent);
 }
+
 .gallery-card.type-roadtrip:hover,
 .gallery-card.type-photoshoot:hover {
   border-color: color-mix(in srgb, #FFB300 55%, transparent);
@@ -265,16 +269,19 @@
   background: color-mix(in srgb, #FF6700 14%, transparent);
   border: 1px solid color-mix(in srgb, #FF6700 38%, transparent);
 }
+
 .gallery-type-badge.type-shutterpaws {
   color: #b37eea;
   background: color-mix(in srgb, #9333EA 14%, transparent);
   border: 1px solid color-mix(in srgb, #9333EA 38%, transparent);
 }
+
 .gallery-type-badge.type-event {
   color: #EF4444;
   background: color-mix(in srgb, #EF4444 14%, transparent);
   border: 1px solid color-mix(in srgb, #EF4444 38%, transparent);
 }
+
 .gallery-type-badge.type-roadtrip,
 .gallery-type-badge.type-photoshoot {
   color: #FFB300;
@@ -353,7 +360,7 @@
 }
 
 /* Responsive */
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .gallery-hero { padding: 2rem 1.25rem; }
   .gallery-hero-title { font-size: 1.85rem; }
   .gallery-grid { grid-template-columns: 1fr; }
