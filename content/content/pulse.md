@@ -4,10 +4,6 @@ description: "Live ecosystem vitals and field observations from the furry fronti
 type: "page"
 ShowToc: false
 ShowBreadCrumbs: false
-menu:
-  main:
-    name: "Pulse"
-    weight: 30
 ---
 
 <!-- markdownlint-disable MD011 -- inline JavaScript `(...)[...]` is not a reversed markdown link -->
@@ -196,6 +192,12 @@ menu:
   <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--primary);">Field Conditions</h2>
   <div id="discord-widget" style="font-size: 1.1rem; margin-bottom: 1.5rem;">
     <span style="opacity: 0.7;">Establishing field radio link...</span>
+  </div>
+  <div id="lastfm-widget" style="margin: 0 auto 1.5rem; text-align: center; width: 100%; max-width: 700px;">
+    <div style="opacity: 0.7; font-size: 1.1rem;">Tuning audio receiver...</div>
+  </div>
+  <div id="steam-widget" style="margin: 0 auto 1.5rem; text-align: center; width: 100%; max-width: 700px;">
+    <div style="opacity: 0.7; font-size: 1.1rem;">Booting steam terminal...</div>
   </div>
   <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin: 0 auto;">
     <div id="system-status-weather" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
@@ -920,15 +922,39 @@ menu:
           const actionType = isPush ? 'FIELD REPORT' : recentEvent.type.replace('Event', '').toUpperCase();
 
           let commitMessage = 'No entry details available.';
-          if (isPush && recentEvent.payload.commits && recentEvent.payload.commits.length > 0) {
-            // commits are ordered oldest-first; show the head commit's subject line
+          if (isPush) {
             const commits = recentEvent.payload.commits;
-            const head = commits.find(c => c.sha === recentEvent.payload.head) || commits[commits.length - 1];
-            commitMessage = head.message.split('\n')[0];
+            const headSha = recentEvent.payload.head;
+            if (commits && commits.length > 0) {
+              // Old API format: full commits array in payload
+              const head = commits.find(c => c.sha === headSha) || commits[commits.length - 1];
+              commitMessage = head.message.split('\n')[0];
+            } else if (headSha) {
+              // New GitHub API format: only head SHA present — fetch commit details separately
+              try {
+                const cr = await fetch(`https://api.github.com/repos/${repoName}/commits/${headSha}`);
+                if (cr.ok) {
+                  const cd = await cr.json();
+                  commitMessage = (cd.commit?.message || '').split('\n')[0] || 'No entry details available.';
+                }
+              } catch (_) { /* silent fallback */ }
+            }
           } else if (recentEvent.type === 'CreateEvent') {
             commitMessage = `Created ${recentEvent.payload.ref_type || 'repository'} ${recentEvent.payload.ref || ''}`;
-          } else if (recentEvent.type === 'PullRequestEvent' && recentEvent.payload.pull_request) {
-            commitMessage = `PR #${recentEvent.payload.pull_request.number}: ${recentEvent.payload.pull_request.title}`;
+          } else if (recentEvent.type === 'PullRequestEvent') {
+            const pr = recentEvent.payload.pull_request;
+            if (pr?.title) {
+              commitMessage = `PR #${recentEvent.payload.number || pr.number}: ${pr.title}`;
+            } else if (pr?.url) {
+              // New GitHub API format: pull_request omits title — fetch PR details separately
+              try {
+                const prr = await fetch(pr.url);
+                if (prr.ok) {
+                  const prd = await prr.json();
+                  commitMessage = `PR #${prd.number}: ${prd.title}`;
+                }
+              } catch (_) { /* silent fallback */ }
+            }
           }
 
           if (commitMessage.length > 60) commitMessage = commitMessage.substring(0, 60) + '...';
@@ -1012,7 +1038,295 @@ menu:
 
     fetchGitHub();
 
-    // ── 5. Expedition Briefing (Con Season from events.json) ─────────────
+    // ── 5. Steam Terminal ─────────────────────────────────────────────────
+    const steamContainer = document.getElementById('steam-widget');
+    const STEAM_KEY  = '3EB1FCFCC77DA09ECE673F6CF1F3811D';
+    const STEAM_ID   = '76561198002641722';
+    const CORS_PROXY = 'https://corsproxy.io/?url=';
+
+    async function fetchSteam() {
+      try {
+        const [summaryRes, gamesRes] = await Promise.all([
+          fetchWithTimeout(CORS_PROXY + encodeURIComponent(
+            `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${STEAM_KEY}&steamids=${STEAM_ID}`
+          )),
+          fetchWithTimeout(CORS_PROXY + encodeURIComponent(
+            `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${STEAM_ID}&include_appinfo=true&include_played_free_games=true`
+          )),
+        ]);
+
+        if (!summaryRes.ok) throw new Error('Steam API failed');
+        const summaryData = await summaryRes.json();
+        const gamesData   = gamesRes.ok ? await gamesRes.json() : { response: {} };
+
+        const player     = summaryData.response.players[0];
+        const allGames   = gamesData.response?.games || [];
+        const recentGame = allGames.length > 0
+          ? allGames.sort((a, b) => b.playtime_forever - a.playtime_forever)[0]
+          : null;
+        const isInGame   = !!player.gameextrainfo;
+
+        const stateMap = {
+          0: { label: 'OFFLINE',  color: 'var(--muzzle-grey)' },
+          1: { label: 'ONLINE',   color: '#7DC26B' },
+          2: { label: 'BUSY',     color: '#EF4444' },
+          3: { label: 'AWAY',     color: '#FFB300' },
+          4: { label: 'SNOOZE',   color: '#FFB300' },
+          5: { label: 'TRADING',  color: 'var(--eye-highlight)' },
+          6: { label: 'LFG',      color: 'var(--eye-highlight)' },
+        };
+        const state = stateMap[player.personastate] || stateMap[0];
+
+        const esc = s => String(s).replace(/[&<>"']/g, c =>
+          ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+        // Primary section: game banner if in-game, otherwise avatar
+        let primaryHtml, missionLabel;
+        if (isInGame) {
+          const gameArt = `https://cdn.akamaihd.net/steam/apps/${player.gameid}/capsule_184x69.jpg`;
+          primaryHtml = `
+            <img src="${gameArt}" alt="Game art"
+              style="width:92px;height:34px;object-fit:cover;border-radius:3px;border:1px solid color-mix(in srgb,var(--throat-teal) 40%,transparent);"
+              onerror="this.replaceWith(Object.assign(document.createElement('div'),{textContent:'🎮',style:'font-size:2.5rem;line-height:1'}))">
+            <div class="eq-bars" style="margin-top:0.6rem;justify-content:center;">
+              <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+            </div>`;
+          missionLabel = `<span style="color:#EF4444;font-size:0.75rem;letter-spacing:0.12em;animation:scada-warn-blink 1.2s infinite;display:inline-block;">● ACTIVE MISSION</span>`;
+        } else {
+          primaryHtml = `<img src="${esc(player.avatarmedium)}" alt="Steam avatar"
+            style="width:64px;height:64px;border-radius:4px;object-fit:cover;border:1px solid color-mix(in srgb,var(--throat-teal) 40%,transparent);">`;
+          missionLabel = `<span style="color:${state.color};font-size:0.75rem;letter-spacing:0.1em;">${state.label}</span>`;
+        }
+
+        // Grid rows
+        const gameRow = isInGame ? `
+          <div class="scada-metric" style="grid-column:1/-1;">
+            <span class="scada-label">Active Mission</span>
+            <span class="scada-value" style="font-size:1.05rem;color:var(--eye-highlight);">${esc(player.gameextrainfo)}</span>
+          </div>` : '';
+
+        let recentRow = '';
+        if (recentGame) {
+          const hrs = Math.round(recentGame.playtime_forever / 60);
+          recentRow = `
+            <div class="scada-metric" style="grid-column:1/-1;">
+              <span class="scada-label">Most Played</span>
+              <span class="scada-value" style="font-size:0.95rem;text-shadow:none;">${esc(recentGame.name)}</span>
+            </div>
+            <div class="scada-metric">
+              <span class="scada-label">Total Hours</span>
+              <span class="scada-value" style="font-size:0.95rem;text-shadow:none;">${hrs.toLocaleString()}h</span>
+            </div>
+            <div class="scada-metric">
+              <span class="scada-label">Library</span>
+              <span class="scada-value" style="font-size:0.95rem;text-shadow:none;">${allGames.length.toLocaleString()} games</span>
+            </div>`;
+        }
+
+        const lastSeen = player.personastate === 0 && player.lastlogoff
+          ? new Date(player.lastlogoff * 1000).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+          : null;
+        const lastSeenRow = lastSeen ? `
+          <div class="scada-metric">
+            <span class="scada-label">Last Active</span>
+            <span class="scada-value" style="font-size:0.85rem;color:var(--muzzle-grey);text-shadow:none;">${lastSeen}</span>
+          </div>` : '';
+
+        const statusDotStyle = isInGame
+          ? '' : player.personastate === 0
+          ? 'background-color:var(--muzzle-grey);box-shadow:none;animation:none;'
+          : '';
+
+        steamContainer.innerHTML = `
+          <div class="scada-panel fade-in" style="max-width:700px;margin:0 auto;">
+            <div style="width:100%;">
+              <div class="scada-header">
+                <span>[ STEAM TERMINAL ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status">
+                  <div class="scada-status-dot" style="${statusDotStyle}"></div>
+                  ${isInGame ? 'TRANSMITTING' : state.label}
+                </span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="flex-direction:column;align-items:center;padding:1.2rem;min-width:200px;gap:0.6rem;">
+                  ${primaryHtml}
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;">
+                    <div class="scada-label">STATUS</div>
+                    ${missionLabel}
+                  </div>
+                </div>
+                <div class="scada-grid" style="flex:1;">
+                  ${gameRow}
+                  ${recentRow}
+                  ${lastSeenRow}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+
+      } catch (e) {
+        console.error('Steam fetch failed:', e);
+        steamContainer.innerHTML = `
+          <div class="scada-panel fade-in" style="max-width:700px;margin:0 auto;">
+            <div style="width:100%;">
+              <div class="scada-header">
+                <span>[ STEAM TERMINAL ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status" style="color:#f04747;text-shadow:0 0 5px #f04747;">
+                  <div class="scada-status-dot" style="background-color:#f04747;box-shadow:0 0 8px #f04747;animation:none;"></div>
+                  OFFLINE
+                </span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width:200px;">
+                  <div style="font-size:3rem;line-height:1;">🎮</div>
+                </div>
+                <div class="scada-grid" style="flex:1;">
+                  <div class="scada-metric" style="grid-column:1/-1;">
+                    <span class="scada-label">Field State</span>
+                    <span class="scada-value" style="font-size:1rem;color:var(--muzzle-grey);text-shadow:none;">Steam terminal offline.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      }
+    }
+
+    fetchSteam();
+
+    // ── 6. Audio Signal Monitor (Last.fm) ────────────────────────────────
+    const lastfmContainer = document.getElementById('lastfm-widget');
+    const LASTFM_USER = 'furcologist';
+    const LASTFM_KEY  = '88711862b7890ce6c3ad9538697571bd';
+
+    async function fetchLastFm() {
+      try {
+        const res = await fetchWithTimeout(
+          `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${LASTFM_KEY}&format=json&limit=1`
+        );
+        if (!res.ok) throw new Error('Last.fm API failed');
+        const data = await res.json();
+
+        const raw = data.recenttracks?.track;
+        if (!raw) throw new Error('No track data');
+        const track = Array.isArray(raw) ? raw[0] : raw;
+
+        const isPlaying = track['@attr']?.nowplaying === 'true';
+        const trackName = track.name || 'Unknown Track';
+        const artist    = track.artist?.['#text'] || 'Unknown Artist';
+        const album     = track.album?.['#text'] || '';
+        const images    = track.image || [];
+        const artUrl    = (images.find(i => i.size === 'large') || images.find(i => i.size === 'medium') || {})['#text'] || '';
+
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+        let signalHtml;
+        if (isPlaying) {
+          signalHtml = `<span style="color:#EF4444;font-size:0.75rem;letter-spacing:0.12em;animation:scada-warn-blink 1.2s infinite;display:inline-block;">● NOW PLAYING</span>`;
+        } else {
+          const ts = parseInt(track.date?.uts || '0') * 1000;
+          const diff = Date.now() - ts;
+          const mins = Math.floor(diff / 60000);
+          const hours = Math.floor(mins / 60);
+          const days = Math.floor(hours / 24);
+          const ago = ts ? (days > 0 ? `${days}d ago` : hours > 0 ? `${hours}h ago` : `${mins}m ago`) : '—';
+          signalHtml = `<span style="color:var(--muzzle-grey);font-size:0.75rem;letter-spacing:0.08em;">LAST PLAYED ${ago}</span>`;
+        }
+
+        const eqBars = isPlaying ? `
+          <div class="eq-bars" style="margin-top:0.6rem;justify-content:center;">
+            <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+          </div>` : '';
+
+        const artHtml = artUrl
+          ? `<img src="${esc(artUrl)}" alt="Album art" style="width:80px;height:80px;border-radius:4px;object-fit:cover;border:1px solid color-mix(in srgb,var(--throat-teal) 40%,transparent);">`
+          : `<div style="font-size:3rem;line-height:1;">🎵</div>`;
+
+        const albumRow = album ? `
+          <div class="scada-metric">
+            <span class="scada-label">Album</span>
+            <span class="scada-value" style="font-size:0.85rem;color:var(--secondary);text-shadow:none;">${esc(album)}</span>
+          </div>` : '';
+
+        lastfmContainer.innerHTML = `
+          <div class="scada-panel fade-in" style="max-width:700px;margin:0 auto;">
+            <div style="width:100%;">
+              <div class="scada-header">
+                <span>[ AUDIO SIGNAL MONITOR ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status">
+                  <div class="scada-status-dot"></div>
+                  ${isPlaying ? 'TRANSMITTING' : 'ACTIVE'}
+                </span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="flex-direction:row;gap:1.2rem;justify-content:center;padding:1.2rem;min-width:200px;">
+                  <div style="display:flex;flex-direction:column;align-items:center;">
+                    ${artHtml}
+                    ${eqBars}
+                  </div>
+                  <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-start;text-align:left;">
+                    <div class="scada-label" style="margin-bottom:0.3rem;">SIGNAL</div>
+                    ${signalHtml}
+                  </div>
+                </div>
+                <div class="scada-grid" style="flex:1;">
+                  <div class="scada-metric" style="grid-column:1/-1;">
+                    <span class="scada-label">Track</span>
+                    <span class="scada-value" style="font-size:1.05rem;color:var(--eye-highlight);">${esc(trackName)}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Artist</span>
+                    <span class="scada-value" style="font-size:0.95rem;text-shadow:none;">${esc(artist)}</span>
+                  </div>
+                  ${albumRow}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+
+      } catch (e) {
+        console.error('Last.fm fetch failed:', e);
+        lastfmContainer.innerHTML = `
+          <div class="scada-panel fade-in" style="max-width:700px;margin:0 auto;">
+            <div style="width:100%;">
+              <div class="scada-header">
+                <span>[ AUDIO SIGNAL MONITOR ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status" style="color:#f04747;text-shadow:0 0 5px #f04747;">
+                  <div class="scada-status-dot" style="background-color:#f04747;box-shadow:0 0 8px #f04747;animation:none;"></div>
+                  OFFLINE
+                </span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width:200px;">
+                  <div style="font-size:3rem;line-height:1;">🎵</div>
+                </div>
+                <div class="scada-grid" style="flex:1;">
+                  <div class="scada-metric" style="grid-column:1/-1;">
+                    <span class="scada-label">Field State</span>
+                    <span class="scada-value" style="font-size:1rem;color:var(--muzzle-grey);text-shadow:none;">Audio signal lost.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      }
+    }
+
+    fetchLastFm();
+
+    // ── 6. Expedition Briefing (Con Season from events.json) ─────────────
     async function fetchConSeason() {
       const container = document.getElementById('con-season-widget');
       try {

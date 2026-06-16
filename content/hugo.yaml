@@ -36,6 +36,9 @@ menu:
     - name: Pulse
       url: /pulse/
       weight: 30
+    - name: Gallery
+      url: /gallery/
+      weight: 35
     - name: Shutterpaws
       url: https://shutterpaws.pics/
       weight: 40
