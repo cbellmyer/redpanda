@@ -428,8 +428,11 @@
         "venue": "Charles Village / Station North",
         "roundTripMiles": 30,
         "withHyper": true,
+        "companions": ["Yuki"],
         "role": "Board Member",
-        "albums": {}
+        "albums": {
+          "Baltimore Pride": "#"
+        }
       },
       {
         "year": "2025",
