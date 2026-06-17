@@ -2209,7 +2209,34 @@ ShowBreadCrumbs: false
         updateScadaClocks();
       } catch (e) {
         console.error('Audiobookshelf fetch failed:', e);
-        container.remove();
+        // Stay visible (unlike the other new widgets) so it's obvious when the
+        // ABS server / Worker secrets need attention.
+        container.innerHTML = `
+          <div class="scada-panel fade-in">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ LISTENING LOG ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status" style="color:#f04747;text-shadow:0 0 5px #f04747;">
+                  <div class="scada-status-dot" style="background-color:#f04747;box-shadow:0 0 8px #f04747;animation:none;"></div>
+                  OFFLINE
+                </span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width:140px;">
+                  <div style="font-size:2.8rem;line-height:1;">🎧</div>
+                </div>
+                <div class="scada-grid" style="flex:1;">
+                  <div class="scada-metric" style="grid-column:1/-1;">
+                    <span class="scada-label">Field State</span>
+                    <span class="scada-value" style="font-size:1rem;color:var(--muzzle-grey);text-shadow:none;">Listening log unavailable — check ABS server / Worker secrets.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
       }
     }
     fetchAudiobookshelf();
