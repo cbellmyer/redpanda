@@ -279,14 +279,24 @@ ShowBreadCrumbs: false
         </div>
       </div>
     </div>
-    <div id="lunar-widget">
-      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Calculating lunar phase...</div>
+    <div id="solar-widget">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Tracking solar arc...</div>
+    </div>
+    <div id="tidal-widget">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Reading tide gauge...</div>
     </div>
     <div id="seismic-widget">
       <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Polling seismographs...</div>
     </div>
+    <h3 class="pulse-cat"><span>🌌</span> Orbital &amp; Sky</h3>
+    <div id="lunar-widget">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Calculating lunar phase...</div>
+    </div>
     <div id="geomag-widget">
       <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Reading magnetometer...</div>
+    </div>
+    <div id="iss-widget">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Acquiring orbital telemetry...</div>
     </div>
     <h3 class="pulse-cat"><span>🧭</span> Expedition Log</h3>
     <div id="github-widget">
@@ -300,6 +310,9 @@ ShowBreadCrumbs: false
     </div>
     <div id="streak-widget">
       <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Tallying field tenure...</div>
+    </div>
+    <div id="onthisday-widget">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Leafing through field journals...</div>
     </div>
   </div>
 </div>
@@ -1821,5 +1834,306 @@ ShowBreadCrumbs: false
       }
     }
     fetchStreak();
+
+    // ── 11. Solar Tracker (Open-Meteo daylight) ──────────────────────────
+    async function fetchSolar() {
+      const container = document.getElementById('solar-widget');
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset,daylight_duration&past_days=1&forecast_days=1&timezone=America%2FNew_York`;
+        const res = await fetchWithTimeout(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const d = (await res.json()).daily;
+        const ti = d.time.length - 1; // today is the last entry (yesterday is first)
+        const todaySec = d.daylight_duration[ti];
+        const deltaMin = (todaySec - d.daylight_duration[ti - 1]) / 60;
+
+        const sunrise = new Date(d.sunrise[ti]);
+        const sunset = new Date(d.sunset[ti]);
+        const noon = new Date((sunrise.getTime() + sunset.getTime()) / 2);
+        const fmtT = t => t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const dayLen = `${Math.floor(todaySec / 3600)}h ${Math.round((todaySec % 3600) / 60)}m`;
+
+        const gaining = deltaMin >= 0;
+        const deltaColor = gaining ? '#7DC26B' : '#FF8F00';
+        const deltaText = `${gaining ? '▲ +' : '▼ −'}${Math.abs(deltaMin).toFixed(1)} min`;
+
+        const now = Date.now();
+        const isDay = now >= sunrise.getTime() && now <= sunset.getTime();
+        let progress = (now - sunrise.getTime()) / (sunset.getTime() - sunrise.getTime());
+        progress = Math.round(Math.max(0, Math.min(1, progress)) * 100);
+        const statusText = isDay ? `☀️ Daytime · ${progress}% elapsed` : '🌙 Nighttime';
+
+        container.innerHTML = `
+          <div class="scada-panel fade-in">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ SOLAR TRACKER ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status"><div class="scada-status-dot"></div> ${isDay ? 'DAYLIGHT' : 'NIGHT'}</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 140px;">
+                  <div style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 0.4rem;">${isDay ? '☀️' : '🌙'}</div>
+                  <div class="scada-value" style="font-size: 1.7rem; justify-content: center;">${dayLen}</div>
+                  <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: color-mix(in srgb, #00E5FF 70%, #fff); opacity: 0.7; text-align: center; margin-top: 0.3rem;">Daylight Today</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  <div class="scada-metric">
+                    <span class="scada-label">Sunrise</span>
+                    <span class="scada-value" style="font-size: 0.95rem;">${fmtT(sunrise)}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Sunset</span>
+                    <span class="scada-value" style="font-size: 0.95rem;">${fmtT(sunset)}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Solar Noon</span>
+                    <span class="scada-value" style="font-size: 0.95rem; color: #FFD700; text-shadow: 0 0 8px rgb(255 215 0 / 50%);">${fmtT(noon)}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">vs Yesterday</span>
+                    <span class="scada-value" style="font-size: 0.9rem; color: ${deltaColor}; text-shadow: 0 0 8px color-mix(in srgb, ${deltaColor} 60%, transparent);">${deltaText}</span>
+                  </div>
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">Current</span>
+                    <span class="scada-value" style="font-size: 0.95rem;">${statusText}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      } catch (e) {
+        console.error('Solar fetch failed:', e);
+        container.remove();
+      }
+    }
+    fetchSolar();
+
+    // ── 12. Tidal Station (NOAA CO-OPS — Baltimore Harbor) ───────────────
+    async function fetchTides() {
+      const container = document.getElementById('tidal-widget');
+      try {
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const begin = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+        const url = `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?begin_date=${begin}&range=48&station=8574680&product=predictions&datum=MLLW&time_zone=lst_ldt&interval=hilo&units=english&format=json`;
+        const res = await fetchWithTimeout(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const preds = ((await res.json()).predictions || []).map(p => ({
+          time: new Date(p.t.replace(' ', 'T')),
+          v: parseFloat(p.v),
+          type: p.type,
+        }));
+        if (preds.length === 0) throw new Error('No predictions');
+
+        const upcoming = preds.filter(p => p.time > now);
+        const next = upcoming[0];
+        if (!next) throw new Error('No upcoming tide');
+        const nextHigh = upcoming.find(p => p.type === 'H');
+        const nextLow = upcoming.find(p => p.type === 'L');
+        const rising = next.type === 'H';
+
+        const fmtT = t => t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const fmtIn = t => {
+          const mins = Math.round((t - now) / 60000);
+          const h = Math.floor(mins / 60), m = mins % 60;
+          return h > 0 ? `${h}h ${m}m` : `${m}m`;
+        };
+        const trendColor = rising ? '#26C6DA' : '#FFB300';
+
+        container.innerHTML = `
+          <div class="scada-panel fade-in">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ TIDAL STATION ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status"><div class="scada-status-dot"></div> ${rising ? 'FLOODING' : 'EBBING'}</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 140px;">
+                  <div style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 0.4rem;">🌊</div>
+                  <div class="scada-value" style="font-size: 1.6rem; justify-content: center; color: ${trendColor}; text-shadow: 0 0 10px color-mix(in srgb, ${trendColor} 60%, transparent);">${rising ? '▲ RISING' : '▼ FALLING'}</div>
+                  <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: color-mix(in srgb, #00E5FF 70%, #fff); opacity: 0.7; text-align: center; margin-top: 0.3rem;">${next.type === 'H' ? 'High' : 'Low'} in ${fmtIn(next.time)}</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  <div class="scada-metric">
+                    <span class="scada-label">Next High</span>
+                    <span class="scada-value" style="font-size: 0.92rem;">${nextHigh ? `${fmtT(nextHigh.time)} <span style="font-size:0.75em;opacity:0.65;">${nextHigh.v.toFixed(1)} ft</span>` : '—'}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Next Low</span>
+                    <span class="scada-value" style="font-size: 0.92rem;">${nextLow ? `${fmtT(nextLow.time)} <span style="font-size:0.75em;opacity:0.65;">${nextLow.v.toFixed(1)} ft</span>` : '—'}</span>
+                  </div>
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">Station</span>
+                    <span class="scada-value" style="font-size: 0.9rem; color: var(--secondary); text-shadow: none;">Baltimore Harbor (8574680)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      } catch (e) {
+        console.error('Tide fetch failed:', e);
+        container.remove();
+      }
+    }
+    fetchTides();
+
+    // ── 13. ISS Tracker (wheretheiss.at) ─────────────────────────────────
+    async function fetchISS() {
+      const container = document.getElementById('iss-widget');
+      const HOME = { lat: 39.2904, lon: -76.6122 };
+      try {
+        const res = await fetchWithTimeout('https://api.wheretheiss.at/v1/satellites/25544');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const d = await res.json();
+
+        const R = 6371; // km
+        const toRad = x => x * Math.PI / 180;
+        const dLat = toRad(d.latitude - HOME.lat), dLon = toRad(d.longitude - HOME.lon);
+        const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(HOME.lat)) * Math.cos(toRad(d.latitude)) * Math.sin(dLon / 2) ** 2;
+        const distKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distMi = distKm * 0.621371;
+        const overhead = distKm < 2260; // within the ISS ground footprint → above the horizon
+
+        const visMap = {
+          daylight: { label: 'SUNLIT', color: '#FFD700' },
+          eclipsed: { label: 'IN SHADOW', color: 'var(--muzzle-grey)' },
+          night: { label: 'NIGHT SIDE', color: '#B39DDB' },
+        };
+        const vis = visMap[d.visibility] || { label: String(d.visibility || '—').toUpperCase(), color: '#00E5FF' };
+        const hemiNS = d.latitude >= 0 ? 'N' : 'S';
+        const hemiEW = d.longitude >= 0 ? 'E' : 'W';
+
+        container.innerHTML = `
+          <div class="scada-panel fade-in${overhead ? ' critical-alert' : ''}">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ ISS TRACKER ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status"><div class="scada-status-dot"></div> ${overhead ? 'OVERHEAD' : 'TRACKING'}</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 140px;">
+                  <div style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 0.4rem;">🛰️</div>
+                  <div class="scada-value" style="font-size: 1.9rem; justify-content: center;">${Math.round(distMi).toLocaleString()}<span style="font-size: 0.9rem; opacity: 0.8;"> mi</span></div>
+                  <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: color-mix(in srgb, #00E5FF 70%, #fff); opacity: 0.7; text-align: center; margin-top: 0.3rem;">From Base Camp</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  <div class="scada-metric">
+                    <span class="scada-label">Latitude</span>
+                    <span class="scada-value" style="font-size: 0.92rem;">${Math.abs(d.latitude).toFixed(2)}° ${hemiNS}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Longitude</span>
+                    <span class="scada-value" style="font-size: 0.92rem;">${Math.abs(d.longitude).toFixed(2)}° ${hemiEW}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Altitude</span>
+                    <span class="scada-value" style="font-size: 0.92rem;">${Math.round(d.altitude)} <span style="font-size:0.7em;opacity:0.6;">km</span></span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Velocity</span>
+                    <span class="scada-value" style="font-size: 0.92rem;">${Math.round(d.velocity * 0.621371).toLocaleString()} <span style="font-size:0.7em;opacity:0.6;">mph</span></span>
+                  </div>
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">Sunlight & Visibility</span>
+                    <span class="scada-value" style="font-size: 0.95rem; color: ${vis.color}; text-shadow: 0 0 8px color-mix(in srgb, ${vis.color} 55%, transparent);">${vis.label}${overhead ? ' · ABOVE HORIZON' : ''}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      } catch (e) {
+        console.error('ISS fetch failed:', e);
+        container.remove();
+      }
+    }
+    fetchISS();
+
+    // ── 14. On This Day (events.json anniversaries) ──────────────────────
+    async function fetchOnThisDay() {
+      const container = document.getElementById('onthisday-widget');
+      try {
+        const res = await fetch('/data/events.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const events = await res.json();
+        const now = new Date();
+        const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        const anns = [];
+        events.forEach(loc => loc.history.forEach(entry => {
+          const ym = entry.dates.match(/\b(20\d{2})\b/);
+          const md = entry.dates.match(/([A-Za-z]+)\s+(\d+)/);
+          if (!ym || !md) return;
+          const orig = new Date(`${md[1]} ${md[2]}, ${ym[1]}`);
+          if (isNaN(orig) || orig >= today0) return; // only past events have anniversaries
+          let anniv = new Date(now.getFullYear(), orig.getMonth(), orig.getDate());
+          if (anniv < today0) anniv = new Date(now.getFullYear() + 1, orig.getMonth(), orig.getDate());
+          anns.push({
+            eventName: entry.eventName,
+            locationName: loc.locationName,
+            anniv,
+            daysUntil: Math.round((anniv - today0) / 86400000),
+            years: anniv.getFullYear() - orig.getFullYear(),
+          });
+        }));
+        if (anns.length === 0) throw new Error('No past events');
+        anns.sort((a, b) => a.daysUntil - b.daysUntil);
+
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const todayHit = anns.find(a => a.daysUntil === 0);
+        const feature = todayHit || anns[0];
+        const fmtDate = d => d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+        const heroNum = todayHit ? todayHit.years : feature.daysUntil;
+        const heroLabel = todayHit ? 'Years Ago<br>Today' : 'Days to Next<br>Anniversary';
+        const heroIcon = todayHit ? '🎉' : '📖';
+
+        container.innerHTML = `
+          <div class="scada-panel fade-in">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ FIELD JOURNAL ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status"><div class="scada-status-dot" ${todayHit ? '' : 'style="animation: none; opacity: 0.6;"'}></div> ${todayHit ? 'ANNIVERSARY' : 'ARCHIVED'}</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 140px;">
+                  <div style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 0.4rem;">${heroIcon}</div>
+                  <div class="scada-value" style="font-size: 2.2rem; justify-content: center;">${heroNum}</div>
+                  <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: color-mix(in srgb, #00E5FF 70%, #fff); opacity: 0.7; text-align: center; margin-top: 0.3rem;">${heroLabel}</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">${todayHit ? 'On This Day' : 'Next Anniversary'}</span>
+                    <span class="scada-value" style="font-size: 1rem; color: var(--eye-highlight); text-shadow: none;">${esc(feature.eventName)} — ${esc(feature.locationName)}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">${todayHit ? 'Date' : 'Falls On'}</span>
+                    <span class="scada-value" style="font-size: 0.92rem;">${fmtDate(feature.anniv)}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Anniversary</span>
+                    <span class="scada-value" style="font-size: 0.92rem; color: #FF6700; text-shadow: 0 0 8px rgb(255 103 0 / 50%);">${feature.years} yr${feature.years !== 1 ? 's' : ''}${todayHit ? '' : ` · in ${feature.daysUntil}d`}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      } catch (e) {
+        console.error('On This Day fetch failed:', e);
+        container.remove();
+      }
+    }
+    fetchOnThisDay();
   });
 </script>
