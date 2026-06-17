@@ -13,7 +13,7 @@ This is the repository for [redpanda.pet](https://redpanda.pet), a personal port
 ## 🛠️ Tech Stack
 
 - **Static Site Generator**: Hugo v0.156.0+ (Extended)
-- **Theme**: Custom `hypercat-theme` (forked/heavily modified from PaperMod)
+- **Theme**: Custom `redpanda-theme` (forked/heavily modified from PaperMod)
 - **Hosting**: Cloudflare Workers / Cloudflare Pages
 
 ## 💻 Local Development
