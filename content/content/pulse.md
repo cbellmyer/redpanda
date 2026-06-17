@@ -203,6 +203,9 @@ ShowBreadCrumbs: false
     <div id="lastfm-widget">
       <div style="opacity: 0.7; font-size: 1.1rem; padding: 1rem; text-align: center;">Tuning audio receiver...</div>
     </div>
+    <div id="abs-widget">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Spinning up listening log...</div>
+    </div>
     <h3 class="pulse-cat"><span>🌤️</span> Habitat Conditions</h3>
     <div id="system-status-weather" class="pulse-span-full">
       <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem; padding: 1rem; text-align: center;">Sampling habitat conditions...</div>
@@ -2135,5 +2138,80 @@ ShowBreadCrumbs: false
       }
     }
     fetchOnThisDay();
+
+    // ── 15. Listening Log (Audiobookshelf via /api/audiobookshelf) ───────
+    async function fetchAudiobookshelf() {
+      const container = document.getElementById('abs-widget');
+      try {
+        const res = await fetchWithTimeout('/api/audiobookshelf');
+        if (!res.ok) throw new Error('Audiobookshelf API failed');
+        const { stats, me } = await res.json();
+        if (!stats) throw new Error('No listening stats');
+
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const fmtDur = s => {
+          const h = Math.floor(s / 3600), m = Math.round((s % 3600) / 60);
+          return h > 0 ? `${h}h ${m}m` : `${m}m`;
+        };
+
+        const totalHours = Math.round((stats.totalTime || 0) / 3600);
+        const todaySec = stats.today || 0;
+        const recent = (stats.recentSessions || [])[0];
+        const progressArr = me?.mediaProgress || [];
+        const finished = progressArr.filter(p => p.isFinished).length;
+        const inProgress = progressArr.filter(p => !p.isFinished && (p.progress || 0) > 0).length;
+
+        let nowHtml = '';
+        if (recent) {
+          const mp = progressArr.find(p => p.libraryItemId === recent.libraryItemId);
+          const pct = mp ? Math.round((mp.progress || 0) * 100) : null;
+          nowHtml = `
+            <div class="scada-metric" style="grid-column: 1 / -1;">
+              <span class="scada-label">Recently Listened</span>
+              <span class="scada-value" style="font-size: 1rem; color: var(--eye-highlight); text-shadow: none;">${esc(recent.displayTitle || 'Unknown')}${pct !== null ? ` <span style="font-size: 0.72em; color: var(--muzzle-grey);">${pct}%</span>` : ''}</span>
+            </div>
+            ${recent.displayAuthor ? `<div class="scada-metric" style="grid-column: 1 / -1;"><span class="scada-label">Author</span><span class="scada-value" style="font-size: 0.9rem; text-shadow: none;">${esc(recent.displayAuthor)}</span></div>` : ''}`;
+        }
+
+        container.innerHTML = `
+          <div class="scada-panel fade-in">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ LISTENING LOG ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status"><div class="scada-status-dot"></div> ${todaySec > 0 ? 'ACTIVE' : 'LOGGED'}</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 140px;">
+                  <div style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 0.4rem;">🎧</div>
+                  <div class="scada-value" style="font-size: 2rem; justify-content: center;">${totalHours.toLocaleString()}<span style="font-size: 0.9rem; opacity: 0.8;">h</span></div>
+                  <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: color-mix(in srgb, #00E5FF 70%, #fff); opacity: 0.7; text-align: center; margin-top: 0.3rem;">Total Listened</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  ${nowHtml}
+                  <div class="scada-metric">
+                    <span class="scada-label">Today</span>
+                    <span class="scada-value" style="font-size: 0.95rem; color: #1DB954; text-shadow: 0 0 8px rgb(29 185 84 / 50%);">${fmtDur(todaySec)}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">In Progress</span>
+                    <span class="scada-value">${inProgress}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Finished</span>
+                    <span class="scada-value">${finished}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      } catch (e) {
+        console.error('Audiobookshelf fetch failed:', e);
+        container.remove();
+      }
+    }
+    fetchAudiobookshelf();
   });
 </script>

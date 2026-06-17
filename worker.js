@@ -48,6 +48,39 @@ async function handleSteam(env) {
   }
 }
 
+// /api/audiobookshelf proxies a self-hosted Audiobookshelf server. The browser
+// can't call it directly (cross-origin + the API token must stay private), so
+// this route injects the bearer token server-side and forwards the request.
+// Configure both as secrets/vars on the Worker:
+//   wrangler secret put ABS_TOKEN     (an Audiobookshelf API token)
+//   wrangler secret put ABS_URL       (base URL, e.g. https://abs.example.com)
+async function handleAudiobookshelf(env) {
+  const base = (env.ABS_URL || "").replace(/\/+$/, "");
+  const token = env.ABS_TOKEN;
+  if (!base || !token) {
+    return jsonResponse({ error: "ABS_URL / ABS_TOKEN not configured" }, 500, 0);
+  }
+
+  const headers = { Authorization: `Bearer ${token}` };
+  try {
+    const [statsRes, meRes] = await Promise.all([
+      fetch(`${base}/api/me/listening-stats`, { headers, cf: { cacheTtl: 120, cacheEverything: true } }),
+      fetch(`${base}/api/me`, { headers, cf: { cacheTtl: 120, cacheEverything: true } }),
+    ]);
+
+    if (!statsRes.ok) {
+      return jsonResponse({ error: "Audiobookshelf API failed" }, 502, 0);
+    }
+
+    const stats = await statsRes.json();
+    const me = meRes.ok ? await meRes.json() : null;
+
+    return jsonResponse({ stats, me }, 200, 120);
+  } catch (e) {
+    return jsonResponse({ error: "Audiobookshelf fetch failed" }, 502, 0);
+  }
+}
+
 function jsonResponse(body, status, cacheSeconds) {
   return new Response(JSON.stringify(body), {
     status,
@@ -66,6 +99,10 @@ export default {
 
     if (url.pathname === "/api/steam") {
       return handleSteam(env);
+    }
+
+    if (url.pathname === "/api/audiobookshelf") {
+      return handleAudiobookshelf(env);
     }
 
     // Anything else: serve the static site.
