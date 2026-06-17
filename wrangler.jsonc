@@ -1,13 +1,15 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "redpanda",
+  "main": "worker.js",
   "compatibility_date": "2026-02-21",
   "preview_urls": true,
   "placement": {
     "mode": "smart"
   },
   "assets": {
-    "directory": "./content/public"
+    "directory": "./content/public",
+    "binding": "ASSETS"
   },
   "build": {
     "command": "bash ./build.sh"

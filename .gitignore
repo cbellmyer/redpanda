@@ -41,3 +41,8 @@ node_modules/**
 
 # Hugo binary cache
 .hugo-bin-*/
+
+# Local Worker secrets for wrangler dev
+.dev.vars
+wrangler.dev.jsonc
+.wrangler/
