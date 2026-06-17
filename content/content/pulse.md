@@ -1040,24 +1040,15 @@ ShowBreadCrumbs: false
 
     // ── 5. Steam Terminal ─────────────────────────────────────────────────
     const steamContainer = document.getElementById('steam-widget');
-    const STEAM_KEY  = '3EB1FCFCC77DA09ECE673F6CF1F3811D';
-    const STEAM_ID   = '76561198002641722';
-    const CORS_PROXY = 'https://corsproxy.io/?url=';
 
     async function fetchSteam() {
       try {
-        const [summaryRes, gamesRes] = await Promise.all([
-          fetchWithTimeout(CORS_PROXY + encodeURIComponent(
-            `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${STEAM_KEY}&steamids=${STEAM_ID}`
-          )),
-          fetchWithTimeout(CORS_PROXY + encodeURIComponent(
-            `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${STEAM_ID}&include_appinfo=true&include_played_free_games=true`
-          )),
-        ]);
-
-        if (!summaryRes.ok) throw new Error('Steam API failed');
-        const summaryData = await summaryRes.json();
-        const gamesData   = gamesRes.ok ? await gamesRes.json() : { response: {} };
+        // Same-origin proxy (Cloudflare Worker, see /worker.js). Steam's API
+        // has no CORS headers, so the browser can't call it directly; the
+        // Worker also holds the API key server-side.
+        const res = await fetchWithTimeout('/api/steam');
+        if (!res.ok) throw new Error('Steam API failed');
+        const { summary: summaryData, games: gamesData } = await res.json();
 
         const player     = summaryData.response.players[0];
         const allGames   = gamesData.response?.games || [];
