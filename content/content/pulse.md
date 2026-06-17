@@ -188,21 +188,25 @@ ShowBreadCrumbs: false
   }
 </style>
 
-<div class="bio-container" style="text-align: center; margin-bottom: 2rem;">
-  <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--primary);">Field Conditions</h2>
-  <div id="discord-widget" style="font-size: 1.1rem; margin-bottom: 1.5rem;">
+<div class="bio-container">
+  <h2>Field Conditions</h2>
+  <!-- Featured presence panel — full-width base-camp link -->
+  <div id="discord-widget" class="pulse-feature">
     <span style="opacity: 0.7;">Establishing field radio link...</span>
   </div>
-  <div id="lastfm-widget" style="margin: 0 auto 1.5rem; text-align: center; width: 100%; max-width: 700px;">
-    <div style="opacity: 0.7; font-size: 1.1rem;">Tuning audio receiver...</div>
-  </div>
-  <div id="steam-widget" style="margin: 0 auto 1.5rem; text-align: center; width: 100%; max-width: 700px;">
-    <div style="opacity: 0.7; font-size: 1.1rem;">Booting steam terminal...</div>
-  </div>
-  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin: 0 auto;">
-    <div id="system-status-weather" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
-      <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem;">Sampling habitat conditions...</div>
-      <div id="weather-data" style="display: none; width: 100%; max-width: 700px; margin: 0 auto;">
+  <!-- Masonry dashboard — remaining instruments pack into balanced columns -->
+  <div class="pulse-dashboard">
+    <h3 class="pulse-cat"><span>📡</span> Live Presence</h3>
+    <div id="steam-widget">
+      <div style="opacity: 0.7; font-size: 1.1rem; padding: 1rem; text-align: center;">Booting steam terminal...</div>
+    </div>
+    <div id="lastfm-widget">
+      <div style="opacity: 0.7; font-size: 1.1rem; padding: 1rem; text-align: center;">Tuning audio receiver...</div>
+    </div>
+    <h3 class="pulse-cat"><span>🌤️</span> Habitat Conditions</h3>
+    <div id="system-status-weather" class="pulse-span-full">
+      <div id="weather-loading" style="opacity: 0.7; font-size: 1.1rem; padding: 1rem; text-align: center;">Sampling habitat conditions...</div>
+      <div id="weather-data" style="display: none;">
         <div class="scada-panel">
           <div style="width: 100%;">
             <div class="scada-header">
@@ -275,14 +279,27 @@ ShowBreadCrumbs: false
         </div>
       </div>
     </div>
-    <div id="github-widget" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
-      <div style="opacity: 0.7; font-size: 1.1rem;">Pulling expedition records...</div>
+    <div id="lunar-widget">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Calculating lunar phase...</div>
     </div>
-    <div id="con-season-widget" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
+    <div id="seismic-widget">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Polling seismographs...</div>
+    </div>
+    <div id="geomag-widget">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Reading magnetometer...</div>
+    </div>
+    <h3 class="pulse-cat"><span>🧭</span> Expedition Log</h3>
+    <div id="github-widget">
+      <div style="opacity: 0.7; font-size: 1.1rem; padding: 1rem; text-align: center;">Pulling expedition records...</div>
+    </div>
+    <div id="con-season-widget">
       <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Consulting expedition dossier...</div>
     </div>
-    <div id="field-metrics-widget" style="margin: 0; text-align: center; width: 100%; max-width: 700px;">
+    <div id="field-metrics-widget">
       <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Computing field metrics...</div>
+    </div>
+    <div id="streak-widget">
+      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Tallying field tenure...</div>
     </div>
   </div>
 </div>
@@ -1492,5 +1509,317 @@ ShowBreadCrumbs: false
       }
     }
     fetchFieldMetrics();
+
+    // ── 7. Lunar Phase (computed — no API) ───────────────────────────────
+    function renderLunar() {
+      const container = document.getElementById('lunar-widget');
+      try {
+        const SYNODIC = 29.53058867; // mean synodic month, days
+        const refNew = Date.UTC(2000, 0, 6, 18, 14, 0); // reference new moon
+        const now = Date.now();
+        let phase = (((now - refNew) / 86400000) % SYNODIC) / SYNODIC;
+        if (phase < 0) phase += 1;
+        const age = phase * SYNODIC;
+        const illum = Math.round((1 - Math.cos(2 * Math.PI * phase)) / 2 * 100);
+
+        const phases = [
+          { max: 0.0196, name: 'New Moon', icon: '🌑' },
+          { max: 0.2304, name: 'Waxing Crescent', icon: '🌒' },
+          { max: 0.2696, name: 'First Quarter', icon: '🌓' },
+          { max: 0.4804, name: 'Waxing Gibbous', icon: '🌔' },
+          { max: 0.5196, name: 'Full Moon', icon: '🌕' },
+          { max: 0.7304, name: 'Waning Gibbous', icon: '🌖' },
+          { max: 0.7696, name: 'Last Quarter', icon: '🌗' },
+          { max: 0.9804, name: 'Waning Crescent', icon: '🌘' },
+          { max: 1.0001, name: 'New Moon', icon: '🌑' },
+        ];
+        const p = phases.find(x => phase < x.max) || phases[phases.length - 1];
+
+        const daysToFull = ((0.5 - phase + 1) % 1) * SYNODIC;
+        const daysToNew = ((1 - phase) % 1) * SYNODIC;
+        const fmtDate = d => new Date(now + d * 86400000).toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+        container.innerHTML = `
+          <div class="scada-panel fade-in">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ LUNAR PHASE ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status"><div class="scada-status-dot"></div> TRACKING</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 140px;">
+                  <div style="font-size: 3.2rem; line-height: 1.1; margin-bottom: 0.4rem;">${p.icon}</div>
+                  <div class="scada-value" style="font-size: 2rem; justify-content: center;">${illum}<span style="font-size: 1rem; opacity: 0.8;">%</span></div>
+                  <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: color-mix(in srgb, #00E5FF 70%, #fff); opacity: 0.7; text-align: center; margin-top: 0.3rem;">Illuminated</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">Phase</span>
+                    <span class="scada-value" style="font-size: 1.05rem;">${p.name}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Moon Age</span>
+                    <span class="scada-value" style="font-size: 0.95rem;">${age.toFixed(1)} <span style="font-size: 0.65em; opacity: 0.6;">days</span></span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Cycle</span>
+                    <span class="scada-value" style="font-size: 0.95rem;">${Math.round(phase * 100)}%</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Next Full</span>
+                    <span class="scada-value" style="font-size: 0.9rem; color: #E1F5FE; text-shadow: 0 0 8px rgb(225 245 254 / 50%);">${fmtDate(daysToFull)} <span style="font-size: 0.7em; color: var(--muzzle-grey); text-shadow: none;">(${Math.round(daysToFull)}d)</span></span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Next New</span>
+                    <span class="scada-value" style="font-size: 0.9rem;">${fmtDate(daysToNew)} <span style="font-size: 0.7em; color: var(--muzzle-grey); text-shadow: none;">(${Math.round(daysToNew)}d)</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      } catch (e) {
+        console.error('Lunar render failed:', e);
+        container.remove();
+      }
+    }
+    renderLunar();
+
+    // ── 8. Seismic Monitor (USGS — no auth) ──────────────────────────────
+    async function fetchSeismic() {
+      const container = document.getElementById('seismic-widget');
+      const HOME = { lat: 39.2904, lon: -76.6122 }; // Baltimore base camp
+      try {
+        const res = await fetchWithTimeout('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const quakes = data.features || [];
+        if (quakes.length === 0) throw new Error('No recent events');
+
+        const haversine = (lat1, lon1, lat2, lon2) => {
+          const R = 3958.8, toRad = d => d * Math.PI / 180;
+          const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+          const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+          return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        };
+
+        let largest = quakes[0], nearest = quakes[0], nearestDist = Infinity;
+        quakes.forEach(q => {
+          if ((q.properties.mag ?? -99) > (largest.properties.mag ?? -99)) largest = q;
+          const [lon, lat] = q.geometry.coordinates;
+          const d = haversine(HOME.lat, HOME.lon, lat, lon);
+          if (d < nearestDist) { nearestDist = d; nearest = q; }
+        });
+
+        const magColor = m => m >= 6 ? '#f04747' : m >= 5 ? '#FF6700' : m >= 4 ? '#FFB300' : m >= 3 ? '#FFD700' : '#7DC26B';
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        const lg = largest.properties;
+        const nr = nearest.properties;
+        const lgTime = new Date(lg.time).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const isAlert = (lg.mag ?? 0) >= 6;
+
+        container.innerHTML = `
+          <div class="scada-panel fade-in${isAlert ? ' critical-alert' : ''}">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ SEISMIC MONITOR ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status"><div class="scada-status-dot"></div> ${isAlert ? 'ALERT' : 'LOGGED'}</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 140px;">
+                  <div style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 0.4rem;">🌐</div>
+                  <div class="scada-value" style="font-size: 2.2rem; justify-content: center; color: ${magColor(lg.mag)}; text-shadow: 0 0 10px color-mix(in srgb, ${magColor(lg.mag)} 60%, transparent);">M${(lg.mag ?? 0).toFixed(1)}</div>
+                  <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: color-mix(in srgb, #00E5FF 70%, #fff); opacity: 0.7; text-align: center; margin-top: 0.3rem;">Strongest<br>Past 24h</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  <div class="scada-metric">
+                    <span class="scada-label">Events (M2.5+)</span>
+                    <span class="scada-value">${quakes.length}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Strongest When</span>
+                    <span class="scada-value" style="font-size: 0.85rem; color: #B0BEC5; text-shadow: none;">${lgTime}</span>
+                  </div>
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">Strongest Location</span>
+                    <span class="scada-value" style="font-size: 0.9rem; color: var(--eye-highlight); text-shadow: none;">${esc(lg.place || 'Unknown')}</span>
+                  </div>
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">Nearest to Base Camp</span>
+                    <span class="scada-value" style="font-size: 0.88rem;">M${(nr.mag ?? 0).toFixed(1)} · ${Math.round(nearestDist).toLocaleString()} mi <span style="font-size: 0.8em; color: var(--muzzle-grey); text-shadow: none;">— ${esc(nr.place || 'Unknown')}</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      } catch (e) {
+        console.error('Seismic fetch failed:', e);
+        container.remove();
+      }
+    }
+    fetchSeismic();
+
+    // ── 9. Geomagnetic Field / Aurora (NOAA SWPC) ────────────────────────
+    async function fetchGeomag() {
+      const container = document.getElementById('geomag-widget');
+      try {
+        const res = await fetchWithTimeout('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const rows = await res.json(); // array of { time_tag, Kp, a_running, station_count }
+        const latest = rows[rows.length - 1];
+        const kp = parseFloat(latest.Kp);
+        if (isNaN(kp)) throw new Error('No Kp reading');
+
+        let cond, color, aurora;
+        if (kp < 3)      { cond = 'QUIET';     color = '#7DC26B'; aurora = 'Unlikely'; }
+        else if (kp < 5) { cond = 'UNSETTLED'; color = '#FFD700'; aurora = 'High latitudes only'; }
+        else if (kp < 6) { cond = 'G1 STORM';  color = '#FFB300'; aurora = 'Possible — high lat'; }
+        else if (kp < 7) { cond = 'G2 STORM';  color = '#FF6700'; aurora = 'Likely — high lat'; }
+        else if (kp < 8) { cond = 'G3 STORM';  color = '#f04747'; aurora = 'Likely — mid lat'; }
+        else             { cond = 'G4+ STORM'; color = '#B39DDB'; aurora = 'Possible — low lat'; }
+
+        const isAlert = kp >= 7;
+        const fmtWhen = new Date(latest.time_tag + 'Z').toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+        container.innerHTML = `
+          <div class="scada-panel fade-in${isAlert ? ' critical-alert' : ''}">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ GEOMAGNETIC FIELD ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status"><div class="scada-status-dot"></div> ${isAlert ? 'STORM' : 'MONITORING'}</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 140px;">
+                  <div style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 0.4rem;">🧲</div>
+                  <div class="scada-value" style="font-size: 2.2rem; justify-content: center; color: ${color}; text-shadow: 0 0 10px color-mix(in srgb, ${color} 60%, transparent);">Kp ${kp.toFixed(1)}</div>
+                  <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: ${color}; opacity: 0.85; text-align: center; margin-top: 0.3rem;">${cond}</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  <div class="scada-metric">
+                    <span class="scada-label">Kp Index</span>
+                    <span class="scada-value" style="color: ${color}; text-shadow: 0 0 8px color-mix(in srgb, ${color} 60%, transparent);">${kp.toFixed(2)} <span style="font-size: 0.6em; opacity: 0.6;">/ 9</span></span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Condition</span>
+                    <span class="scada-value" style="font-size: 0.9rem; color: ${color}; text-shadow: none;">${cond}</span>
+                  </div>
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">Aurora Visibility</span>
+                    <span class="scada-value" style="font-size: 0.95rem; color: #B39DDB; text-shadow: 0 0 8px rgb(179 157 219 / 50%);">🌌 ${aurora}</span>
+                  </div>
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">Last Reading</span>
+                    <span class="scada-value" style="font-size: 0.82rem; color: var(--muzzle-grey); text-shadow: none;">${fmtWhen}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      } catch (e) {
+        console.error('Geomagnetic fetch failed:', e);
+        container.remove();
+      }
+    }
+    fetchGeomag();
+
+    // ── 10. Expedition Streak (events.json — computed) ───────────────────
+    async function fetchStreak() {
+      const container = document.getElementById('streak-widget');
+      try {
+        const res = await fetch('/data/events.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const events = await res.json();
+        const now = new Date();
+
+        const dates = [];
+        const years = new Set();
+        events.forEach(loc => loc.history.forEach(entry => {
+          const ym = entry.dates.match(/\b(20\d{2})\b/);
+          const md = entry.dates.match(/([A-Za-z]+)\s+(\d+)/);
+          if (ym && parseInt(ym[1]) <= now.getFullYear()) years.add(parseInt(ym[1])); // tenure counts years already reached, not future plans
+          if (ym && md) {
+            const d = new Date(`${md[1]} ${md[2]}, ${ym[1]}`);
+            if (!isNaN(d)) dates.push(d);
+          }
+        }));
+        if (dates.length === 0) throw new Error('No dated events');
+        dates.sort((a, b) => a - b);
+
+        const past = dates.filter(d => d <= now);
+        const future = dates.filter(d => d > now);
+        const lastDate = past[past.length - 1] || null;
+        const nextDate = future[0] || null;
+        const daysSince = lastDate ? Math.floor((now - lastDate) / 86400000) : null;
+        const daysUntil = nextDate ? Math.ceil((nextDate - now) / 86400000) : null;
+
+        const yrs = [...years].sort((a, b) => a - b);
+        let longest = 1, run = 1;
+        for (let i = 1; i < yrs.length; i++) {
+          if (yrs[i] === yrs[i - 1] + 1) { run++; longest = Math.max(longest, run); }
+          else run = 1;
+        }
+        let curStreak = yrs.length ? 1 : 0;
+        for (let i = yrs.length - 1; i > 0; i--) {
+          if (yrs[i] === yrs[i - 1] + 1) curStreak++; else break;
+        }
+        const yearsActive = yrs.length;
+        const firstYear = yrs[0];
+
+        container.innerHTML = `
+          <div class="scada-panel fade-in">
+            <div style="width: 100%;">
+              <div class="scada-header">
+                <span>[ EXPEDITION STREAK ]</span>
+                <span class="scada-time">--:--:--</span>
+                <span class="scada-status"><div class="scada-status-dot"></div> ON TRAIL</span>
+              </div>
+              <div class="scada-body">
+                <div class="scada-primary" style="min-width: 140px;">
+                  <div style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 0.4rem;">🐾</div>
+                  <div class="scada-value" style="font-size: 2.2rem; justify-content: center;">${yearsActive}</div>
+                  <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: color-mix(in srgb, #00E5FF 70%, #fff); opacity: 0.7; text-align: center; margin-top: 0.3rem;">Years<br>on the Trail</div>
+                </div>
+                <div class="scada-grid" style="flex: 1;">
+                  <div class="scada-metric">
+                    <span class="scada-label">Days Since Last</span>
+                    <span class="scada-value">${daysSince !== null ? daysSince : '—'}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Days Until Next</span>
+                    <span class="scada-value" style="color: #FF6700; text-shadow: 0 0 8px rgb(255 103 0 / 60%);">${daysUntil !== null ? daysUntil : '—'}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Longest Streak</span>
+                    <span class="scada-value" style="font-size: 0.95rem;">${longest} yr${longest !== 1 ? 's' : ''}</span>
+                  </div>
+                  <div class="scada-metric">
+                    <span class="scada-label">Current Streak</span>
+                    <span class="scada-value" style="font-size: 0.95rem;">${curStreak} yr${curStreak !== 1 ? 's' : ''}</span>
+                  </div>
+                  <div class="scada-metric" style="grid-column: 1 / -1;">
+                    <span class="scada-label">On the Trail Since</span>
+                    <span class="scada-value" style="font-size: 1rem; color: var(--eye-highlight); text-shadow: none;">${firstYear}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        updateScadaClocks();
+      } catch (e) {
+        console.error('Streak fetch failed:', e);
+        container.remove();
+      }
+    }
+    fetchStreak();
   });
 </script>

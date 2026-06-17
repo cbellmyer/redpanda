@@ -1103,6 +1103,109 @@ a:hover {
   margin-top: auto;
 }
 
+/* ===== Pulse Dashboard Layout ===== */
+
+/* The dashboard is data-dense; give this page more room than the default 720px
+   column so panels can sit two-up and stay readable. Scoped to the pulse page
+   via :has so no other page is affected. */
+.main:has(.pulse-dashboard) {
+  max-width: 1040px;
+}
+
+/* Featured presence panel — sits full-width above the instrument grid */
+.pulse-feature {
+  margin: 0 0 1.5rem;
+}
+
+.pulse-feature .scada-panel {
+  max-width: none !important;
+  margin: 0 !important;
+  width: 100%;
+}
+
+/* Two-up instrument grid grouped into labelled categories */
+.pulse-dashboard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.pulse-dashboard > div {
+  width: 100%;
+}
+
+/* Category dividers span the full grid width */
+.pulse-cat {
+  grid-column: 1 / -1;
+  margin: 0.75rem 0 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--throat-teal) 35%, transparent);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--throat-teal);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pulse-cat span {
+  font-size: 1.1rem;
+}
+
+/* Data-dense panels (e.g. weather) take the full grid width */
+.pulse-span-full {
+  grid-column: 1 / -1;
+}
+
+/* Let panels fill their cell regardless of the inline max-width / centering the
+   widget scripts still inject */
+.pulse-dashboard .scada-panel,
+.pulse-dashboard #weather-data {
+  max-width: none !important;
+  margin: 0 !important;
+  width: 100%;
+}
+
+/* The SCADA panels were built for a ~660px row layout (icon beside a metric
+   grid). In the narrower dashboard cells that body collapses into unreadable
+   one-word-per-line columns, so render every panel in its stacked/vertical
+   form — header, hero value, then a metric grid that reflows to as many
+   columns as actually fit. */
+.pulse-dashboard .scada-body {
+  flex-direction: column;
+}
+
+.pulse-dashboard .scada-primary {
+  width: 100%;
+  min-width: 0;
+}
+
+.pulse-dashboard .scada-grid {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  border-left: none;
+  border-top: 1px solid color-mix(in srgb, #00E5FF 30%, transparent);
+}
+
+/* Declutter the header in the narrower cells */
+.pulse-dashboard .scada-header {
+  flex-wrap: wrap;
+  gap: 0.25rem 0.6rem;
+  font-size: 0.72rem;
+}
+
+.pulse-dashboard .scada-time {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .pulse-dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ===== Tracks Page: Enhanced Styles ===== */
 
 /* Glassmorphism intro block */
