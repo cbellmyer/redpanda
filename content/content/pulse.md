@@ -197,14 +197,16 @@ ShowBreadCrumbs: false
   <!-- Masonry dashboard — remaining instruments pack into balanced columns -->
   <div class="pulse-dashboard">
     <h3 class="pulse-cat"><span>📡</span> Live Presence</h3>
-    <div id="steam-widget">
-      <div style="opacity: 0.7; font-size: 1.1rem; padding: 1rem; text-align: center;">Booting steam terminal...</div>
+    <div class="pulse-stack">
+      <div id="steam-widget">
+        <div style="opacity: 0.7; font-size: 1.1rem; padding: 1rem; text-align: center;">Booting steam terminal...</div>
+      </div>
+      <div id="abs-widget">
+        <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Spinning up listening log...</div>
+      </div>
     </div>
     <div id="lastfm-widget">
       <div style="opacity: 0.7; font-size: 1.1rem; padding: 1rem; text-align: center;">Tuning audio receiver...</div>
-    </div>
-    <div id="abs-widget">
-      <div class="loading-feed" style="font-size: 0.9rem; padding: 1rem;">Spinning up listening log...</div>
     </div>
     <h3 class="pulse-cat"><span>🌤️</span> Habitat Conditions</h3>
     <div id="system-status-weather" class="pulse-span-full">

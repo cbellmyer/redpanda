@@ -1160,6 +1160,14 @@ a:hover {
   grid-column: 1 / -1;
 }
 
+/* Stack two panels vertically inside a single grid cell (e.g. Steam over the
+   Listening Log, sitting beside Last.fm) */
+.pulse-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 /* Let panels fill their cell regardless of the inline max-width / centering the
    widget scripts still inject */
 .pulse-dashboard .scada-panel,
