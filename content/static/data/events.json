@@ -196,7 +196,12 @@
         "roundTripMiles": 30,
         "withHyper": true,
         "role": "Volunteer",
-        "albums": {}
+        "albums": {
+          "Parade": "https://photo.redpanda.pet/Conventions/2026/Fur-the-More/Parade",
+          "Dance Comp": "https://photo.redpanda.pet/Conventions/2026/Fur-the-More/Dance-Competition",
+          "Photoroom": "https://photo.redpanda.pet/Conventions/2026/Fur-the-More/Photoroom",
+          "Dance Battle": "https://photo.redpanda.pet/Conventions/2026/Fur-the-More/Dance-Battle"
+        }
       },
       {
         "year": "2025",
