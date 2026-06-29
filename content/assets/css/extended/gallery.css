@@ -207,12 +207,19 @@
   gap: 0.85rem;
   transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   box-shadow: 0 4px 15px rgb(0 0 0 / 20%), inset 0 1px 0 color-mix(in srgb, #fff 7%, transparent);
-  animation: galleryCardIn 0.35s ease-out both;
+  animation: gallery-card-in 0.35s ease-out both;
 }
 
-@keyframes galleryCardIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes gallery-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .gallery-card.type-convention  { border-top-color: #FF6700; }

@@ -48,7 +48,7 @@ title: "Home"
             let image = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
             if (!image) {
               const content = item.content || item.description || "";
-              const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+              const imgMatch = content.match(/<img[^>]+src=(?:["'])([^"']+)(?:["'])/i);
               if (imgMatch) image = imgMatch[1];
             }
             return { title: item.title || "Field Update", link: item.link || "#", image: image };
