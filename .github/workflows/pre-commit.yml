@@ -71,7 +71,7 @@ jobs:
 
       - name: Set up Node.js (cached)
         if: steps.npm-lockfiles.outputs.has_root_lockfile == 'true'
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: "npm"
@@ -80,7 +80,7 @@ jobs:
 
       - name: Set up Node.js
         if: steps.npm-lockfiles.outputs.has_root_lockfile != 'true'
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "24"
 
