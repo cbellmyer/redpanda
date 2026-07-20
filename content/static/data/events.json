@@ -368,6 +368,23 @@
     ]
   },
   {
+    "locationName": "Allison Park, PA (North Park)",
+    "type": "convention",
+    "coordinates": [-80.0086, 40.5984],
+    "history": [
+      {
+        "year": "2026",
+        "eventName": "Western PA Furry Weekend",
+        "dates": "October 2–4, 2026",
+        "venue": "North Park Lodge",
+        "roundTripMiles": 460,
+        "withHyper": true,
+        "role": "Volunteer",
+        "albums": {}
+      }
+    ]
+  },
+  {
     "locationName": "Boston, MA",
     "type": "roadtrip",
     "coordinates": [-71.0589, 42.3601],
